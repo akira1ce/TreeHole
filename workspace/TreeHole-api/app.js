@@ -4,14 +4,25 @@ const morgan = require("morgan");
 const cors = require("cors");
 const router = require("./router");
 const errorHandler = require("./middleware/error-handler");
+const expressJWT = require("express-jwt");
+const { config } = require("./util");
 require("./model");
 
 const app = express();
 
+app.use(
+  expressJWT({
+    secret: config.secretKey,
+    algorithms: ["HS256"],
+  }).unless({
+    path: ["/user/login", "/user/register"],
+  })
+);
+
 app.use(morgan("dev"));
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: false }));
 app.use(errorHandler());
 app.use("/", router);
 

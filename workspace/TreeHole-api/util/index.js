@@ -1,6 +1,11 @@
-function sendBody(code, data, message) {
+function result(code, data, message) {
   return { code, data, message };
 }
+
+const config = {
+  secretKey: "amoslier",
+};
 module.exports = {
-  sendBody,
+  result,
+  config,
 };
