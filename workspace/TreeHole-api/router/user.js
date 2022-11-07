@@ -9,6 +9,8 @@ const router = express.Router();
 router.post("/register", multipartyMid, userCtrl.register);
 // 登陆
 router.post("/login", multipartyMid, userCtrl.login);
+// 删除
+router.post("/removeById", multipartyMid, userCtrl.removeById);
 
 // router.post("/removeById", userCtrl.removeById);
 // router.post("/modifyById", userCtrl.modifyById);

@@ -22,7 +22,7 @@ const register = async (req, res) => {
     const data = await user.save();
     res.send(result(200, data, "ok"));
   } catch (error) {
-    res.send(result(204, "", error.toString()));
+    res.send(result(401, "", error.toString()));
   }
 };
 
@@ -40,12 +40,24 @@ const login = async (req, res) => {
     };
     res.send(result(200, data, "ok"));
   } catch (error) {
-    res.send(result(204, "", error.toString()));
+    res.send(result(401, "", error.toString()));
   }
 };
 
+const removeById = async (req, res) => {
+  try {
+    console.log(req.body._id);
+    const { _id } = req.body;
+    let data = await User.findByIdAndRemove(_id);
+    if(!data) throw new Error("account does not exist");
+    res.send({ code: 200, data, message: "ok" });
+  } catch (error) {
+    res.send(result(401, "", error.toString()));
+  }
+};
 module.exports = {
   getUserList,
   register,
   login,
+  removeById,
 };
