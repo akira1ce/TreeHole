@@ -9,17 +9,25 @@ const treeSchema = new mongoose.Schema({
     type: Types.String,
     required: true,
   },
+  state: {
+    type: Types.String,
+    required: true,
+    default: "",
+  },
   height: {
     type: Types.String,
     required: false,
+    default: "",
   },
   diameter: {
     type: Types.String,
     required: false,
+    default: "",
   },
   branchPoint: {
     type: Types.String,
     required: false,
+    default: "",
   },
   location: {
     type: Types.String,
@@ -36,15 +44,10 @@ const treeSchema = new mongoose.Schema({
     required: false,
     default: "",
   },
-  state: {
-    type: Types.String,
-    required: false,
-    default: "",
-  },
   imgs: {
     type: Types.Array,
     required: false,
-    default: "",
+    default: [],
   },
 });
 module.exports = treeSchema;
