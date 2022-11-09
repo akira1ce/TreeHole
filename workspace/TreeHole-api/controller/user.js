@@ -12,13 +12,24 @@ const getUserList = async (req, res, next) => {
   }
 };
 
+// getUserById
+const getUserById = async (req, res, next) => {
+  try {
+    const { _id } = req.body;
+    const data = await User.findOne({ _id });
+    res.send(result(200, data, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
 // register
 const register = async (req, res, next) => {
   try {
     const { account } = req.body;
     let user = await User.findOne({ account });
     if (user) {
-      next(err("account already exists", 403, ""));
+      next(err("The account already exists", 403, ""));
       return;
     }
     user = new User(req.body);
@@ -36,7 +47,7 @@ const login = async (req, res, next) => {
     const user = await User.findOne({ account });
 
     if (!user) {
-      next(err("account does not exist", 403, ""));
+      next(err("The account does not exist", 403, ""));
       return;
     }
     if (password !== user.password) {
@@ -57,37 +68,38 @@ const login = async (req, res, next) => {
   }
 };
 
-// remove
+// removeById
 const removeById = async (req, res, next) => {
   try {
     const { _id } = req.body;
     let data = await User.findByIdAndRemove(_id);
     if (!data) {
-      next(err("account does not exist", 403, ""));
+      next(err("The account does not exist", 403, ""));
       return;
     }
-    res.send({ code: 200, data, message: "ok" });
+    res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
   }
 };
 
-// modify
+// modifyById
 const modifyById = async (req, res, next) => {
   try {
     const { _id } = req.body;
     const data = await User.findByIdAndUpdate(_id, req.body);
     if (!data) {
-      next(err("account does not exist", 403, ""));
+      next(err("The account does not exist", 403, ""));
       return;
     }
-    res.send({ code: 200, data, message: "ok" });
+    res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
   }
 };
 module.exports = {
   getUserList,
+  getUserById,
   register,
   login,
   removeById,

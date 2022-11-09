@@ -15,5 +15,7 @@ router.post("/removeById", multipartyMid, userCtrl.removeById);
 router.post("/modifyById", multipartyMid, userCtrl.modifyById);
 // 获取用户列表
 router.get("/getUserList", multipartyMid, userCtrl.getUserList);
+// 获取用户
+router.post("/getUserById", multipartyMid, userCtrl.getUserById);
 
 module.exports = router;
