@@ -47,4 +47,4 @@ const treeSchema = new mongoose.Schema({
     default: "",
   },
 });
-module.exports = userSchema;
+module.exports = treeSchema;
