@@ -11,9 +11,8 @@ router.post("/register", multipartyMid, userCtrl.register);
 router.post("/login", multipartyMid, userCtrl.login);
 // 删除
 router.post("/removeById", multipartyMid, userCtrl.removeById);
-
-// router.post("/removeById", userCtrl.removeById);
-// router.post("/modifyById", userCtrl.modifyById);
+// 修改
+router.post("/modifyById", multipartyMid, userCtrl.modifyById);
 // 获取用户列表
 router.get("/getUserList", multipartyMid, userCtrl.getUserList);
 
