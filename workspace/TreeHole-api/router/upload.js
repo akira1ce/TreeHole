@@ -1,6 +1,5 @@
 const express = require("express");
-const multipart = require("connect-multiparty");
-const uploadCtrl = require("../controller/uploadCtrl");
+const uploadCtrl = require("../controller/upload");
 
 const router = express.Router();
 
