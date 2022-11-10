@@ -1,10 +1,8 @@
 const mongoose = require("mongoose");
-const ip = "localhost";
-const port = 27017;
-const dbName = "TreeHoles";
-
+const {config} = require("../util");
+const URL = config.url + config.dbName;
 // connect
-mongoose.connect(`mongodb://${ip}:${port}/${dbName}`, {
+mongoose.connect(URL, {
   useNewUrlParser: true,
 });
 

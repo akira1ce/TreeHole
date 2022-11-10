@@ -12,6 +12,10 @@ function err(e, status, data) {
 }
 const config = {
   secretKey: "amoslier",
+  url: "mongodb://localhost:27017/",
+  database: "files_db",
+  dbName:'TreeHoles',
+  filesBucket: "fs",
 };
 module.exports = {
   result,
