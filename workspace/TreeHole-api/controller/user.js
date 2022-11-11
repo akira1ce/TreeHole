@@ -1,4 +1,4 @@
-const { User } = require("../model");
+const { User, Record } = require("../model");
 const { result, err, config } = require("../util");
 const jwt = require("jsonwebtoken");
 
@@ -34,6 +34,11 @@ const register = async (req, res, next) => {
     }
     user = new User(req.body);
     const data = await user.save();
+
+    // 伴生添加 record
+    const record = new Record({ userID: data._id });
+    await record.save();
+
     res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
@@ -77,6 +82,9 @@ const removeById = async (req, res, next) => {
       next(err("The account does not exist", 403, ""));
       return;
     }
+    // 伴生删除 record
+    await Record.findOneAndRemove({ userID: _id });
+    
     res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
