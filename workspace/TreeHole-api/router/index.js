@@ -4,4 +4,6 @@ const router = express.Router();
 router.use("/user", require("./user"));
 router.use("/tree", require("./tree"));
 router.use("/uploadCenter", require("./upload"));
+router.use("/record", require("./record"));
+
 module.exports = router;

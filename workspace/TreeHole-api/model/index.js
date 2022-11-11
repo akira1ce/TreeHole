@@ -24,4 +24,6 @@ mongoose.connection.on("disconnected", () => {
 module.exports = {
   User: mongoose.model("User", require("./User"), "User"),
   Tree: mongoose.model("Tree", require("./Tree"), "Tree"),
+  Record: mongoose.model("Record", require("./Record"), "Record"),
+
 };
