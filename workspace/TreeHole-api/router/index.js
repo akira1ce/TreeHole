@@ -5,5 +5,6 @@ router.use("/user", require("./user"));
 router.use("/tree", require("./tree"));
 router.use("/uploadCenter", require("./upload"));
 router.use("/record", require("./record"));
+router.use("/order", require("./order"));
 
 module.exports = router;
