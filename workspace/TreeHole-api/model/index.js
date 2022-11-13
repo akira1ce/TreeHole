@@ -26,4 +26,5 @@ module.exports = {
   Tree: mongoose.model("Tree", require("./Tree"), "Tree"),
   Record: mongoose.model("Record", require("./Record"), "Record"),
   Order: mongoose.model("Order", require("./Order"), "Order"),
+  Socket: mongoose.model("Socket", require("./Socket"), "Socket"),
 };
