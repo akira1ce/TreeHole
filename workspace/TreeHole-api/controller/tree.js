@@ -1,5 +1,5 @@
 const { Tree } = require("../model");
-const { result, err, config } = require("../util");
+const { result, err } = require("../util");
 
 // addTree
 const addTree = async (req, res, next) => {
