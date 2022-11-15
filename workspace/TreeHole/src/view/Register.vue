@@ -56,7 +56,7 @@ const Submit = async (formEl, mode) => {
           });
         }
       } catch (e) {
-        console.log(e);
+        console.log(`output->e`,e)
       }
     } else {
       console.log("error submit!", fields);

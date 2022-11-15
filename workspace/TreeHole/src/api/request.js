@@ -29,7 +29,7 @@ function request(url, params, method) {
         }
       })
       .catch((e) => {
-        console.log("ERROR- ", e);
+        console.log(`output->e`,e)
       });
   });
 }
