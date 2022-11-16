@@ -15,7 +15,14 @@ app.use(
     secret: config.secretKey,
     algorithms: ["HS256"],
   }).unless({
-    path: ["/user/login", "/user/register"],
+    path: [
+      "/user/login",
+      "/user/register",
+      {
+        url: /^\/uploadCenter\/files\/.*/,
+        methods: ["GET"],
+      },
+    ],
   })
 );
 
