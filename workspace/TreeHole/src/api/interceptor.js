@@ -4,7 +4,7 @@ import { ElMessage  } from "element-plus";
 const service = axios.create({
   baseURL: "/api",
   timeout: 10000,
-  withCredentials: true,
+  withCredentials: false,
 });
 
 // 请求拦截
