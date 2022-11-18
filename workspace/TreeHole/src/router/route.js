@@ -1,6 +1,8 @@
 const Login = () => import("../view/Login.vue");
 const Register = () => import("../view/Register.vue");
-const Home = () => import("../view/Home.vue");
+const Home = () => import("../view/Home/Home.vue");
+const Recommend = () => import("../view/Home/Recommend.vue");
+const Area = () => import("../view/Home/Area.vue");
 const Dynamic = () => import("../view/Dynamic.vue");
 const Personal = () => import("../view/Personal.vue");
 const Space = () => import("../view/Space.vue");
@@ -21,6 +23,19 @@ const routes = [
     path: "/home",
     name: "Home",
     component: Home,
+    redirect:'/home/recommend',
+    children: [
+      {
+        path: "recommend",
+        name: "Recommend",
+        component: Recommend,
+      },
+      {
+        path: "area",
+        name: "Area",
+        component: Area,
+      },
+    ],
   },
   {
     path: "/dynamic",
