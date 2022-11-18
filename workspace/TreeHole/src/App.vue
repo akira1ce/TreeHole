@@ -11,8 +11,8 @@ const whitelist = ["Login", "Register"];
 </script>
 
 <template>
-  <Sidebar v-show="whitelist.indexOf(route.name) == -1" />
-  <Topbar v-show="whitelist.indexOf(route.name) == -1" />
+  <Sidebar v-if="whitelist.indexOf(route.name) == -1" />
+  <Topbar v-if="whitelist.indexOf(route.name) == -1" />
   <router-view></router-view>
 </template>
 

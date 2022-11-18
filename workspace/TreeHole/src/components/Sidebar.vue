@@ -1,22 +1,33 @@
 <script setup>
-import { reactive } from "vue-demi";
+import { inject, onMounted, reactive, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
+import request from "../api/request";
+import api from "../api";
 
 const route = useRoute();
 const router = useRouter();
 
-const user = reactive(history.state.user || {});
-console.log(user);
-const errorHandler = () => true;
+const user = ref({});
+const _id = localStorage.getItem("_id") || "";
+
+// static state
 const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket"];
 
-const Theme = {
-  iconSize_small: "1.6vw",
-  iconSize_normal: "@icon_fontSize",
-  defaultColor: "rgb(97,102,109)",
-  activeColor: "rgb(94,161,97)",
+// avator loading errorHandler
+const errorHandler = () => true;
+
+// update user info
+const updateUser = async () => {
+  try {
+    const res = await request.post(api.user.getUserById, { _id });
+    user.value = res;
+    console.log(`output-user.value`, user.value);
+  } catch (e) {
+    console.log(`output->e`, e);
+  }
 };
 
+// navRouter
 const navigate = (el) => {
   const id = el.target.dataset.id || el.target.parentNode.dataset.id;
   if (id == -1) {
@@ -25,6 +36,10 @@ const navigate = (el) => {
   }
   router.push({ name: whitelist[id] });
 };
+
+onMounted(() => {
+  updateUser();
+});
 </script>
 
 <template>
@@ -37,11 +52,19 @@ const navigate = (el) => {
         <i class="iconfont icon-shouye"></i>
         <span>首页</span>
       </div>
-      <div class="dynamic" :id="route.name == 'Dynamic' && 'active'" data-id="1">
+      <div
+        class="dynamic"
+        :id="route.name == 'Dynamic' && 'active'"
+        data-id="1"
+      >
         <i class="iconfont icon-dongtai"></i>
         <span>动态</span>
       </div>
-      <div class="personal" :id="route.name == 'Personal' && 'active'" data-id="2">
+      <div
+        class="personal"
+        :id="route.name == 'Personal' && 'active'"
+        data-id="2"
+      >
         <i class="iconfont icon-moban"></i>
         <span>我的</span>
       </div>
@@ -70,7 +93,7 @@ const navigate = (el) => {
 }
 
 //color
-@defaultColor: rgb(2,3,2);
+@defaultColor: rgb(2, 3, 2);
 @activeColor: rgb(94, 161, 97);
 
 // sidebar

@@ -49,13 +49,13 @@ const Submit = async (formEl, mode) => {
           };
           const res = await request.post(api.user.login, params);
           localStorage.setItem("token", res.token);
+          localStorage.setItem("_id", res.user._id);
           router.push({
             name: "Home",
-            state: { user: res.user },
           });
         }
       } catch (e) {
-        console.log(`output->e`,e)
+        console.log(`output->e`, e);
       }
     } else {
       console.log("error submit!", fields);
@@ -84,6 +84,7 @@ onMounted(() => {
           label-width="50px"
           ref="formRef"
           class="main-form"
+          @keydown.enter="Submit(formRef, 1)"
           status-icon
         >
           <el-form-item label="Account" prop="account">
@@ -94,7 +95,9 @@ onMounted(() => {
           </el-form-item>
           <el-form-item>
             <el-button @click="Submit(formRef, 0)">Reset</el-button>
-            <el-button type="primary" @click="Submit(formRef, 1)"
+            <el-button
+              type="primary"
+              @click="Submit(formRef, 1)"
               >Sign in</el-button
             >
           </el-form-item>
