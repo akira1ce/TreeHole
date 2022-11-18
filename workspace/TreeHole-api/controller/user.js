@@ -17,6 +17,9 @@ const getUserById = async (req, res, next) => {
   try {
     const { _id } = req.body;
     const data = await User.findOne({ _id });
+    if (data) {
+      data.password = undefined;
+    }
     res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
@@ -84,7 +87,7 @@ const removeById = async (req, res, next) => {
     }
     // 伴生删除 record
     await Record.findOneAndRemove({ userID: _id });
-    
+
     res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
