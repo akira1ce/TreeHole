@@ -1,5 +1,5 @@
 <script setup>
-import { inject, onMounted, reactive, ref } from "vue-demi";
+import { onMounted, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import request from "../api/request";
 import api from "../api";
@@ -21,7 +21,6 @@ const updateUser = async () => {
   try {
     const res = await request.post(api.user.getUserById, { _id });
     user.value = res;
-    console.log(`output-user.value`, user.value);
   } catch (e) {
     console.log(`output->e`, e);
   }
@@ -48,23 +47,15 @@ onMounted(() => {
       <div class="back" data-id="-1">
         <i class="iconfont icon-zuojiantou"></i>
       </div>
-      <div class="home" :id="route.name == 'Home' && 'active'" data-id="0">
+      <div class="home" :id="route.path.startsWith('/home') && 'active'" data-id="0">
         <i class="iconfont icon-shouye"></i>
         <span>首页</span>
       </div>
-      <div
-        class="dynamic"
-        :id="route.name == 'Dynamic' && 'active'"
-        data-id="1"
-      >
+      <div class="dynamic" :id="route.path.startsWith('/dynamic') && 'active'" data-id="1">
         <i class="iconfont icon-dongtai"></i>
         <span>动态</span>
       </div>
-      <div
-        class="personal"
-        :id="route.name == 'Personal' && 'active'"
-        data-id="2"
-      >
+      <div class="personal" :id="route.path.startsWith('/personal') && 'active'" data-id="2">
         <i class="iconfont icon-moban"></i>
         <span>我的</span>
       </div>
@@ -73,7 +64,7 @@ onMounted(() => {
       <div class="avator" data-id="3">
         <el-avatar :src="user.avator" :size="28" @error="errorHandler" />
       </div>
-      <div class="socket" :id="route.name == 'Socket' && 'active'" data-id="4">
+      <div class="socket" :id="route.path.startsWith('Socket') && 'active'" data-id="4">
         <i class="iconfont icon-chat"></i>
       </div>
     </div>
@@ -81,6 +72,21 @@ onMounted(() => {
 </template>
 
 <style lang="less" scoped>
+//color
+@defaultColor: rgb(2, 3, 2);
+@activeColor: rgb(94, 161, 97);
+
+// font
+@defaultFont: PingFang SC, Microsoft YaHei;
+
+// sidebar
+@sidebar_width: 5.417vw;
+@sidebar_height: 100vh;
+@sidebar_backColor: rgb(246, 247, 248);
+
+//iconfont
+@icon_fontSize: 2.2vw;
+
 .flex__column {
   display: flex;
   flex-direction: column;
@@ -92,17 +98,6 @@ onMounted(() => {
   align-items: center;
 }
 
-//color
-@defaultColor: rgb(2, 3, 2);
-@activeColor: rgb(94, 161, 97);
-
-// sidebar
-@sidebar_width: 5.417vw;
-@sidebar_height: 100vh;
-@sidebar_backColor: rgb(246, 247, 248);
-
-//iconfont
-@icon_fontSize: 2.2vw;
 .sidebar {
   .flex__column();
   width: @sidebar_width;
@@ -134,10 +129,11 @@ onMounted(() => {
       gap: 0.6vw;
       font-size: 0.5vw;
       font-weight: lighter;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      user-select: none;
+      font-family: @defaultFont;
       color: @defaultColor;
-      transition: all 0.2s;
+      transition: all 0.5s;
+      user-select: none;
+      cursor: pointer;
       &:hover {
         color: @activeColor;
       }
@@ -149,9 +145,11 @@ onMounted(() => {
     gap: 1.667vw;
     margin: 3vw 0;
     .avator {
+      cursor: pointer;
       user-select: none;
     }
     .socket {
+      cursor: pointer;
       transition: all 0.2s;
       &:hover {
         color: @activeColor;
