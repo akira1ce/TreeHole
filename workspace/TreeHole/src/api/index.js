@@ -10,6 +10,7 @@ export default {
   tree: {
     getTreeList: "/tree/getTreeList",
     getTreeById: "/tree/getTreeById",
+    getTreeListByOwnerID: "/tree/getTreeListByOwnerID",
     addTree: "/tree/addTree",
     removeById: "/tree/removeById",
     modifyById: "/tree/modifyById",
