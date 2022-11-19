@@ -60,7 +60,6 @@ onMounted(async () => {
 .container {
   .flex__row();
   width: 86.833vw;
-  min-height: 48.333vw;
   padding: 2.2vw;
   margin: auto;
   overflow: hidden;
