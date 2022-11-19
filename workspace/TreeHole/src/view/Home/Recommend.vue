@@ -2,25 +2,40 @@
 import api from "../../api";
 import request from "../../api/request";
 import { onMounted, reactive } from "vue-demi";
-import TreeCard from "../../components/TreeCard.vue";
+import Card from "../../components/Card.vue";
 
+const user = JSON.parse(localStorage.getItem("user"));
 const state = reactive({
-  treeList: {},
+  treeList: [],
 });
 
-onMounted(async () => {
+// [methods]
+// getTreeList
+const getTreeList = () => {
   try {
-    const res = await request.get(api.tree.getTreeList);
-    state.treeList = res;
+    setTimeout(async () => {
+      let res = await request.get(api.tree.getTreeList);
+      const { browsingHistory } = await request.post(
+        api.record.getRecordByUserID,
+        { userID: user._id }
+      );
+      // filter seen
+      res = res.filter((item) => browsingHistory.indexOf(item._id) == -1);
+      state.treeList = res;
+    }, 500);
   } catch (e) {
     console.log(`output->e`, e);
   }
+};
+onMounted(() => {
+  getTreeList();
 });
 </script>
 
 <template>
   <div class="container">
-    <TreeCard v-for="tree in state.treeList" :key="tree._id" :tree="tree" />
+    <el-skeleton :rows="10" animated v-show="state.treeList.length == 0" />
+    <Card v-for="tree in state.treeList" :key="tree._id" :tree="tree" />
   </div>
 </template>
 
