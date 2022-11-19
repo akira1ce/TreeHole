@@ -56,7 +56,7 @@ const navigate = (el) => {
     </div>
     <div class="sidebar-bottom">
       <div class="avator">
-        <el-avatar :src="user.avator" :size="28" @error="errorHandler" data-id="3"/>
+        <img :src="user.avator" data-id="3"/>
       </div>
       <div class="socket" :id="route.path.startsWith('Socket') && 'active'" data-id="4">
         <i class="iconfont icon-chat"></i>
@@ -139,6 +139,10 @@ const navigate = (el) => {
     margin: 3vw 0;
     .avator {
       cursor: pointer;
+      img {
+        width: 2.5vw;
+        border-radius: 2.5vw;
+      }
     }
     .socket {
       cursor: pointer;
