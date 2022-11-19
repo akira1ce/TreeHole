@@ -1,30 +1,20 @@
 <script setup>
 import { onMounted, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
-import request from "../api/request";
-import api from "../api";
+
 
 const route = useRoute();
 const router = useRouter();
 
-const user = ref({});
-const _id = localStorage.getItem("_id") || "";
+// [state]
+const user = JSON.parse(localStorage.getItem("user"));
 
 // static state
 const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket"];
 
+// [methods]
 // avator loading errorHandler
 const errorHandler = () => true;
-
-// update user info
-const updateUser = async () => {
-  try {
-    const res = await request.post(api.user.getUserById, { _id });
-    user.value = res;
-  } catch (e) {
-    console.log(`output->e`, e);
-  }
-};
 
 // navRouter
 const navigate = (el) => {
@@ -33,12 +23,16 @@ const navigate = (el) => {
     router.go(-1);
     return;
   }
+  if(id == 0) {
+    const current = localStorage.getItem('current');
+    const subRouting = ['Recommend', 'Area'];
+    router.push({ name: subRouting[current] });
+    return;
+  }
+  console.log(`output->id`,id)
   router.push({ name: whitelist[id] });
 };
 
-onMounted(() => {
-  updateUser();
-});
 </script>
 
 <template>
@@ -61,8 +55,8 @@ onMounted(() => {
       </div>
     </div>
     <div class="sidebar-bottom">
-      <div class="avator" data-id="3">
-        <el-avatar :src="user.avator" :size="28" @error="errorHandler" />
+      <div class="avator">
+        <el-avatar :src="user.avator" :size="28" @error="errorHandler" data-id="3"/>
       </div>
       <div class="socket" :id="route.path.startsWith('Socket') && 'active'" data-id="4">
         <i class="iconfont icon-chat"></i>
@@ -132,7 +126,6 @@ onMounted(() => {
       font-family: @defaultFont;
       color: @defaultColor;
       transition: all 0.5s;
-      user-select: none;
       cursor: pointer;
       &:hover {
         color: @activeColor;
@@ -146,7 +139,6 @@ onMounted(() => {
     margin: 3vw 0;
     .avator {
       cursor: pointer;
-      user-select: none;
     }
     .socket {
       cursor: pointer;

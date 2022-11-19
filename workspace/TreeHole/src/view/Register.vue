@@ -6,6 +6,7 @@ import api from "../api";
 
 const router = useRouter();
 
+// [state]
 const formRef = ref();
 const user = reactive({
   account: "",
@@ -32,6 +33,7 @@ const rules = reactive({
   ],
 });
 
+// [methods]
 const Submit = async (formEl, mode) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
@@ -64,6 +66,7 @@ const Submit = async (formEl, mode) => {
   });
 };
 
+// router to login
 const toLogin = () => {
   router.push("/login");
 };

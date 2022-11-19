@@ -6,12 +6,12 @@ import api from "../api";
 
 const router = useRouter();
 
+// [state]
 const formRef = ref();
-const state = history.state;
 
 const user = reactive({
-  account: "",
-  password: "",
+  account: "17756287961",
+  password: "admin123",
 });
 
 const rules = reactive({
@@ -21,7 +21,7 @@ const rules = reactive({
       message: "Please input Activity account",
       trigger: "blur",
     },
-    { min: 3, max: 10, message: "Length should be 3 to 10", trigger: "blur" },
+    { min: 3, max: 11, message: "Length should be 3 to 11", trigger: "blur" },
   ],
   password: [
     {
@@ -33,6 +33,8 @@ const rules = reactive({
   ],
 });
 
+// [methods]
+// submit
 const Submit = async (formEl, mode) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
@@ -49,7 +51,7 @@ const Submit = async (formEl, mode) => {
           };
           const res = await request.post(api.user.login, params);
           localStorage.setItem("token", res.token);
-          localStorage.setItem("_id", res.user._id);
+          localStorage.setItem("user", JSON.stringify(res.user));
           router.push({
             name: "Home",
           });
@@ -63,13 +65,14 @@ const Submit = async (formEl, mode) => {
   });
 };
 
+// register
 const toRegister = () => {
   router.push("/register");
 };
 
 onMounted(() => {
-  user.account = state.user?.account || "";
-  user.password = state.user?.password || "";
+  user.account = history.state.user?.account || user.account;
+  user.password = history.state.user?.password || user.password;
 });
 </script>
 
