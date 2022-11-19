@@ -67,10 +67,26 @@ const getTreeById = async (req, res, next) => {
   }
 };
 
+// getTreeListByOwnerID
+const getTreeListByOwnerID = async (req, res, next) => {
+  try {
+    const { ownerID } = req.body;
+    const data = await Tree.find({ ownerID });
+    if (!data) {
+      next(err("The owner does not has trees", 403, ""));
+      return;
+    }
+    res.send(result(200, data, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
 module.exports = {
   addTree,
   removeById,
   modifyById,
   getTreeList,
   getTreeById,
+  getTreeListByOwnerID,
 };
