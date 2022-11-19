@@ -65,6 +65,7 @@ const login = async (req, res, next) => {
 
     // token
     const token = jwt.sign({ user }, config.secretKey, { expiresIn: "12h" });
+    user.password = undefined;
     const data = {
       token,
       user,
