@@ -23,7 +23,7 @@ const routes = [
     path: "/home",
     name: "Home",
     component: Home,
-    redirect:'/home/recommend',
+    redirect: "/home/recommend",
     children: [
       {
         path: "recommend",
