@@ -47,6 +47,30 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
-/* #app {
-	position: relative;
-} */
+#app {
+	height: 100vh;
+	overflow: hidden;
+}
+.scroll::-webkit-scrollbar {
+	width: 10px;
+}
+
+.scroll::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0);
+	border-radius: 10px;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+	background: rgb(201,204,207);
+	border-radius: 10px;
+}
+
+.scroll::-webkit-scrollbar-thumb:hover {
+	background: rgb(191,194,198);
+	border-radius: 10px;
+}
+
+.scroll::-webkit-scrollbar-thumb:active {
+	background: rgb(180,183,188);
+	border-radius: 10px;
+}

@@ -35,9 +35,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container">
+  <div class="container scroll">
     <el-skeleton :rows="10" animated v-show="state.treeList.length == 0" />
-    <Card v-for="tree in state.treeList" :key="tree._id" :tree="tree" />
+    <Card v-for="(tree,index) in state.treeList" :key="tree._id" :tree="tree" />
   </div>
 </template>
 
@@ -49,6 +49,10 @@ onMounted(async () => {
 @defaultColor: rgb(155, 161, 166);
 @activeColor: rgb(94, 161, 97);
 
+// calc sidebar topbar
+@sidebar_width: 65px;
+@topbar_height: 75px;
+
 .flex__column {
   display: flex;
   flex-direction: column;
@@ -58,13 +62,11 @@ onMounted(async () => {
   flex-direction: row;
 }
 .container {
-  .flex__row();
-  width: 86.833vw;
-  padding: 2.2vw;
-  margin: auto;
-  overflow: hidden;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  height: calc(100vh - @topbar_height);
+  overflow-y: auto;
+  display: grid;
+  justify-content: center;
+  grid-template-columns: repeat(auto-fill, 37vmin);
   align-content: flex-start;
 }
 </style>

@@ -28,6 +28,18 @@ const getTreeList = async (index) => {
   state.followTrees = treeList;
 };
 
+const switchFollow = async () => {
+  const index = state.current;
+  const isFollow = state.following[index].isFollow;
+  state.following[index].isFollow = !isFollow;
+  const params = {
+    userID: state.user._id,
+    mode: 0,
+    id: state.following[index]._id,
+  };
+  const res = await request.post(api.record.modifyRecord, params);
+};
+
 // [computed]
 const currentUser = computed(() => {
   return state.following[state.current];
@@ -43,7 +55,7 @@ onMounted(async () => {
     userList.forEach((item) => {
       if (record.following.indexOf(item._id) != -1) {
         const { _id, name, avator } = item;
-        state.following.push({ _id, name, avator });
+        state.following.push({ _id, name, avator, isFollow: true });
       }
     });
     // getTreeList
@@ -68,13 +80,13 @@ onMounted(async () => {
         <span>{{ item.name }}</span>
       </div>
     </div>
-    <div class="container__content">
+    <div class="container__content scroll">
       <div class="content__treeList">
         <el-card
           class="treeCard"
           shadow="hover"
           :key="item._id"
-          v-for="item in state.followTrees"
+          v-for="(item, index) in state.followTrees"
         >
           <div class="treeCard__header">
             <div class="header__left">
@@ -87,7 +99,26 @@ onMounted(async () => {
               </div>
             </div>
             <div class="header__right">
-              <div class="unFollow">取消关注</div>
+              <div class="unFollow" @click="switchFollow">
+                {{ currentUser.isFollow ? "取消关注" : "关注" }}
+              </div>
+            </div>
+          </div>
+          <div class="treeCard__main">
+            <div class="main__describe">
+              {{ item.describe }}
+            </div>
+            <div class="main__imgList">
+              <photo-provider>
+                <photo-consumer
+                  v-for="src in item.imgs"
+                  :intro="src"
+                  :key="src"
+                  :src="src"
+                >
+                  <img :src="src" class="view-box" />
+                </photo-consumer>
+              </photo-provider>
             </div>
           </div>
         </el-card>
@@ -116,28 +147,28 @@ onMounted(async () => {
 
 .container {
   .flex__row();
-  height: calc(100vh - 6.3vw);
+  height: calc(100vh - 76px);
   overflow: hidden;
   position: relative;
   background-color: @defaultColor;
   font-family: @defaultFont;
   .container__follow {
     .flex__column();
-    width: 19.167vw;
+    width: 230px;
     height: 100%;
-    padding: 2.083vw 1.25vw;
+    padding: 25px 15px;
     background-color: white;
     .follow__item {
       .flex__row();
       align-items: center;
-      padding: 0.833vw 1.25vw;
-      border-radius: 1vw;
+      padding: 10px 15px;
+      border-radius: 12px;
       overflow: hidden;
       transition: all 0.5s;
       img {
-        width: 3vw;
-        border-radius: 3vw;
-        margin-right: 1vw;
+        width: 36px;
+        border-radius: 36px;
+        margin-right: 12px;
       }
       &:hover {
         background-color: @deepDefaultColor;
@@ -150,14 +181,15 @@ onMounted(async () => {
   .container__content {
     .flex__row();
     justify-content: center;
-    height: 100%;
+    overflow-y: auto;
     flex: 1;
     .content__treeList {
       .flex__column();
       width: 68%;
-      height: 100%;
+      height: fit-content;
       .treeCard {
         border-radius: 5px;
+        margin: 5px 0;
         .treeCard__header {
           .flex__row();
           justify-content: space-between;
@@ -165,9 +197,10 @@ onMounted(async () => {
           .header__left {
             .flex__row();
             .header__avator {
-              width: 3vw;
-              margin-right: 1vw;
-              border-radius: 3vw;
+              width: 36px;
+              margin-right: 12px;
+              border-radius: 36px;
+              cursor: pointer;
             }
             .header__info {
               .flex__column();
@@ -176,6 +209,7 @@ onMounted(async () => {
                 font-weight: bold;
                 margin-bottom: 10px;
                 color: @activeColor;
+                cursor: pointer;
               }
               .info__time {
                 color: rgb(150, 152, 153);
@@ -188,13 +222,29 @@ onMounted(async () => {
               font-size: 14px;
               padding: 10px;
               color: @activeColor;
+              cursor: pointer;
               background-color: rgba(94, 161, 97, 0.11);
               border-radius: 8px;
-              transition: all .3s;
+              transition: all 0.3s;
               &:hover {
                 color: white;
                 background-color: @activeColor;
               }
+            }
+          }
+        }
+        .treeCard__main {
+          .flex__column();
+          .main__describe {
+            padding: 15px 0;
+            font-size: 16px;
+            user-select: text;
+          }
+          .main__imgList {
+            .view-box {
+              padding: 2px;
+              width: 180px;
+              cursor: pointer;
             }
           }
         }

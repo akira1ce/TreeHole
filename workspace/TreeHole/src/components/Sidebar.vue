@@ -74,12 +74,12 @@ const navigate = (el) => {
 @defaultFont: PingFang SC, Microsoft YaHei;
 
 // sidebar
-@sidebar_width: 5.417vw;
+@sidebar_width: 65px;
 @sidebar_height: 100vh;
 @sidebar_backColor: rgb(246, 247, 248);
 
 //iconfont
-@icon_fontSize: 2.2vw;
+@icon_fontSize: 26px;
 
 .flex__column {
   display: flex;
@@ -107,10 +107,10 @@ const navigate = (el) => {
     width: 100%;
     .flex__column();
     justify-content: center;
-    gap: 2.5vw;
+    gap: 30px;
     .back {
-      height: 6.25vw;
-      line-height: 6.25vw;
+      height: 75px;
+      line-height: 75px;
       .iconfont {
         color: @defaultColor;
       }
@@ -120,8 +120,8 @@ const navigate = (el) => {
     .personal {
       .flex__column();
       width: 100%;
-      gap: 0.6vw;
-      font-size: 0.5vw;
+      gap: 7px;
+      font-size: 6px;
       font-weight: lighter;
       font-family: @defaultFont;
       color: @defaultColor;
@@ -135,13 +135,13 @@ const navigate = (el) => {
   .sidebar-bottom {
     .flex__column();
     justify-content: center;
-    gap: 1.667vw;
-    margin: 3vw 0;
+    gap: 20px;
+    margin: 36px 0;
     .avator {
       cursor: pointer;
       img {
-        width: 2.5vw;
-        border-radius: 2.5vw;
+        width: 30px;
+        border-radius: 30px;
       }
     }
     .socket {

@@ -15,10 +15,10 @@ const subRouting = ["Recommend", "Area"];
 const tabHandler = (target) => {
   if (target == "Recommend") {
     localStorage.setItem("current", 0);
-    sliderRef.value.style.left = "2.5vw";
+    sliderRef.value.style.left = "30px";
   } else if (target == "Area") {
     localStorage.setItem("current", 1);
-    sliderRef.value.style.left = "8.3vw";
+    sliderRef.value.style.left = "100px";
   }
   router.push({
     name: target,
@@ -62,6 +62,8 @@ onMounted(async () => {
 // font
 @defaultFont: PingFang SC, Microsoft YaHei;
 
+// topbar
+@topbar__height: 75px;
 .flex__column {
   display: flex;
   flex-direction: column;
@@ -74,23 +76,23 @@ onMounted(async () => {
 }
 .topbar {
   .flex__row();
-  height: 6.2vw;
-  padding: 0 3vw;
+  height: @topbar__height;
+  padding: 0 36px;
   border-bottom: 1px solid rgb(241, 242, 243);
   .topbar__logo {
-    font-size: 2.2vw;
+    font-size: 26px;
     color: @activeColor;
   }
   .topbar__tab {
     .flex__row();
     position: relative;
     height: 50%;
-    font-size: 1.4vw;
+    font-size: 17px;
     font-weight: 500;
     font-family: @defaultFont;
     color: @defaultColor;
-    padding: 0 2vw;
-    gap: 3vw;
+    padding: 0 24px;
+    gap: 36px;
     #active {
       color: @activeColor;
     }
@@ -103,11 +105,11 @@ onMounted(async () => {
     }
     .slider {
       position: absolute;
-      width: 1.8vw;
-      height: 0.3vw;
+      width: 22px;
+      height: 4px;
       bottom: 0;
-      left: 2.5vw;
-      border-radius: 1vw;
+      left: 30px;
+      border-radius: 12px;
       background-color: @activeColor;
       transition: all 0.5s;
     }
