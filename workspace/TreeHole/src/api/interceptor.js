@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ElMessage  } from "element-plus";
+import { ElMessage } from "element-plus";
 
 const service = axios.create({
   baseURL: "/api",
@@ -19,6 +19,7 @@ service.interceptors.response.use((response) => {
   const res = response.data;
   console.log(res);
   if (res.code === 200) {
+    if (res.message != "ok") ElMessage.success(res.message);
     return res;
   } else if (res.code === 10000) {
     window.location.href = "/#/login";
