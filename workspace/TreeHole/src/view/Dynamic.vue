@@ -22,8 +22,8 @@ const selectUser = (e) => {
 };
 
 const getTreeList = async (index) => {
-  const treeList = await request.post(api.tree.getTreeListByOwnerID, {
-    ownerID: state.following[index]?._id,
+  const treeList = await request.post(api.tree.getTreeListByUserID, {
+    userID: state.following[index]?._id,
   });
   state.followTrees = treeList;
 };
@@ -46,23 +46,13 @@ const currentUser = computed(() => {
 });
 
 onMounted(async () => {
-  try {
-    const userID = state.user._id;
-    // getRecordByUserID
-    const record = await request.post(api.record.getRecordByUserID, { userID });
-    // getUserList
-    const userList = await request.get(api.user.getUserList);
-    userList.forEach((item) => {
-      if (record.following.indexOf(item._id) != -1) {
-        const { _id, name, avator } = item;
-        state.following.push({ _id, name, avator, isFollow: true });
-      }
-    });
-    // getTreeList
-    getTreeList(0);
-  } catch (e) {
-    console.log(`output->e`, e);
-  }
+  const userID = state.user._id;
+  // getRecordByUserID
+  const record = await request.post(api.record.getRecordByUserID, { userID });
+  state.following = record.following;
+  state.following.forEach((item) => (item.isFollow = true));
+  // getTreeList
+  getTreeList(0);
 });
 </script>
 

@@ -16,5 +16,5 @@ router.get("/getTreeList", multipartyMid, treeCtrl.getTreeList);
 // 获取树
 router.post("/getTreeById", multipartyMid, treeCtrl.getTreeById);
 // 获取所有者的树列表
-router.post("/getTreeListByOwnerID", multipartyMid, treeCtrl.getTreeListByOwnerID);
+router.post("/getTreeListByUserID", multipartyMid, treeCtrl.getTreeListByUserID);
 module.exports = router;

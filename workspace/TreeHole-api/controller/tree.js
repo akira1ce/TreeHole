@@ -67,13 +67,13 @@ const getTreeById = async (req, res, next) => {
   }
 };
 
-// getTreeListByOwnerID
-const getTreeListByOwnerID = async (req, res, next) => {
+// getTreeListByUserID
+const getTreeListByUserID = async (req, res, next) => {
   try {
-    const { ownerID } = req.body;
-    const data = await Tree.find({ ownerID });
+    const { userID } = req.body;
+    const data = await Tree.find({ ownerID: userID });
     if (!data) {
-      next(err("The owner does not has trees", 403, ""));
+      next(err("The userID does not has trees", 403, ""));
       return;
     }
     res.send(result(200, data, "ok"));
@@ -88,5 +88,5 @@ module.exports = {
   modifyById,
   getTreeList,
   getTreeById,
-  getTreeListByOwnerID,
+  getTreeListByUserID,
 };
