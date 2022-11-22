@@ -20,7 +20,9 @@ const getTreeList = () => {
         { userID: user._id }
       );
       // filter seen
-      res = res.filter((item) => browsingHistory.indexOf(item._id) == -1);
+      res = res.filter((item) =>
+        !browsingHistory.find((browItem) => browItem._id == item._id)
+      );
       state.treeList = res;
     }, 500);
   } catch (e) {
@@ -34,7 +36,12 @@ onMounted(() => {
 
 <template>
   <div class="container scroll">
-    <el-skeleton :rows="10" animated v-show="state.treeList.length == 0" />
+    <el-skeleton
+      class="skeleton"
+      :rows="10"
+      animated
+      v-show="state.treeList.length == 0"
+    />
     <Card
       v-for="(tree, index) in state.treeList"
       :key="tree._id"
@@ -70,5 +77,9 @@ onMounted(() => {
   justify-content: center;
   grid-template-columns: repeat(auto-fill, 37vmin);
   align-content: flex-start;
+  .skeleton {
+    margin-top: 20px;
+    grid-column: 1 / 6;
+  }
 }
 </style>

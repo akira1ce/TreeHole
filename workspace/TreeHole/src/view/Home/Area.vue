@@ -20,7 +20,9 @@ const getTreeList = () => {
     setTimeout(async () => {
       let res = await request.get(api.tree.getTreeList);
       // filter current location
-      res = res.filter((item) => item.location.indexOf(location?.split("-")[1]) != -1);
+      res = res.filter(
+        (item) => item.location.indexOf(location?.split("-")[1]) != -1
+      );
       state.treeList = res;
     }, 500);
   } catch (e) {
@@ -31,13 +33,21 @@ const getTreeList = () => {
 onMounted(async () => {
   getTreeList();
 });
-
 </script>
 
 <template>
   <div class="container scroll">
-    <el-skeleton :rows="10" animated v-show="state.treeList.length == 0" />
-    <Card v-for="(tree,index) in state.treeList" :key="tree._id" :tree="tree" />
+    <el-skeleton
+      class="skeleton"
+      :rows="10"
+      animated
+      v-show="state.treeList.length == 0"
+    />
+    <Card
+      v-for="(tree, index) in state.treeList"
+      :key="tree._id"
+      :tree="tree"
+    />
   </div>
 </template>
 
@@ -68,5 +78,10 @@ onMounted(async () => {
   justify-content: center;
   grid-template-columns: repeat(auto-fill, 37vmin);
   align-content: flex-start;
+  position: relative;
+  .skeleton {
+    margin-top: 20px;
+    grid-column: 1 / 6;
+  }
 }
 </style>
