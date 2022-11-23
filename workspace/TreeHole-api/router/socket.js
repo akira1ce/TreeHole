@@ -1,17 +1,15 @@
 const express = require("express");
-const multipart = require("connect-multiparty");
 const socketCtrl = require("../controller/socket");
 
-const multipartyMid = multipart();
 const router = express.Router();
 
 // 添加
-router.post("/addSocket", multipartyMid, socketCtrl.addSocket);
+router.post("/addSocket", socketCtrl.addSocket);
 // 删除
-router.post("/removeById", multipartyMid, socketCtrl.removeById);
+router.post("/removeById", socketCtrl.removeById);
 // 修改
-router.post("/modifyById", multipartyMid, socketCtrl.modifyById);
+router.post("/modifyById", socketCtrl.modifyById);
 // 获取聊天列表
-router.post("/getSocketByUserID", multipartyMid, socketCtrl.getSocketByUserID);
+router.post("/getSocketByUserID", socketCtrl.getSocketByUserID);
 
 module.exports = router;

@@ -1,21 +1,19 @@
 const express = require("express");
-const multipart = require("connect-multiparty");
 const userCtrl = require("../controller/user");
 
-const multipartyMid = multipart();
 const router = express.Router();
 
 // 注册
-router.post("/register", multipartyMid, userCtrl.register);
+router.post("/register", userCtrl.register);
 // 登陆
-router.post("/login", multipartyMid, userCtrl.login);
+router.post("/login", userCtrl.login);
 // 删除
-router.post("/removeById", multipartyMid, userCtrl.removeById);
+router.post("/removeById", userCtrl.removeById);
 // 修改
-router.post("/modifyById", multipartyMid, userCtrl.modifyById);
+router.post("/modifyById", userCtrl.modifyById);
 // 获取用户列表
-router.get("/getUserList", multipartyMid, userCtrl.getUserList);
+router.get("/getUserList", userCtrl.getUserList);
 // 获取用户
-router.post("/getUserById", multipartyMid, userCtrl.getUserById);
+router.post("/getUserById", userCtrl.getUserById);
 
 module.exports = router;

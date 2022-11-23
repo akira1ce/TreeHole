@@ -1,11 +1,14 @@
+const multipart = require("connect-multiparty");
 const express = require("express");
 const router = express.Router();
 
-router.use("/user", require("./user"));
-router.use("/tree", require("./tree"));
+const multipartyMid = multipart();
+
+router.use("/user", multipartyMid, require("./user"));
+router.use("/tree", multipartyMid, require("./tree"));
 router.use("/uploadCenter", require("./upload"));
-router.use("/record", require("./record"));
-router.use("/order", require("./order"));
-router.use("/socket", require("./socket"));
+router.use("/record", multipartyMid, require("./record"));
+router.use("/order", multipartyMid, require("./order"));
+router.use("/socket", multipartyMid, require("./socket"));
 
 module.exports = router;
