@@ -2,6 +2,7 @@
 import api from "../api";
 import request from "../api/request";
 import { computed, onMounted, reactive, ref } from "vue-demi";
+import TreeCard from "../components/TreeCard.vue";
 
 // [state]
 const state = reactive({
@@ -14,6 +15,7 @@ const state = reactive({
 // [methods]
 const errorHandler = () => true;
 
+// select user in userList (Left)
 const selectUser = (e) => {
   const id = e.target.dataset?.id || e.target.parentNode.dataset?.id;
   if (state.current == id || id == undefined) return;
@@ -28,8 +30,10 @@ const getTreeList = async (index) => {
   state.followTrees = treeList;
 };
 
+// follow
 const switchFollow = async () => {
   const index = state.current;
+  // update follow status
   const isFollow = state.following[index].isFollow;
   state.following[index].isFollow = !isFollow;
   const params = {
@@ -37,7 +41,7 @@ const switchFollow = async () => {
     mode: 0,
     id: state.following[index]._id,
   };
-  const res = await request.post(api.record.modifyRecord, params);
+  await request.post(api.record.modifyRecord, params);
 };
 
 // [computed]
@@ -72,46 +76,12 @@ onMounted(async () => {
     </div>
     <div class="container__content scroll">
       <div class="content__treeList">
-        <el-card
-          class="treeCard"
-          shadow="hover"
-          :key="item._id"
+        <TreeCard
           v-for="(item, index) in state.followTrees"
-        >
-          <div class="treeCard__header">
-            <div class="header__left">
-              <img class="header__avator" :src="currentUser.avator" />
-              <div class="header__info">
-                <span class="info__name">{{ currentUser.name }}</span>
-                <span class="info__time">{{
-                  item.time.split(" ")[0].substring(5).split("/").join("-")
-                }}</span>
-              </div>
-            </div>
-            <div class="header__right">
-              <div class="unFollow" @click="switchFollow">
-                {{ currentUser.isFollow ? "取消关注" : "关注" }}
-              </div>
-            </div>
-          </div>
-          <div class="treeCard__main">
-            <div class="main__describe">
-              {{ item.describe }}
-            </div>
-            <div class="main__imgList">
-              <photo-provider>
-                <photo-consumer
-                  v-for="src in item.imgs"
-                  :intro="src"
-                  :key="src"
-                  :src="src"
-                >
-                  <img :src="src" class="view-box" />
-                </photo-consumer>
-              </photo-provider>
-            </div>
-          </div>
-        </el-card>
+          :tree="item"
+          :user="currentUser"
+          :switchFollow="switchFollow"
+        />
       </div>
     </div>
   </div>
@@ -177,68 +147,6 @@ onMounted(async () => {
       .flex__column();
       width: 68%;
       height: fit-content;
-      .treeCard {
-        border-radius: 5px;
-        margin: 5px 0;
-        .treeCard__header {
-          .flex__row();
-          justify-content: space-between;
-          align-items: center;
-          .header__left {
-            .flex__row();
-            .header__avator {
-              width: 36px;
-              margin-right: 12px;
-              border-radius: 36px;
-              cursor: pointer;
-            }
-            .header__info {
-              .flex__column();
-              .info__name {
-                font-size: 16px;
-                font-weight: bold;
-                margin-bottom: 10px;
-                color: @activeColor;
-                cursor: pointer;
-              }
-              .info__time {
-                color: rgb(150, 152, 153);
-                font-size: 12px;
-              }
-            }
-          }
-          .header__right {
-            .unFollow {
-              font-size: 14px;
-              padding: 10px;
-              color: @activeColor;
-              cursor: pointer;
-              background-color: rgba(94, 161, 97, 0.11);
-              border-radius: 8px;
-              transition: all 0.3s;
-              &:hover {
-                color: white;
-                background-color: @activeColor;
-              }
-            }
-          }
-        }
-        .treeCard__main {
-          .flex__column();
-          .main__describe {
-            padding: 15px 0;
-            font-size: 16px;
-            user-select: text;
-          }
-          .main__imgList {
-            .view-box {
-              padding: 2px;
-              width: 180px;
-              cursor: pointer;
-            }
-          }
-        }
-      }
     }
   }
 }
