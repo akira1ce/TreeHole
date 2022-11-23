@@ -36,11 +36,27 @@ const toSpace = () => {
 const switchNav = (index) => {
   state.current = index;
   sliderRef.value.style.left = sliderLeft[index];
+  const record = state.record;
+  if (index == 0) state.currentList = record.browsingHistory;
+  else if (index == 1) state.currentList = record.collect;
+  else state.currentList = [];
 };
 
+const clearBrowsing = async () => {
+  state.record.browsingHistory = [];
+  state.currentList = [];
+  return;
+  const params = {
+    userID: state.user._id,
+    mode: 3,
+    clearAll: true,
+  };
+  await request.post(api.record.modifyRecord, params);
+};
 onMounted(async () => {
   let params = { userID: state.user._id };
   state.record = await request.post(api.record.getRecordByUserID, params);
+  state.currentList = state.record.browsingHistory;
 });
 
 // [computed]
@@ -101,10 +117,22 @@ const record = computed(() => {
           {{ item }}
         </div>
         <div class="navMenu__slider" ref="sliderRef"></div>
+        <div
+          class="navMenu__clear"
+          v-show="state.current == 0"
+          @click="clearBrowsing"
+        >
+          <i class="iconfont icon-lajitong"></i>
+          清空历史记录
+        </div>
       </div>
       <div class="main__content">
-        {{ record.browsingHistory }}
-        <!-- <Card /> -->
+        <!-- {{ state.currentList }} -->
+        <Card
+          v-for="(item, index) in state.currentList"
+          :key="item._id"
+          :tree="item"
+        />
       </div>
     </div>
   </div>
@@ -193,6 +221,7 @@ const record = computed(() => {
     }
   }
   .container__main {
+    position: relative;
     .main__navMenu {
       .flex__row();
       border-bottom: 1px solid rgb(241, 242, 243);
@@ -219,6 +248,29 @@ const record = computed(() => {
         transition: all 0.5s;
         background-color: @activeColor;
       }
+      .navMenu__clear {
+        position: absolute;
+        right: 0;
+        bottom: 10px;
+        border: 1px solid rgb(227, 229, 231);
+        border-radius: 6px;
+        padding: 8px;
+        font-size: 14px;
+        color: rgb(93, 95, 99);
+        transition: all 0.5s;
+        cursor: pointer;
+        &:hover {
+          background-color: rgb(227, 229, 231);
+        }
+      }
+    }
+    .main__content {
+      width: 100%;
+      overflow-y: auto;
+      display: grid;
+      justify-content: center;
+      grid-template-columns: repeat(auto-fill, 36vmin);
+      align-content: flex-start;
     }
   }
 }
