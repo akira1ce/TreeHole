@@ -36,7 +36,7 @@ const getRecordByUserID = async (req, res, next) => {
 const modifyRecord = async (req, res, next) => {
   try {
     const gather = ["following", "fans", "collect", "browsingHistory"];
-    const { userID, mode, id } = req.body;
+    const { userID, mode, id, clearAll } = req.body;
     if (mode == 0) {
       // following || fans
       // userID -> user1
@@ -54,7 +54,9 @@ const modifyRecord = async (req, res, next) => {
         records[0].following.push(id);
         records[1].fans.push(id);
       } else {
-        records[0].following = records[0].following.filter((item) => item != id);
+        records[0].following = records[0].following.filter(
+          (item) => item != id
+        );
         records[1].fans = records[1].fans.filter((item) => item != userID);
       }
       // res.send(result(200, records, "ok"));
@@ -76,8 +78,10 @@ const modifyRecord = async (req, res, next) => {
         next(err("The record does not exist", 403, ""));
         return;
       }
-      if (mode == 3) record.browsingHistory.push(id);
-      else {
+      if (mode == 3) {
+        if (clearAll) record.browsingHistory = [];
+        else record.browsingHistory.push(id);
+      } else {
         const index = record.collect.indexOf(id);
         if (index == -1) record.collect.push(id);
         else record.collect.splice(index, 1);
