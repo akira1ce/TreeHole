@@ -23,6 +23,7 @@ service.interceptors.response.use((response) => {
     return res;
   } else if (res.code === 10000) {
     window.location.href = "/#/login";
+    localStorage.clear();
     return res;
   } else {
     ElMessage.error(res.message);
