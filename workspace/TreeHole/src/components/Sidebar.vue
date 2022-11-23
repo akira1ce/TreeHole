@@ -2,7 +2,6 @@
 import { onMounted, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 
-
 const route = useRoute();
 const router = useRouter();
 
@@ -19,20 +18,20 @@ const errorHandler = () => true;
 // navRouter
 const navigate = (el) => {
   const id = el.target.dataset.id || el.target.parentNode.dataset.id;
+  // back
   if (id == -1) {
     router.go(-1);
     return;
   }
-  if(id == 0) {
-    const current = localStorage.getItem('current');
-    const subRouting = ['Recommend', 'Area'];
+  // Home
+  if (id == 0) {
+    const current = localStorage.getItem("current") || 0;
+    const subRouting = ["Recommend", "Area"];
     router.push({ name: subRouting[current] });
     return;
   }
-  console.log(`output->id`,id)
   router.push({ name: whitelist[id] });
 };
-
 </script>
 
 <template>
@@ -41,24 +40,40 @@ const navigate = (el) => {
       <div class="back" data-id="-1">
         <i class="iconfont icon-zuojiantou"></i>
       </div>
-      <div class="home" :id="route.path.startsWith('/home') && 'active'" data-id="0">
+      <div
+        class="home"
+        :id="route.path.startsWith('/home') && 'active'"
+        data-id="0"
+      >
         <i class="iconfont icon-shouye"></i>
         <span>首页</span>
       </div>
-      <div class="dynamic" :id="route.path.startsWith('/dynamic') && 'active'" data-id="1">
+      <div
+        class="dynamic"
+        :id="route.path.startsWith('/dynamic') && 'active'"
+        data-id="1"
+      >
         <i class="iconfont icon-dongtai"></i>
         <span>动态</span>
       </div>
-      <div class="personal" :id="route.path.startsWith('/personal') && 'active'" data-id="2">
+      <div
+        class="personal"
+        :id="route.path.startsWith('/personal') && 'active'"
+        data-id="2"
+      >
         <i class="iconfont icon-moban"></i>
         <span>我的</span>
       </div>
     </div>
     <div class="sidebar-bottom">
       <div class="avator">
-        <img :src="user.avator" data-id="3"/>
+        <img :src="user.avator" data-id="3" />
       </div>
-      <div class="socket" :id="route.path.startsWith('Socket') && 'active'" data-id="4">
+      <div
+        class="socket"
+        :id="route.path.startsWith('Socket') && 'active'"
+        data-id="4"
+      >
         <i class="iconfont icon-chat"></i>
       </div>
     </div>

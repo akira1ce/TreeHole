@@ -4,8 +4,6 @@ import request from "../../api/request";
 import { onMounted, reactive, ref } from "vue-demi";
 import Card from "../../components/Card.vue";
 
-import { updateUser } from "../../util";
-
 // [state]
 const user = JSON.parse(localStorage.getItem("user"));
 const state = reactive({
@@ -15,19 +13,15 @@ const state = reactive({
 // [methods]
 // getTreeList
 const getTreeList = () => {
-  try {
-    const location = user.location;
-    setTimeout(async () => {
-      let res = await request.get(api.tree.getTreeList);
-      // filter current location
-      res = res.filter(
-        (item) => item.location.indexOf(location?.split("-")[1]) != -1
-      );
-      state.treeList = res;
-    }, 500);
-  } catch (e) {
-    console.log(`output->e`, e);
-  }
+  const location = user.location;
+  setTimeout(async () => {
+    let res = await request.get(api.tree.getTreeList);
+    // filter current location
+    res = res.filter(
+      (item) => item.location.indexOf(location?.split("-")[1]) != -1
+    );
+    state.treeList = res;
+  }, 500);
 };
 
 onMounted(async () => {

@@ -13,6 +13,7 @@ const subRouting = ["Recommend", "Area"];
 
 // methods
 const tabHandler = (target) => {
+  // Home -> recommend / area
   if (target == "Recommend") {
     localStorage.setItem("current", 0);
     sliderRef.value.style.left = "30px";
@@ -26,6 +27,7 @@ const tabHandler = (target) => {
 };
 
 onMounted(async () => {
+  // recovery status
   tabHandler(subRouting[current]);
 });
 </script>

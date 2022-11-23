@@ -94,7 +94,7 @@ onMounted(() => {
             <el-input v-model="user.account"></el-input>
           </el-form-item>
           <el-form-item label="Password" prop="password">
-            <el-input v-model="user.password"></el-input>
+            <el-input v-model="user.password" type="password"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button @click="Submit(formRef, 0)">Reset</el-button>

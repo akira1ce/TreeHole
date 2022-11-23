@@ -1,12 +1,12 @@
 <script setup>
-import { reactive, defineProps } from "vue-demi";
+import { defineProps } from "vue-demi";
 
 const props = defineProps(["tree"]);
 const tree = props.tree;
 </script>
 
 <template>
-  <div class="card" :key="tree._id">
+  <div class="card">
     <img class="card__cover" :src="tree.imgs[0]" />
     <div class="card__title">{{ tree.title }}</div>
     <div class="card__author">
