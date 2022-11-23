@@ -57,7 +57,7 @@ const routes = [
     name: "Socket",
     component: Socket,
   },
-  { path: "/", redirect: "/login" },
+  { path: "/", redirect: "/home" },
 ];
 
 export default routes;
