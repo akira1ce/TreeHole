@@ -17,7 +17,7 @@ const errorHandler = () => true;
 
 // navRouter
 const navigate = (el) => {
-  const id = el.target.dataset.id || el.target.parentNode.dataset.id;
+  const id = el.target.dataset.id || el.target?.parentNode.dataset.id;
   // back
   if (id == -1) {
     router.go(-1);

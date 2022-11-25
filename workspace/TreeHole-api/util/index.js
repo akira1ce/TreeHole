@@ -10,13 +10,15 @@ function err(e, status, data) {
     message,
   };
 }
+
 const config = {
   secretKey: "amoslier",
   url: "mongodb://localhost:27017/",
   database: "files_db",
-  dbName:'TreeHoles',
+  dbName: "TreeHoles",
   filesBucket: "fs",
 };
+
 module.exports = {
   result,
   config,

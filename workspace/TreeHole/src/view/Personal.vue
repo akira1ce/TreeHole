@@ -21,7 +21,6 @@ const state = reactive({
     treeList: [],
     browsingHistory: [],
   },
-  treeList: [],
   user: JSON.parse(localStorage.getItem("user")),
 });
 

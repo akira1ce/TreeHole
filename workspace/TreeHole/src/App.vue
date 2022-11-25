@@ -7,7 +7,6 @@ const route = useRoute();
 
 // static state
 const whitelist = ["Login", "Register"];
-
 </script>
 
 <template>
