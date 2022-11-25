@@ -5,10 +5,6 @@ const treeSchema = new mongoose.Schema({
     type: Types.String,
     required: true,
   },
-  owner: {
-    type: Types.String,
-    required: true,
-  },
   type: {
     type: Types.String,
     required: true,
