@@ -26,9 +26,13 @@ const tabHandler = (target) => {
   });
 };
 
-onMounted(async () => {
+onMounted(() => {
   // recovery status
-  tabHandler(subRouting[current]);
+  localStorage.setItem("current", 0);
+  if (route.path.startsWith("/home")) {
+    console.log(`output->`, route.path.startsWith("/home"));
+    tabHandler(subRouting[current]);
+  }
 });
 </script>
 
