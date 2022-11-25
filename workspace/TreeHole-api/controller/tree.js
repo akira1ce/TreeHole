@@ -1,5 +1,7 @@
-const { Tree } = require("../model");
+const { Tree, User } = require("../model");
 const { result, err } = require("../util");
+
+const { mergeTrees } = require("../util/merge");
 
 // addTree
 const addTree = async (req, res, next) => {
@@ -46,7 +48,8 @@ const modifyById = async (req, res, next) => {
 const getTreeList = async (req, res, next) => {
   try {
     const data = await Tree.find();
-    res.send(result(200, data, "ok"));
+    const trees = await mergeTrees(data);
+    res.send(result(200, trees, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -76,7 +79,8 @@ const getTreeListByUserID = async (req, res, next) => {
       next(err("The userID does not has trees", 403, ""));
       return;
     }
-    res.send(result(200, data, "ok"));
+    const trees = await mergeTrees(data);
+    res.send(result(200, trees, "ok"));
   } catch (e) {
     next(err(e));
   }

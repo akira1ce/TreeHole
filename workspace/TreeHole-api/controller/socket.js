@@ -1,5 +1,7 @@
-const { Socket } = require("../model");
+const { Socket, User } = require("../model");
 const { result, err } = require("../util");
+
+const { mergeSockets } = require("../util/merge");
 
 // addSocket
 const addSocket = async (req, res, next) => {
@@ -60,7 +62,8 @@ const getSocketByUserID = async (req, res, next) => {
     const data = await Socket.find({
       $or: [{ userID1: userID }, { userID2: userID }],
     });
-    res.send(result(200, data, "ok"));
+    const sockets = await mergeSockets(data);
+    res.send(result(200, sockets, "ok"));
   } catch (e) {
     next(err(e));
   }

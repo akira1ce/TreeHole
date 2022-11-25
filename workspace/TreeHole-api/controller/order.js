@@ -1,11 +1,29 @@
-const { Order } = require("../model");
+const { Order, User, Tree } = require("../model");
 const { result, err } = require("../util");
+
+const { mergeOrders } = require("../util/merge");
 
 // getOrderList
 const getOrderList = async (req, res, next) => {
   try {
     const data = await Order.find();
-    res.send(result(200, data, "ok"));
+    const orders = await mergeOrders(data);
+    console.log(`output->orders`, orders);
+    res.send(result(200, orders, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
+// getOrderListByUserID
+const getOrderListByUserID = async (req, res, next) => {
+  try {
+    const { userID } = req.body;
+    const data = await Order.find({
+      $or: [{ buyerID: userID }, { sellerID: userID }],
+    });
+    const orders = await mergeOrders(data);
+    res.send(result(200, orders, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -61,6 +79,7 @@ const modifyById = async (req, res, next) => {
 };
 module.exports = {
   getOrderList,
+  getOrderListByUserID,
   addOrder,
   removeById,
   modifyById,
