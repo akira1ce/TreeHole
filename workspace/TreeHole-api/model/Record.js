@@ -25,5 +25,10 @@ const recordSchema = new mongoose.Schema({
     required: false,
     default: [],
   },
+  order: {
+    type: Types.Array,
+    require: false,
+    default: [],
+  },
 });
 module.exports = recordSchema;

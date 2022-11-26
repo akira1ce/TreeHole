@@ -15,15 +15,12 @@ const mergeTrees = async (data) => {
 
 const mergeRecord = async (data) => {
   const record = {};
-  let trees = [];
   Object.assign(record, data._doc);
-
-  record.following = await User.find({ _id: { $in: data.following } },{ password: 0 });
+  record.following = await User.find({ _id: { $in: data.following } }, { password: 0 });
   record.fans = await User.find({ _id: { $in: data.fans } }, { password: 0 });
   record.browsingHistory = await mergeTrees(await Tree.find({ _id: { $in: data.browsingHistory } }));
-  // trees = await Tree.find({ _id: { $in: data.collect } });
   record.collect = await mergeTrees(await Tree.find({ _id: { $in: data.collect } }));
-  // trees = await Tree.find({ ownerID: data.userID });
+  record.order = await mergeOrders(await Order.find({ _id: { $in: data.order } }));
   record.treeList = await mergeTrees(await Tree.find({ ownerID: data.userID }));
   return record;
 };
@@ -59,5 +56,5 @@ module.exports = {
   mergeTrees,
   mergeRecord,
   mergeOrders,
-  mergeSockets
+  mergeSockets,
 };

@@ -2,6 +2,7 @@
 import api from "../api";
 import request from "../api/request";
 import Card from "../components/Card.vue";
+import OrderCard from "../components/OrderCard.vue";
 import { computed, onMounted, reactive, ref } from "vue-demi";
 import { useRouter } from "vue-router";
 
@@ -9,6 +10,7 @@ const router = useRouter();
 const sliderRef = ref();
 // [state]
 const state = reactive({
+  user: JSON.parse(localStorage.getItem("user")),
   current: 0,
   currentList: [],
   record: {
@@ -20,8 +22,8 @@ const state = reactive({
     collect: [],
     treeList: [],
     browsingHistory: [],
+    order: [],
   },
-  user: JSON.parse(localStorage.getItem("user")),
 });
 
 const navMenu = ["历史记录", "我的收藏", "我的交易"];
@@ -38,13 +40,14 @@ const switchNav = (index) => {
   const record = state.record;
   if (index == 0) state.currentList = record.browsingHistory;
   else if (index == 1) state.currentList = record.collect;
-  else state.currentList = [];
+  else state.currentList = record.order;
 };
 
 const clearBrowsing = async () => {
   state.record.browsingHistory = [];
   state.currentList = [];
   return;
+  // prod
   const params = {
     userID: state.user._id,
     mode: 3,
@@ -52,6 +55,7 @@ const clearBrowsing = async () => {
   };
   await request.post(api.record.modifyRecord, params);
 };
+
 onMounted(async () => {
   let params = { userID: state.user._id };
   state.record = await request.post(api.record.getRecordByUserID, params);
@@ -69,7 +73,7 @@ const record = computed(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div class="container scroll">
     <div class="container__userInfo">
       <div class="userInfo__base">
         <div class="base__avator" @click="toSpace">
@@ -78,12 +82,7 @@ const record = computed(() => {
         <div class="base__info">
           <div class="info__name">{{ user.name }}</div>
           <div class="info__location">
-            <el-tag
-              class="location__tag"
-              type="success"
-              v-for="item in user.location.split('-')"
-              >{{ item }}</el-tag
-            >
+            <el-tag class="location__tag" type="success" v-for="item in user.location.split('-')">{{ item }}</el-tag>
           </div>
         </div>
       </div>
@@ -101,37 +100,29 @@ const record = computed(() => {
           <span class="item__type">粉丝</span>
         </div>
       </div>
-      <div class="space" @click="toSpace">
-        空间 <i class="iconfont icon-youjiantou"></i>
-      </div>
+      <div class="space" @click="toSpace">空间 <i class="iconfont icon-youjiantou"></i></div>
     </div>
     <div class="container__main">
-      <div class="main__navMenu">
-        <div
-          v-for="(item, index) in navMenu"
-          class="navMenu__item"
-          :class="{ active: state.current == index }"
-          @click="switchNav(index)"
-        >
-          {{ item }}
+      <el-affix :offset="76">
+        <div class="main__navMenu">
+          <div v-for="(item, index) in navMenu" class="navMenu__item" :class="{ active: state.current == index }" @click="switchNav(index)">
+            {{ item }}
+          </div>
+          <div class="navMenu__slider" ref="sliderRef"></div>
+          <div class="navMenu__clear" v-show="state.current == 0" @click="clearBrowsing">
+            <i class="iconfont icon-lajitong"></i>
+            清空历史记录
+          </div>
         </div>
-        <div class="navMenu__slider" ref="sliderRef"></div>
-        <div
-          class="navMenu__clear"
-          v-show="state.current == 0"
-          @click="clearBrowsing"
-        >
-          <i class="iconfont icon-lajitong"></i>
-          清空历史记录
-        </div>
-      </div>
+      </el-affix>
       <div class="main__content">
-        <!-- {{ state.currentList }} -->
-        <Card
-          v-for="(item, index) in state.currentList"
-          :key="item._id"
-          :tree="item"
-        />
+        <div class="content__trees" v-if="state.current < 2">
+          <Card v-for="(item, index) in state.currentList" :key="item._id" :tree="item" />
+        </div>
+        <div class="content__orders" v-else>
+          {{ state.currentList }}
+          <!-- <OrderCard/> -->
+        </div>
       </div>
     </div>
   </div>
@@ -209,8 +200,6 @@ const record = computed(() => {
           font-size: 13px;
           color: @defaultColor;
         }
-        span {
-        }
       }
     }
     .space {
@@ -223,7 +212,10 @@ const record = computed(() => {
     position: relative;
     .main__navMenu {
       .flex__row();
+      backdrop-filter: blur(2px) brightness(100%);
+      background-color: rgba(255, 255, 255, 0.65);
       border-bottom: 1px solid rgb(241, 242, 243);
+      // opacity: 0.9;
       position: relative;
       .navMenu__item {
         font-size: 16px;
@@ -265,11 +257,12 @@ const record = computed(() => {
     }
     .main__content {
       width: 100%;
-      overflow-y: auto;
-      display: grid;
-      justify-content: center;
-      grid-template-columns: repeat(auto-fill, 36vmin);
-      align-content: flex-start;
+      .content__trees {
+        display: grid;
+        justify-content: center;
+        grid-template-columns: repeat(auto-fill, 36vmin);
+        align-content: flex-start;
+      }
     }
   }
 }
