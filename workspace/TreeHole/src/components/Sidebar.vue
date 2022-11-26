@@ -40,27 +40,15 @@ const navigate = (el) => {
       <div class="back" data-id="-1">
         <i class="iconfont icon-zuojiantou"></i>
       </div>
-      <div
-        class="home"
-        :id="route.path.startsWith('/home') && 'active'"
-        data-id="0"
-      >
+      <div class="home" :id="route.path.startsWith('/home') && 'active'" data-id="0">
         <i class="iconfont icon-shouye"></i>
         <span>首页</span>
       </div>
-      <div
-        class="dynamic"
-        :id="route.path.startsWith('/dynamic') && 'active'"
-        data-id="1"
-      >
+      <div class="dynamic" :id="route.path.startsWith('/dynamic') && 'active'" data-id="1">
         <i class="iconfont icon-dongtai"></i>
         <span>动态</span>
       </div>
-      <div
-        class="personal"
-        :id="route.path.startsWith('/personal') && 'active'"
-        data-id="2"
-      >
+      <div class="personal" :id="route.path.startsWith('/personal') && 'active'" data-id="2">
         <i class="iconfont icon-moban"></i>
         <span>我的</span>
       </div>
@@ -69,11 +57,7 @@ const navigate = (el) => {
       <div class="avator">
         <img :src="user.avator" data-id="3" />
       </div>
-      <div
-        class="socket"
-        :id="route.path.startsWith('Socket') && 'active'"
-        data-id="4"
-      >
+      <div class="socket" :id="route.path.startsWith('Socket') && 'active'" data-id="4">
         <i class="iconfont icon-chat"></i>
       </div>
     </div>

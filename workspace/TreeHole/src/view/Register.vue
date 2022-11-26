@@ -58,7 +58,7 @@ const Submit = async (formEl, mode) => {
           });
         }
       } catch (e) {
-        console.log(`output->e`,e)
+        console.log(`output->e`, e);
       }
     } else {
       console.log("error submit!", fields);
@@ -77,14 +77,7 @@ const toLogin = () => {
     <div class="box">
       <div class="main">
         <h2 class="main-title">Welcome TreeHole 🙌</h2>
-        <el-form
-          :model="user"
-          :rules="rules"
-          label-width="50px"
-          ref="formRef"
-          class="main-form"
-          status-icon
-        >
+        <el-form :model="user" :rules="rules" label-width="50px" ref="formRef" class="main-form" status-icon>
           <el-form-item label="Account" prop="account">
             <el-input v-model="user.account"></el-input>
           </el-form-item>
@@ -93,9 +86,7 @@ const toLogin = () => {
           </el-form-item>
           <el-form-item>
             <el-button @click="Submit(formRef, 0)">Reset</el-button>
-            <el-button type="primary" @click="Submit(formRef, 1)"
-              >Sign up</el-button
-            >
+            <el-button type="primary" @click="Submit(formRef, 1)">Sign up</el-button>
           </el-form-item>
         </el-form>
       </div>

@@ -12,6 +12,4 @@ const updateUser = async () => {
   return {};
 };
 
-export {
-  updateUser,
-};
+export { updateUser };

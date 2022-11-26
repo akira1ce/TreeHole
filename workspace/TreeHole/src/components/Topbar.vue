@@ -40,18 +40,8 @@ onMounted(() => {
   <div class="topbar">
     <i class="iconfont icon-Treehouse topbar__logo"></i>
     <div class="topbar__tab" v-show="route.path.startsWith('/home')">
-      <div
-        class="topbar__item"
-        @click="tabHandler('Recommend')"
-        :id="route.path.endsWith('/recommend') && 'active'"
-      >
-        推荐
-      </div>
-      <div
-        class="topbar__item"
-        @click="tabHandler('Area')"
-        :id="route.path.endsWith('/area') && 'active'"
-      >
+      <div class="topbar__item" @click="tabHandler('Recommend')" :id="route.path.endsWith('/recommend') && 'active'">推荐</div>
+      <div class="topbar__item" @click="tabHandler('Area')" :id="route.path.endsWith('/area') && 'active'">
         {{ user.location?.split("-")[1] }}
       </div>
       <div class="slider" ref="sliderRef"></div>

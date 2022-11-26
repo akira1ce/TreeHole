@@ -8,10 +8,7 @@ const addSocket = async (req, res, next) => {
   try {
     const { userID1, userID2 } = req.body;
     let socket = await Socket.findOne({
-      $or: [
-        { $and: [{ userID1 }, { userID2 }] },
-        { $and: [{ userID1: userID2 }, { userID2: userID1 }] },
-      ],
+      $or: [{ $and: [{ userID1 }, { userID2 }] }, { $and: [{ userID1: userID2 }, { userID2: userID1 }] }],
     });
     if (socket) {
       next(err("socket already exists", 403, ""));

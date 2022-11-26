@@ -63,25 +63,14 @@ onMounted(async () => {
 <template>
   <div class="container">
     <div class="container__follow" @click="selectUser">
-      <div
-        class="follow__item"
-        :id="state.current == index && 'active'"
-        :data-id="index"
-        :key="item._id"
-        v-for="(item, index) in state.following"
-      >
+      <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.following">
         <img :src="item.avator" />
         <span>{{ item.name }}</span>
       </div>
     </div>
     <div class="container__content scroll">
       <div class="content__treeList">
-        <TreeCard
-          v-for="(item, index) in state.followTrees"
-          :tree="item"
-          :user="currentUser"
-          :switchFollow="switchFollow"
-        />
+        <TreeCard v-for="(item, index) in state.followTrees" :tree="item" :user="currentUser" :switchFollow="switchFollow" />
       </div>
     </div>
   </div>

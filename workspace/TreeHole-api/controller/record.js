@@ -49,9 +49,7 @@ const modifyRecord = async (req, res, next) => {
         records[1].fans.push(id);
       } else {
         // exist -> unFollow
-        records[0].following = records[0].following.filter(
-          (item) => item != id
-        );
+        records[0].following = records[0].following.filter((item) => item != id);
         records[1].fans = records[1].fans.filter((item) => item != userID);
       }
       // update record of user1 and user2

@@ -12,9 +12,7 @@ const { tree, user, switchFollow } = props;
         <img class="header__avator" :src="user.avator" />
         <div class="header__info">
           <span class="info__name">{{ user.name }}</span>
-          <span class="info__time">{{
-            tree.time.split(" ")[0].substring(5).split("/").join("-")
-          }}</span>
+          <span class="info__time">{{ tree.time.split(" ")[0].substring(5).split("/").join("-") }}</span>
         </div>
       </div>
       <div class="header__right">
@@ -29,12 +27,7 @@ const { tree, user, switchFollow } = props;
       </div>
       <div class="main__imgList">
         <photo-provider>
-          <photo-consumer
-            v-for="src in tree.imgs"
-            :intro="src"
-            :key="src"
-            :src="src"
-          >
+          <photo-consumer v-for="src in tree.imgs" :intro="src" :key="src" :src="src">
             <img :src="src" class="view-box" />
           </photo-consumer>
         </photo-provider>

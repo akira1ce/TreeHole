@@ -9,9 +9,7 @@ const tree = props.tree;
   <div class="card">
     <img class="card__cover" :src="tree.imgs[0]" />
     <div class="card__title">{{ tree.title }}</div>
-    <div class="card__author">
-      <i class="iconfont icon-shuye"></i> {{ `${tree.owner.name} · ${tree.time.split(' ')[0]}` }}
-    </div>
+    <div class="card__author"><i class="iconfont icon-shuye"></i> {{ `${tree.owner.name} · ${tree.time.split(" ")[0]}` }}</div>
   </div>
 </template>
 

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const {config} = require("../util");
+const { config } = require("../util");
 const URL = config.url + config.dbName;
 // connect
 mongoose.connect(URL, {

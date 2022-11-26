@@ -15,14 +15,9 @@ const state = reactive({
 const getTreeList = () => {
   setTimeout(async () => {
     let res = await request.get(api.tree.getTreeList);
-    const { browsingHistory } = await request.post(
-      api.record.getRecordByUserID,
-      { userID: user._id }
-    );
+    const { browsingHistory } = await request.post(api.record.getRecordByUserID, { userID: user._id });
     // filter in browsingHistory
-    res = res.filter(
-      (item) => !browsingHistory.find((browItem) => browItem._id == item._id)
-    );
+    res = res.filter((item) => !browsingHistory.find((browItem) => browItem._id == item._id));
     state.treeList = res;
   }, 500);
 };
@@ -34,17 +29,8 @@ onMounted(() => {
 
 <template>
   <div class="container scroll">
-    <el-skeleton
-      class="skeleton"
-      :rows="10"
-      animated
-      v-show="state.treeList.length == 0"
-    />
-    <Card
-      v-for="(tree, index) in state.treeList"
-      :key="tree._id"
-      :tree="tree"
-    />
+    <el-skeleton class="skeleton" :rows="10" animated v-show="state.treeList.length == 0" />
+    <Card v-for="(tree, index) in state.treeList" :key="tree._id" :tree="tree" />
   </div>
 </template>
 
