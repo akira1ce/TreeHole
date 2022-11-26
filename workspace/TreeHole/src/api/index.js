@@ -23,17 +23,17 @@ export default {
     getRecordByUserID: "/record/getRecordByUserID",
     modifyRecord: "/record/modifyRecord",
   },
-  Order: {
+  order: {
     getOrderList: "/order/getOrderList",
     addOrder: "/order/addOrder",
     removeById: "/order/removeById",
     modifyById: "/order/modifyById",
+    getOrderListByUserID: "/order/getOrderListByUserID",
   },
-  Socket: {
+  socket: {
     addSocket: "/socket/addSocket",
     removeById: "/socket/removeById",
     modifyById: "/socket/modifyById",
     getSocketByUserID: "/socket/getSocketByUserID",
-
   },
 };

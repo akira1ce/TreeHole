@@ -8,7 +8,6 @@ const getOrderList = async (req, res, next) => {
   try {
     const data = await Order.find();
     const orders = await mergeOrders(data);
-    console.log(`output->orders`, orders);
     res.send(result(200, orders, "ok"));
   } catch (e) {
     next(err(e));
