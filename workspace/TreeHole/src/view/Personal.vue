@@ -8,9 +8,9 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const sliderRef = ref();
+
 // [state]
 const state = reactive({
-  user: JSON.parse(localStorage.getItem("user")),
   current: 0,
   currentList: [],
   record: {
@@ -28,6 +28,7 @@ const state = reactive({
 
 const navMenu = ["历史记录", "我的收藏", "我的交易"];
 const sliderLeft = ["22px", "125px", "228px"];
+const user = JSON.parse(localStorage.getItem("user"));
 
 // [methods]
 const toSpace = () => {
@@ -49,24 +50,30 @@ const clearBrowsing = async () => {
   return;
   // prod
   const params = {
-    userID: state.user._id,
+    userID: user._id,
     mode: 0,
     clearAll: 1,
   };
   await request.post(api.record.modifyRecordTree, params);
 };
 
+const deleteOrder = async (orderID, index) => {
+  const params = {
+    userID: user._id,
+    orderID,
+  };
+  console.log(`output->params`, params);
+  await request.post(api.record.modifyRecordOrder, params);
+  state.record.order.splice(index, 1);
+};
+
 onMounted(async () => {
-  let params = { userID: state.user._id };
+  let params = { userID: user._id };
   state.record = await request.post(api.record.getRecordByUserID, params);
   state.currentList = state.record.browsingHistory;
 });
 
 // [computed]
-const user = computed(() => {
-  return state.user;
-});
-
 const record = computed(() => {
   return state.record;
 });
@@ -120,8 +127,7 @@ const record = computed(() => {
           <Card v-for="(item, index) in state.currentList" :key="item._id" :tree="item" />
         </div>
         <div class="content__orders" v-else>
-          {{ state.currentList }}
-          <!-- <OrderCard/> -->
+          <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" />
         </div>
       </div>
     </div>
@@ -150,7 +156,7 @@ const record = computed(() => {
   height: calc(100vh - @topbar_height);
   overflow-y: auto;
   position: relative;
-  padding: 30px 40px;
+  padding: 30px 3.333vw;
   .container__userInfo {
     .flex__row();
     justify-content: space-between;
@@ -262,6 +268,8 @@ const record = computed(() => {
         justify-content: center;
         grid-template-columns: repeat(auto-fill, 36vmin);
         align-content: flex-start;
+      }
+      .content__orders {
       }
     }
   }
