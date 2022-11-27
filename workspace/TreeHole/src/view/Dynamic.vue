@@ -37,11 +37,10 @@ const switchFollow = async () => {
   const isFollow = state.following[index].isFollow;
   state.following[index].isFollow = !isFollow;
   const params = {
-    userID: state.user._id,
-    mode: 0,
-    id: state.following[index]._id,
+    userID1: state.user._id,
+    userID1: state.following[index]._id,
   };
-  await request.post(api.record.modifyRecord, params);
+  await request.post(api.record.modifyRecordUser, params);
 };
 
 // [computed]

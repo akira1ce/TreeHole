@@ -50,10 +50,10 @@ const clearBrowsing = async () => {
   // prod
   const params = {
     userID: state.user._id,
-    mode: 3,
-    clearAll: true,
+    mode: 0,
+    clearAll: 1,
   };
-  await request.post(api.record.modifyRecord, params);
+  await request.post(api.record.modifyRecordTree, params);
 };
 
 onMounted(async () => {
