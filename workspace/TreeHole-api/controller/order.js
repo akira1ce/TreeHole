@@ -1,7 +1,17 @@
-const { Order, User, Tree } = require("../model");
+const { Order, User, Tree, Record } = require("../model");
 const { result, err } = require("../util");
 
 const { mergeOrders } = require("../util/merge");
+
+const companionOrder = async (data) => {
+  const userID1 = data.buyerID;
+  const userID2 = data.sellerID;
+  const records = await Record.find({ userID: { $in: [userID1, userID2] } });
+  records[0].order.push(data._id);
+  records[1].order.push(data._id);
+  await Record.findByIdAndUpdate(records[0]._id, records[0]);
+  await Record.findByIdAndUpdate(records[1]._id, records[1]);
+};
 
 // getOrderList
 const getOrderList = async (req, res, next) => {
@@ -37,10 +47,9 @@ const addOrder = async (req, res, next) => {
       next(err("The tree has been purchased", 403, ""));
       return;
     }
-
     order = new Order(req.body);
     const data = await order.save();
-
+    await companionOrder(data);
     res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
