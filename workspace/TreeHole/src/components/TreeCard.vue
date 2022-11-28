@@ -1,8 +1,8 @@
 <script setup>
 import { defineProps } from "vue-demi";
 
-const props = defineProps(["tree", "user", "switchFollow"]);
-const { tree, user, switchFollow } = props;
+const props = defineProps(["tree", "user"]);
+const { tree, user } = props;
 </script>
 
 <template>
@@ -16,9 +16,7 @@ const { tree, user, switchFollow } = props;
         </div>
       </div>
       <div class="header__right">
-        <div class="unFollow" @click="switchFollow">
-          {{ user.isFollow ? "取消关注" : "关注" }}
-        </div>
+        <slot></slot>
       </div>
     </div>
     <div class="treeCard__main">
@@ -81,21 +79,6 @@ const { tree, user, switchFollow } = props;
         .info__time {
           color: rgb(150, 152, 153);
           font-size: 12px;
-        }
-      }
-    }
-    .header__right {
-      .unFollow {
-        font-size: 14px;
-        padding: 10px;
-        color: @activeColor;
-        cursor: pointer;
-        background-color: rgba(94, 161, 97, 0.11);
-        border-radius: 8px;
-        transition: all 0.3s;
-        &:hover {
-          color: white;
-          background-color: @activeColor;
         }
       }
     }

@@ -38,7 +38,7 @@ const switchFollow = async () => {
   state.following[index].isFollow = !isFollow;
   const params = {
     userID1: state.user._id,
-    userID1: state.following[index]._id,
+    userID2: state.following[index]._id,
   };
   await request.post(api.record.modifyRecordUser, params);
 };
@@ -69,16 +69,17 @@ onMounted(async () => {
     </div>
     <div class="container__content scroll">
       <div class="content__treeList">
-        <TreeCard v-for="(item, index) in state.followTrees" :tree="item" :user="currentUser" :switchFollow="switchFollow" />
+        <TreeCard v-for="(item, index) in state.followTrees" :tree="item" :user="currentUser">
+          <div class="unFollow" @click="switchFollow">
+            {{ currentUser.isFollow ? "取消关注" : "关注" }}
+          </div>
+        </TreeCard>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="less" scoped>
-//font
-@defaultFont: PingFang SC, Microsoft YaHei;
-
 //color
 @defaultColor: rgb(241, 242, 243);
 @deepDefaultColor: rgb(227, 229, 231);
@@ -99,7 +100,6 @@ onMounted(async () => {
   overflow: hidden;
   position: relative;
   background-color: @defaultColor;
-  font-family: @defaultFont;
   .container__follow {
     .flex__column();
     width: 230px;
@@ -135,6 +135,19 @@ onMounted(async () => {
       .flex__column();
       width: 68%;
       height: fit-content;
+      .unFollow {
+        font-size: 14px;
+        padding: 10px;
+        color: @activeColor;
+        cursor: pointer;
+        background-color: rgba(94, 161, 97, 0.11);
+        border-radius: 8px;
+        transition: all 0.3s;
+        &:hover {
+          color: white;
+          background-color: @activeColor;
+        }
+      }
     }
   }
 }
