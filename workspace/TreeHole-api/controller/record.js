@@ -34,7 +34,6 @@ const modifyRecordUser = async (req, res, next) => {
       next(err("The record does not exist", 403, ""));
       return;
     }
-
     const index = records[0].following.indexOf(userID2);
     if (index == -1) {
       // not exist -> follow
