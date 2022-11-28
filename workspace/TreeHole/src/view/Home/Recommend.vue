@@ -19,7 +19,7 @@ const getTreeList = () => {
     // filter in browsingHistory
     res = res.filter((item) => !browsingHistory.find((browItem) => browItem._id == item._id));
     state.treeList = res;
-  }, 500);
+  }, 300);
 };
 
 onMounted(() => {

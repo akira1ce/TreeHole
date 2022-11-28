@@ -19,7 +19,7 @@ const getTreeList = () => {
     // filter current location
     res = res.filter((item) => item.location.indexOf(location?.split("-")[1]) != -1);
     state.treeList = res;
-  }, 500);
+  }, 300);
 };
 
 onMounted(async () => {
