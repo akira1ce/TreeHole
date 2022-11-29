@@ -6,7 +6,7 @@ import { Edit, Delete } from "@element-plus/icons-vue";
 import { computed, onMounted, reactive } from "vue-demi";
 
 // [state]
-const user = JSON.parse(localStorage.getItem("user"));
+const user = history.state.user || JSON.parse(localStorage.getItem("user"));
 const state = reactive({
   record: {
     _id: "",
@@ -53,14 +53,14 @@ onMounted(async () => {
         </div>
       </div>
       <img class="avator" :src="user.avator" />
+      <el-button class="editUserInfo">编辑个人资料</el-button>
     </div>
     <div class="container__main">
+      <div class="release">发布🙌</div>
       <el-empty description="description" v-show="state.record.treeList.length == 0" />
       <TreeCard v-for="(item, index) in state.record.treeList" :tree="item" :user="user">
         <el-dropdown trigger="click" @command="handleCommand">
-          <span class="el-dropdown-link">
-            <i class="iconfont icon-gengduo"></i>
-          </span>
+          <span class="el-dropdown-link"><i class="iconfont icon-gengduo"></i></span>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item :icon="Edit" command="0">编辑</el-dropdown-item>
@@ -117,7 +117,7 @@ onMounted(async () => {
         font-size: 20px;
         font-weight: bold;
         margin-left: calc(2.5vw + 130px);
-        padding-top: 20px;
+        padding-top: 15px;
         align-self: flex-start;
       }
       .user__record {
@@ -148,16 +148,36 @@ onMounted(async () => {
       bottom: 0.833vw;
       left: 2.5vw;
     }
+    .editUserInfo {
+      position: absolute;
+      bottom: 10px;
+      left: calc(2.5vw + 110px);
+    }
   }
   .container__main {
     background-color: rgb(241, 242, 243);
     padding: 10px 265px;
     min-height: calc(100vh - 395px);
+    position: relative;
     .el-dropdown-link {
       cursor: pointer;
     }
     .icon-gengduo {
       font-weight: bold;
+    }
+    .release {
+      position: absolute;
+      top: 20px;
+      right: 40px;
+      padding: 12px;
+      border-radius: 10px;
+      background-color: @activeColor;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      &:hover {
+        transform: scale(1.05);
+      }
     }
   }
 }

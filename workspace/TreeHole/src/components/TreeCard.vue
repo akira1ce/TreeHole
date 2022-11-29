@@ -1,17 +1,26 @@
 <script setup>
-import { defineProps } from "vue-demi";
+import { defineProps, toRaw } from "vue-demi";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
+
+// [props]
 const props = defineProps(["tree", "user"]);
 const { tree, user } = props;
+
+// [methods]
+const toSpace = () => {
+  router.push({ name: "Space", state: { user: toRaw(user) } });
+};
 </script>
 
 <template>
   <el-card class="treeCard" shadow="hover">
     <div class="treeCard__header">
       <div class="header__left">
-        <img class="header__avator" :src="user.avator" />
+        <img class="header__avator" :src="user.avator" @click="toSpace" />
         <div class="header__info">
-          <span class="info__name">{{ user.name }}</span>
+          <span class="info__name" @click="toSpace">{{ user.name }}</span>
           <span class="info__time">{{ tree.time.split(" ")[0].substring(5).split("/").join("-") }}</span>
         </div>
       </div>

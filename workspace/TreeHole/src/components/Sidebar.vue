@@ -14,6 +14,9 @@ const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket"];
 // [methods]
 // avator loading errorHandler
 const errorHandler = () => true;
+const toSpace = () => {
+  router.push({ name: "Space" });
+};
 
 // navRouter
 const navigate = (el) => {
@@ -55,7 +58,7 @@ const navigate = (el) => {
     </div>
     <div class="sidebar-bottom">
       <div class="avator">
-        <img :src="user.avator" data-id="3" />
+        <img :src="user.avator" data-id="3" @click="toSpace" />
       </div>
       <div class="socket" :id="route.path.startsWith('Socket') && 'active'" data-id="4">
         <i class="iconfont icon-chat"></i>
