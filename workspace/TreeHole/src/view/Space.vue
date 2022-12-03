@@ -1,24 +1,16 @@
 <script setup>
 import api from "../api";
 import request from "../api/request";
+import { computed, onMounted, reactive } from "vue-demi";
+import { local, defaultState } from "../util";
 import TreeCard from "../components/TreeCard.vue";
 import { Edit, Delete } from "@element-plus/icons-vue";
-import { computed, onMounted, reactive } from "vue-demi";
 
 // [state]
-const user = history.state.user || JSON.parse(localStorage.getItem("user"));
+const loginUser = local.getItem("user");
+const user = history.state.spaceUser || loginUser;
 const state = reactive({
-  record: {
-    _id: "",
-    userID: "",
-    current: 0,
-    following: [],
-    fans: [],
-    collect: [],
-    treeList: [],
-    browsingHistory: [],
-    order: [],
-  },
+  record: defaultState.record,
 });
 
 // [methods]
@@ -31,6 +23,10 @@ const record = computed(() => state.record);
 
 onMounted(async () => {
   let params = { userID: user._id };
+  if (params.userID == loginUser._id) {
+    state.record = local.getItem("record");
+    return;
+  }
   state.record = await request.post(api.record.getRecordByUserID, params);
 });
 </script>
@@ -53,11 +49,11 @@ onMounted(async () => {
         </div>
       </div>
       <img class="avator" :src="user.avator" />
-      <el-button class="editUserInfo">编辑个人资料</el-button>
+      <el-button class="editUserInfo" v-if="user._id == loginUser._id">编辑个人资料</el-button>
     </div>
     <div class="container__main">
       <div class="release">发布🙌</div>
-      <el-empty description="description" v-show="state.record.treeList.length == 0" />
+      <el-empty description="description" v-if="state.record.treeList.length == 0" />
       <TreeCard v-for="(item, index) in state.record.treeList" :tree="item" :user="user">
         <el-dropdown trigger="click" @command="handleCommand">
           <span class="el-dropdown-link"><i class="iconfont icon-gengduo"></i></span>

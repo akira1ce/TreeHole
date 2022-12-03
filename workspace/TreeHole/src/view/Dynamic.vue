@@ -2,58 +2,61 @@
 import api from "../api";
 import request from "../api/request";
 import { computed, onMounted, reactive, ref } from "vue-demi";
+import { local, defaultState } from "../util";
 import TreeCard from "../components/TreeCard.vue";
 
 // [state]
 const state = reactive({
   current: 0,
+  record: defaultState.record,
   following: [],
-  followTrees: [],
-  user: JSON.parse(localStorage.getItem("user")),
+  followTree: [],
+  user: local.getItem("user"),
 });
 
 // [methods]
 const errorHandler = () => true;
 
 // select user in userList (Left)
-const selectUser = (e) => {
+const selectUser = async (e) => {
   const id = e.target.dataset?.id || e.target.parentNode.dataset?.id;
   if (state.current == id || id == undefined) return;
   state.current = id;
-  getTreeList(state.current);
+  await getTreeList(state.current);
 };
 
 const getTreeList = async (index) => {
-  const treeList = await request.post(api.tree.getTreeListByUserID, {
-    userID: state.following[index]?._id,
+  state.followTree = await request.post(api.tree.getTreeListByUserID, {
+    userID: state.record.following[index]?._id,
   });
-  state.followTrees = treeList;
 };
 
 // follow
 const switchFollow = async () => {
   const index = state.current;
   // update follow status
-  const isFollow = state.following[index].isFollow;
-  state.following[index].isFollow = !isFollow;
+  const isFollow = state.record.following[index].isFollow;
+  state.record.following[index].isFollow = !isFollow;
   const params = {
     userID1: state.user._id,
-    userID2: state.following[index]._id,
+    userID2: state.record.following[index]._id,
   };
   await request.post(api.record.modifyRecordUser, params);
 };
 
 // [computed]
 const currentUser = computed(() => {
-  return state.following[state.current];
+  return state.record.following[state.current];
+});
+
+const followTree = computed(() => {
+  return state.followTree;
 });
 
 onMounted(async () => {
   const userID = state.user._id;
-  // getRecordByUserID
-  const record = await request.post(api.record.getRecordByUserID, { userID });
-  state.following = record.following;
-  state.following.forEach((item) => (item.isFollow = true));
+  state.record = await request.post(api.record.getRecordByUserID, { userID });
+  state.record.following.forEach((item) => (item.isFollow = true));
   // getTreeList
   getTreeList(0);
 });
@@ -62,14 +65,14 @@ onMounted(async () => {
 <template>
   <div class="container">
     <div class="container__follow" @click="selectUser">
-      <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.following">
+      <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.record.following">
         <img :src="item.avator" />
         <span>{{ item.name }}</span>
       </div>
     </div>
     <div class="container__content scroll">
       <div class="content__treeList">
-        <TreeCard v-for="(item, index) in state.followTrees" :tree="item" :user="currentUser">
+        <TreeCard v-for="item in followTree" :tree="item" :key="item._id">
           <div class="unFollow" @click="switchFollow">
             {{ currentUser.isFollow ? "取消关注" : "关注" }}
           </div>

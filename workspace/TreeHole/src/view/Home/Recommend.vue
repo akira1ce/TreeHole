@@ -2,10 +2,11 @@
 import api from "../../api";
 import request from "../../api/request";
 import { onMounted, reactive } from "vue-demi";
+import { local } from "../../util";
 import Card from "../../components/Card.vue";
 
 // [state]
-const user = JSON.parse(localStorage.getItem("user"));
+const user = local.getItem("user");
 const state = reactive({
   treeList: [],
 });
@@ -15,9 +16,6 @@ const state = reactive({
 const getTreeList = () => {
   setTimeout(async () => {
     let res = await request.get(api.tree.getTreeList);
-    const { browsingHistory } = await request.post(api.record.getRecordByUserID, { userID: user._id });
-    // filter in browsingHistory
-    res = res.filter((item) => !browsingHistory.find((browItem) => browItem._id == item._id));
     state.treeList = res;
   }, 300);
 };

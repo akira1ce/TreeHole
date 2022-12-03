@@ -1,10 +1,11 @@
 <script setup>
 import api from "../api";
 import request from "../api/request";
-import Card from "../components/Card.vue";
-import OrderCard from "../components/OrderCard.vue";
 import { computed, onMounted, reactive, ref } from "vue-demi";
 import { useRouter } from "vue-router";
+import { local, defaultState } from "../util";
+import Card from "../components/Card.vue";
+import OrderCard from "../components/OrderCard.vue";
 
 const router = useRouter();
 const sliderRef = ref();
@@ -13,22 +14,12 @@ const sliderRef = ref();
 const state = reactive({
   current: 0,
   currentList: [],
-  record: {
-    _id: "",
-    userID: "",
-    current: 0,
-    following: [],
-    fans: [],
-    collect: [],
-    treeList: [],
-    browsingHistory: [],
-    order: [],
-  },
+  record: defaultState.record,
 });
 
 const navMenu = ["历史记录", "我的收藏", "我的交易"];
 const sliderLeft = ["22px", "125px", "228px"];
-const user = JSON.parse(localStorage.getItem("user"));
+const user = local.getItem("user");
 
 // [methods]
 const toSpace = () => {
@@ -62,14 +53,13 @@ const deleteOrder = async (orderID, index) => {
     userID: user._id,
     orderID,
   };
-  console.log(`output->params`, params);
   await request.post(api.record.modifyRecordOrder, params);
   state.record.order.splice(index, 1);
 };
 
 onMounted(async () => {
   let params = { userID: user._id };
-  state.record = await request.post(api.record.getRecordByUserID, params);
+  state.record = local.getItem("record");
   state.currentList = state.record.browsingHistory;
 });
 

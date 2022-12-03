@@ -1,24 +1,25 @@
 <script setup>
 import { onMounted, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
+import { local } from "../util";
 
 const route = useRoute();
 const router = useRouter();
 
 // state
 const sliderRef = ref();
-const user = JSON.parse(localStorage.getItem("user"));
-const current = localStorage.getItem("current");
+const user = local.getItem("user") || {};
+const current = local.getItem("current");
 const subRouting = ["Recommend", "Area"];
 
 // methods
 const tabHandler = (target) => {
   // Home -> recommend / area
   if (target == "Recommend") {
-    localStorage.setItem("current", 0);
+    local.setItem("current", 0);
     sliderRef.value.style.left = "30px";
   } else if (target == "Area") {
-    localStorage.setItem("current", 1);
+    local.setItem("current", 1);
     sliderRef.value.style.left = "100px";
   }
   router.push({
@@ -28,7 +29,7 @@ const tabHandler = (target) => {
 
 onMounted(() => {
   // recovery status
-  localStorage.setItem("current", 0);
+  local.setItem("current", 0);
   if (route.path.startsWith("/home")) {
     console.log(`output->`, route.path.startsWith("/home"));
     tabHandler(subRouting[current]);

@@ -1,15 +1,27 @@
-import request from "../api/request";
-import api from "../api";
-
-const updateUser = async () => {
-  try {
-    const _id = localStorage.getItem("_id") || "";
-    const res = await request.post(api.user.getUserById, { _id });
-    return res;
-  } catch (e) {
-    console.log(`output->e`, e);
-  }
-  return {};
+const local = {
+  getItem(key) {
+    return JSON.parse(localStorage.getItem(key));
+  },
+  setItem(key, val) {
+    localStorage.setItem(key, JSON.stringify(val));
+  },
+  clear() {
+    localStorage.clear();
+  },
 };
 
-export { updateUser };
+const defaultState = {
+  record: {
+    _id: "",
+    current: 0,
+    browsingHistory: [],
+    collect: [],
+    fans: [],
+    following: [],
+    order: [],
+    treeList: [],
+    userID: "",
+  },
+};
+
+export { local, defaultState };

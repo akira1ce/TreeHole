@@ -2,10 +2,11 @@
 import api from "../../api";
 import request from "../../api/request";
 import { onMounted, reactive, ref } from "vue-demi";
+import { local } from "../../util";
 import Card from "../../components/Card.vue";
 
 // [state]
-const user = JSON.parse(localStorage.getItem("user"));
+const user = local.getItem("user");
 const state = reactive({
   treeList: [],
 });
@@ -35,9 +36,6 @@ onMounted(async () => {
 </template>
 
 <style lang="less" scoped>
-//font
-@defaultFont: PingFang SC, Microsoft YaHei;
-
 //color
 @defaultColor: rgb(155, 161, 166);
 @activeColor: rgb(94, 161, 97);

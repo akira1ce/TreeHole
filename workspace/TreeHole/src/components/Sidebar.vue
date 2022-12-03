@@ -1,12 +1,13 @@
 <script setup>
 import { onMounted, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
+import { local } from "../util";
 
 const route = useRoute();
 const router = useRouter();
 
 // [state]
-const user = JSON.parse(localStorage.getItem("user"));
+const user = local.getItem("user") || {};
 
 // static state
 const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket"];
@@ -14,7 +15,13 @@ const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket"];
 // [methods]
 // avator loading errorHandler
 const errorHandler = () => true;
+
 const toSpace = () => {
+  if (route.name == "Space") {
+    history.state.spaceUser = null;
+    router.go(0);
+    return;
+  }
   router.push({ name: "Space" });
 };
 
@@ -28,7 +35,7 @@ const navigate = (el) => {
   }
   // Home
   if (id == 0) {
-    const current = localStorage.getItem("current") || 0;
+    const current = local.getItem("current") || 0;
     const subRouting = ["Recommend", "Area"];
     router.push({ name: subRouting[current] });
     return;

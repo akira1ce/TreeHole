@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ElMessage } from "element-plus";
+import { local } from "../util";
 
 const service = axios.create({
   baseURL: "/api",
@@ -9,7 +10,7 @@ const service = axios.create({
 
 // 请求拦截
 service.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token") || undefined;
+  const token = local.getItem("token") || undefined;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -23,7 +24,7 @@ service.interceptors.response.use((response) => {
     return res;
   } else if (res.code === 10000) {
     window.location.href = "/#/login";
-    localStorage.clear();
+    local.clear();
     return res;
   } else {
     ElMessage.error(res.message);
