@@ -5,12 +5,13 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 // [props]
-const props = defineProps(["tree", "user"]);
-const { tree, user } = props;
+const props = defineProps(["tree"]);
+const { tree } = props;
+const user = tree.owner;
 
 // [methods]
 const toSpace = () => {
-  router.push({ name: "Space", state: { user: toRaw(user) } });
+  router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
 };
 </script>
 
