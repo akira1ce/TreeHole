@@ -1,15 +1,23 @@
 <script setup>
-import api from "../api";
-import request from "../api/request";
 import { Delete } from "@element-plus/icons-vue";
-import { computed, defineProps } from "vue-demi";
+import { computed, defineProps, toRaw } from "vue-demi";
+import { useRouter } from "vue-router";
+import { local } from "../util";
+
+const router = useRouter();
+
+// [props]
 const props = defineProps(["order", "deleteOrder"]);
 
 // [state]
 const { order, deleteOrder, index } = props;
-const user = JSON.parse(localStorage.getItem("user"));
+const user = local.getItem("user");
 
 // [methods]
+const toSpace = (spaceUser) => {
+  spaceUser = toRaw(spaceUser);
+  router.push({ name: "Space", state: { spaceUser } });
+};
 
 // [computed]
 const otherSide = computed(() => {
@@ -23,7 +31,7 @@ const tag = computed(() => {
 
 <template>
   <div class="order">
-    <div class="order__otherSide">
+    <div class="order__otherSide" @click="toSpace(otherSide)">
       <img class="otherSide__avator" :src="otherSide.avator" alt="" />
       <span class="otherSide_name">{{ otherSide.name }}</span>
     </div>
