@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import request from "../api/request";
 import api from "../api";
+import { local } from "../util";
 
 const router = useRouter();
 
@@ -39,25 +40,24 @@ const Submit = async (formEl, mode) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      try {
-        if (mode == 0) {
-          if (!formEl) return;
-          formEl.resetFields();
-        } else if (mode == 1) {
-          const { account, password } = user;
-          const params = {
-            account,
-            password,
-          };
-          const res = await request.post(api.user.login, params);
-          localStorage.setItem("token", res.token);
-          localStorage.setItem("user", JSON.stringify(res.user));
-          router.push({
-            name: "Home",
-          });
-        }
-      } catch (e) {
-        console.log(`output->e`, e);
+      if (mode == 0) {
+        if (!formEl) return;
+        formEl.resetFields();
+      } else if (mode == 1) {
+        const { account, password } = user;
+        let params = {
+          account,
+          password,
+        };
+        const res = await request.post(api.user.login, params);
+        local.setItem("token", res.token);
+        local.setItem("user", res.user);
+        params = { userID: res.user._id };
+        const record = await request.post(api.record.getRecordByUserID, params);
+        local.setItem("record", record);
+        router.push({
+          name: "Home",
+        });
       }
     } else {
       console.log("error submit!", fields);
