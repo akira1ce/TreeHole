@@ -52,9 +52,6 @@ const Submit = async (formEl, mode) => {
         const res = await request.post(api.user.login, params);
         local.setItem("token", res.token);
         local.setItem("user", res.user);
-        params = { userID: res.user._id };
-        const record = await request.post(api.record.getRecordByUserID, params);
-        local.setItem("record", record);
         router.push({
           name: "Home",
         });

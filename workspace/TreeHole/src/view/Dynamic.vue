@@ -27,26 +27,26 @@ const selectUser = async (e) => {
 
 const getTreeList = async (index) => {
   state.followTree = await request.post(api.tree.getTreeListByUserID, {
-    userID: state.record.following[index]?._id,
+    userID: state.record.followList[index]?._id,
   });
 };
 
 // follow
 const switchFollow = async () => {
   const index = state.current;
-  // update follow status
-  const isFollow = state.record.following[index].isFollow;
-  state.record.following[index].isFollow = !isFollow;
+  const follow_index = state.record.followList[index];
   const params = {
     userID1: state.user._id,
-    userID2: state.record.following[index]._id,
+    userID2: follow_index._id,
   };
+  // update follow status
+  follow_index.isFollow = !follow_index.isFollow;
   await request.post(api.record.modifyRecordUser, params);
 };
 
 // [computed]
 const currentUser = computed(() => {
-  return state.record.following[state.current];
+  return state.record.followList[state.current];
 });
 
 const followTree = computed(() => {
@@ -56,7 +56,7 @@ const followTree = computed(() => {
 onMounted(async () => {
   const userID = state.user._id;
   state.record = await request.post(api.record.getRecordByUserID, { userID });
-  state.record.following.forEach((item) => (item.isFollow = true));
+  state.record.followList.forEach((item) => (item.isFollow = true));
   // getTreeList
   getTreeList(0);
 });
@@ -65,7 +65,7 @@ onMounted(async () => {
 <template>
   <div class="container">
     <div class="container__follow" @click="selectUser">
-      <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.record.following">
+      <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.record.followList">
         <img :src="item.avator" />
         <span>{{ item.name }}</span>
       </div>

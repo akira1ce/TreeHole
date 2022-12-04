@@ -1,7 +1,7 @@
 <script setup>
 import api from "../api";
 import request from "../api/request";
-import { computed, onMounted, reactive, ref } from "vue-demi";
+import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { useRouter } from "vue-router";
 import { local, defaultState } from "../util";
 import Card from "../components/Card.vue";
@@ -26,17 +26,22 @@ const toSpace = () => {
   router.push({ name: "Space" });
 };
 
+const toRecord = () => {
+  router.push({ name: "Record" });
+};
+
 const switchNav = (index) => {
   state.current = index;
   sliderRef.value.style.left = sliderLeft[index];
   const record = state.record;
-  if (index == 0) state.currentList = record.browsingHistory;
-  else if (index == 1) state.currentList = record.collect;
-  else state.currentList = record.order;
+  if (index == 0) state.currentList = record.historyList;
+  else if (index == 1) state.currentList = record.collectList;
+  else state.currentList = record.orderList;
 };
 
 const clearBrowsing = async () => {
   state.record.browsingHistory = [];
+  state.record.historyList = [];
   state.currentList = [];
   return;
   // prod
@@ -55,12 +60,13 @@ const deleteOrder = async (orderID, index) => {
   };
   await request.post(api.record.modifyRecordOrder, params);
   state.record.order.splice(index, 1);
+  state.record.orderList.splice(index, 1);
 };
 
 onMounted(async () => {
   let params = { userID: user._id };
-  state.record = local.getItem("record");
-  state.currentList = state.record.browsingHistory;
+  state.record = await request.post(api.record.getRecordByUserID, params);
+  state.currentList = state.record.historyList;
 });
 
 // [computed]
@@ -88,11 +94,11 @@ const record = computed(() => {
           <span class="item__count">{{ record.treeList?.length || "-" }}</span>
           <span class="item__type">动态</span>
         </div>
-        <div class="record__item">
+        <div class="record__item" @click="toRecord()">
           <span class="item__count">{{ record.following?.length || "-" }}</span>
           <span class="item__type">关注</span>
         </div>
-        <div class="record__item">
+        <div class="record__item" @click="toRecord()">
           <span class="item__count">{{ record.fans?.length || "-" }}</span>
           <span class="item__type">粉丝</span>
         </div>

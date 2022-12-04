@@ -17,12 +17,12 @@ const mergeRecord = async (data) => {
   const record = {};
   Object.assign(record, data._doc);
 
-  record.following = await User.find({ _id: { $in: data.following } }, { password: 0 });
-  record.fans = await User.find({ _id: { $in: data.fans } }, { password: 0 });
-  record.browsingHistory = await mergeTrees(await Tree.find({ _id: { $in: data.browsingHistory } }));
-  record.collect = await mergeTrees(await Tree.find({ _id: { $in: data.collect } }));
+  record.followList = await User.find({ _id: { $in: data.following } }, { password: 0 });
+  record.fansList = await User.find({ _id: { $in: data.fans } }, { password: 0 });
+  record.historyList = await mergeTrees(await Tree.find({ _id: { $in: data.browsingHistory } }));
+  record.collectList = await mergeTrees(await Tree.find({ _id: { $in: data.collect } }));
   record.treeList = await mergeTrees(await Tree.find({ ownerID: data.userID }));
-  record.order = await mergeOrders(await Order.find({ _id: { $in: data.order } }));
+  record.orderList = await mergeOrders(await Order.find({ _id: { $in: data.order } }));
 
   return record;
 };
