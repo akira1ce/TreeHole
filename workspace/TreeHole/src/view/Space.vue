@@ -1,33 +1,78 @@
 <script setup>
 import api from "../api";
 import request from "../api/request";
-import { computed, onMounted, reactive } from "vue-demi";
+import { computed, nextTick, onMounted, reactive, ref } from "vue-demi";
 import { local, defaultState } from "../util";
 import TreeCard from "../components/TreeCard.vue";
 import { Edit, Delete } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 // [state]
 const loginUser = local.getItem("user");
 const user = history.state.spaceUser || loginUser;
+const treeID = history.state.treeID || undefined;
 const state = reactive({
   record: defaultState.record,
+  isFollow: false,
 });
 
 // [methods]
+// 关注 || 粉丝
+const toRecord = () => {
+  if (isCurrentUser.value) router.push({ name: "Record" });
+};
+
 const handleCommand = (command) => {
   console.log(`output->command`, command);
+};
+
+// follow
+const switchFollow = async () => {
+  state.isFollow = !state.isFollow;
+  const { fans, fansList } = state.record;
+  const params = {
+    userID1: loginUser._id,
+    userID2: user._id,
+  };
+  await request.post(api.record.modifyRecordUser, params);
+  // 更新缓存
+  if (state.isFollow) {
+    fans.push(loginUser._id);
+    fansList.push(loginUser);
+  } else {
+    const index = fans.indexOf(loginUser._id);
+    if (index != -1) {
+      fans.splice(index, 1);
+      fansList.splice(index, 1);
+    }
+  }
 };
 
 // [computed]
 const record = computed(() => state.record);
 
+const isCurrentUser = computed(() => {
+  return user._id == loginUser._id;
+});
+
 onMounted(async () => {
   let params = { userID: user._id };
-  if (params.userID == loginUser._id) {
-    state.record = local.getItem("record");
-    return;
-  }
   state.record = await request.post(api.record.getRecordByUserID, params);
+  if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
+  
+  // 滚动条行为
+  nextTick(() => {
+    const mainRef = document.getElementsByClassName("el-card");
+    if (treeID) {
+      let targetTree = 0;
+      state.record.treeList.forEach((item, index) => {
+        if (item._id == treeID) targetTree = index;
+      });
+      mainRef[targetTree].scrollIntoView({ block: "center" });
+    }
+  });
 });
 </script>
 
@@ -38,24 +83,27 @@ onMounted(async () => {
       <div class="top__user">
         <span class="user__name">{{ user.name }}</span>
         <div class="user__record">
-          <div class="record__item">
+          <div class="record__item" @click="toRecord">
             <span class="item__count">{{ record.following?.length || "-" }}</span>
             <span class="item__type">关注</span>
           </div>
-          <div class="record__item">
+          <div class="record__item" @click="toRecord">
             <span class="item__count">{{ record.fans?.length || "-" }}</span>
             <span class="item__type">粉丝</span>
           </div>
         </div>
       </div>
       <img class="avator" :src="user.avator" />
-      <el-button class="editUserInfo" v-if="user._id == loginUser._id">编辑个人资料</el-button>
+      <el-button class="editUserInfo" v-if="isCurrentUser">编辑个人资料</el-button>
+      <div class="unFollow" @click="switchFollow" v-else>
+        {{ state.isFollow ? "取消关注" : "关注" }}
+      </div>
     </div>
     <div class="container__main">
-      <div class="release">发布🙌</div>
+      <div class="release" v-if="isCurrentUser">发布🙌</div>
       <el-empty description="description" v-if="state.record.treeList.length == 0" />
-      <TreeCard v-for="(item, index) in state.record.treeList" :tree="item" :user="user">
-        <el-dropdown trigger="click" @command="handleCommand">
+      <TreeCard v-for="(item, index) in state.record.treeList" :tree="item" :user="user" :key="item._id">
+        <el-dropdown trigger="click" @command="handleCommand" v-if="isCurrentUser">
           <span class="el-dropdown-link"><i class="iconfont icon-gengduo"></i></span>
           <template #dropdown>
             <el-dropdown-menu>
@@ -148,6 +196,22 @@ onMounted(async () => {
       position: absolute;
       bottom: 10px;
       left: calc(2.5vw + 110px);
+    }
+    .unFollow {
+      font-size: 14px;
+      position: absolute;
+      bottom: 10px;
+      left: calc(2.5vw + 110px);
+      padding: 10px;
+      color: @activeColor;
+      cursor: pointer;
+      background-color: rgba(94, 161, 97, 0.11);
+      border-radius: 8px;
+      transition: all 0.3s;
+      &:hover {
+        color: white;
+        background-color: @activeColor;
+      }
     }
   }
   .container__main {
