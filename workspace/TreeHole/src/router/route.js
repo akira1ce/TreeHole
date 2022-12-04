@@ -7,6 +7,7 @@ const Dynamic = () => import("../view/Dynamic.vue");
 const Personal = () => import("../view/Personal.vue");
 const Space = () => import("../view/Space.vue");
 const Socket = () => import("../view/Socket.vue");
+const Record = () => import("../view/Record.vue");
 
 const routes = [
   {
@@ -56,6 +57,11 @@ const routes = [
     path: "/socket",
     name: "Socket",
     component: Socket,
+  },
+  {
+    path: "/record",
+    name: "Record",
+    component: Record,
   },
   { path: "/", redirect: "/home" },
 ];
