@@ -9,15 +9,15 @@ const props = defineProps(["tree"]);
 const tree = props.tree;
 
 // [methods]
-const toSpace = (spaceUser) => {
+const toSpace = (spaceUser, treeID) => {
   spaceUser = toRaw(spaceUser);
-  router.push({ name: "Space", state: { spaceUser } });
+  router.push({ name: "Space", state: { spaceUser, treeID } });
 };
 </script>
 
 <template>
   <div class="card">
-    <img class="card__cover" :src="tree.imgs[0]" />
+    <img class="card__cover" :src="tree.imgs[0]" @click="toSpace(tree.owner, tree._id)" />
     <div class="card__title">{{ tree.title }}</div>
     <div class="card__author" @click="toSpace(tree.owner)"><i class="iconfont icon-shuye"></i> {{ `${tree.owner.name} · ${tree.time.split(" ")[0]}` }}</div>
   </div>
