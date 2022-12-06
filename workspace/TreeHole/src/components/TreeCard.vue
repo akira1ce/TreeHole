@@ -1,17 +1,33 @@
 <script setup>
-import { defineProps, toRaw } from "vue-demi";
+import useClipboard from "vue-clipboard3";
+import { defineProps, onMounted, reactive, toRaw } from "vue-demi";
 import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import { Position } from "@element-plus/icons-vue";
 
 const router = useRouter();
+const { toClipboard } = useClipboard();
 
 // [props]
 const props = defineProps(["tree"]);
 const { tree } = props;
 const user = tree.owner;
 
+// [state]
+
 // [methods]
 const toSpace = () => {
   router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
+};
+
+const copyLocation = async (location) => {
+  try {
+    await toClipboard(location);
+    router.push({ path: "/map", query: { location } });
+    ElMessage.success("复制成功");
+  } catch (e) {
+    ElMessage.error(e);
+  }
 };
 </script>
 
@@ -30,8 +46,31 @@ const toSpace = () => {
       </div>
     </div>
     <div class="treeCard__main">
-      <div class="main__describe">
-        {{ tree.describe }}
+      <div class="main__price">
+        <el-tag type="danger">￥{{ tree.price }}</el-tag>
+      </div>
+      <div class="main__describe">{{ tree.describe }}</div>
+      <div class="main__location" @click="copyLocation(tree.location)"><i class="iconfont icon-dingweidian--"></i>{{ tree.location }}</div>
+      <div class="main__Info">
+        <div class="info__item">
+          <div class="item__key">树种</div>
+          <div class="item__value">{{ tree.type }}</div>
+        </div>
+        <span class="item-split"></span>
+        <div class="info__item">
+          <div class="item__key">高度</div>
+          <div class="item__value">{{ tree.height }}</div>
+        </div>
+        <span class="item-split"></span>
+        <div class="info__item">
+          <div class="item__key">直径</div>
+          <div class="item__value">{{ tree.diameter }}</div>
+        </div>
+        <span class="item-split"></span>
+        <div class="info__item">
+          <div class="item__key">分支点</div>
+          <div class="item__value">{{ tree.branchPoint }}</div>
+        </div>
       </div>
       <div class="main__imgList">
         <photo-provider>
@@ -95,10 +134,42 @@ const toSpace = () => {
   }
   .treeCard__main {
     .flex__column();
+    padding: 10px 0;
+    gap: 12px;
+    .main__price {
+      font-size: 20px;
+      font-weight: bold;
+      color: rgb(255, 79, 0);
+    }
     .main__describe {
-      padding: 15px 0;
       font-size: 16px;
       user-select: text;
+    }
+    .main__location {
+      cursor: pointer;
+      .icon-dingweidian-- {
+        color: rgb(65, 182, 146);
+      }
+    }
+    .main__Info {
+      .flex__row();
+      align-items: center;
+      .info__item {
+        .flex__column();
+        height: 40px;
+        justify-content: space-between;
+        font-size: 15px;
+        cursor: pointer;
+        .item__key {
+          color: rgb(167, 167, 167);
+        }
+      }
+      .item-split {
+        width: 1px;
+        height: 30px;
+        margin: 0 20px;
+        background-color: rgb(245, 245, 245);
+      }
     }
     .main__imgList {
       .view-box {
