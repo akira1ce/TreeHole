@@ -19,16 +19,20 @@ const state = reactive({
 });
 
 // [methods]
-// 关注 || 粉丝
+// 路由导航
 const toRecord = () => {
   if (isCurrentUser.value) router.push({ name: "Record" });
+};
+
+const toSocket = () => {
+  router.push({ name: "Socket" });
 };
 
 const handleCommand = (command) => {
   console.log(`output->command`, command);
 };
 
-// follow
+// 关注
 const switchFollow = async () => {
   state.isFollow = !state.isFollow;
   const { fans, fansList } = state.record;
@@ -61,7 +65,7 @@ onMounted(async () => {
   let params = { userID: user._id };
   state.record = await request.post(api.record.getRecordByUserID, params);
   if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
-  
+
   // 滚动条行为
   nextTick(() => {
     const mainRef = document.getElementsByClassName("el-card");
@@ -95,8 +99,9 @@ onMounted(async () => {
       </div>
       <img class="avator" :src="user.avator" />
       <el-button class="editUserInfo" v-if="isCurrentUser">编辑个人资料</el-button>
-      <div class="unFollow" @click="switchFollow" v-else>
-        {{ state.isFollow ? "取消关注" : "关注" }}
+      <div v-else>
+        <div class="unFollow btn" @click="switchFollow">{{ state.isFollow ? "取消关注" : "关注" }}</div>
+        <div class="message btn" @click="toSocket">发信息</div>
       </div>
     </div>
     <div class="container__main">
@@ -134,6 +139,17 @@ onMounted(async () => {
   display: flex;
   flex-direction: row;
 }
+
+.btn {
+  font-size: 14px;
+  position: absolute;
+  bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
 .container {
   height: calc(100vh - @topbar_height);
   overflow-y: auto;
@@ -198,20 +214,19 @@ onMounted(async () => {
       left: calc(2.5vw + 110px);
     }
     .unFollow {
-      font-size: 14px;
-      position: absolute;
-      bottom: 10px;
+      .btn();
       left: calc(2.5vw + 110px);
-      padding: 10px;
       color: @activeColor;
-      cursor: pointer;
       background-color: rgba(94, 161, 97, 0.11);
-      border-radius: 8px;
-      transition: all 0.3s;
       &:hover {
         color: white;
         background-color: @activeColor;
       }
+    }
+    .message {
+      left: calc(2.5vw + 190px);
+      color: black;
+      background-color: rgba(164, 179, 165, 0.144);
     }
   }
   .container__main {
@@ -234,7 +249,7 @@ onMounted(async () => {
       background-color: @activeColor;
       color: white;
       cursor: pointer;
-      transition: all 0.3s;
+
       &:hover {
         transform: scale(1.05);
       }
