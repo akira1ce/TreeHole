@@ -41,14 +41,14 @@ const mergeOrders = async (data) => {
   return orders;
 };
 
-const mergeSockets = async (data) => {
+const mergeSockets = async (data, userID) => {
   const sockets = [];
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
     const socket = {};
     Object.assign(socket, item._doc);
-    socket.user1 = await User.findOne({ _id: item.userID1 }, { password: 0 });
-    socket.user2 = await User.findOne({ _id: item.userID2 }, { password: 0 });
+    if (item.userID1 != userID) socket.otherSide = await User.findOne({ _id: item.userID1 }, { password: 0 });
+    else socket.otherSide = await User.findOne({ _id: item.userID2 }, { password: 0 });
     sockets.push(socket);
   }
   return sockets;
