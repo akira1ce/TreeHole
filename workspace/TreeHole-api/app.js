@@ -1,5 +1,4 @@
 const express = require("express");
-const path = require("path");
 const morgan = require("morgan");
 const cors = require("cors");
 const router = require("./router");
@@ -25,14 +24,11 @@ app.use(
     ],
   })
 );
-
 app.use(morgan("dev"));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use("/", router);
-
 app.use(errorHandler());
 
 const PORT = process.env.PORT || 5000;
