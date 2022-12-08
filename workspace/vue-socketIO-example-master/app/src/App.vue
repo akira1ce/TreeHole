@@ -11,11 +11,11 @@ let msgList = reactive([
 ]);
 
 function send() {
-  socket.emit("chat message", { content: "1", sender: "a" });
+  socket.emit("sendMessage", { content: "1", sender: "a" });
   msg = "";
 }
 
-socket.on("chat message", function (msg) {
+socket.on("sendMessage", function (msg) {
   if (msg.sender == "a") console.log("存数据");
   msgList.push(msg);
   window.scrollTo(0, document.body.scrollHeight);
@@ -25,10 +25,7 @@ socket.on("chat message", function (msg) {
 <template>
   <div>
     <ul id="messages">
-      <li
-        v-for="item in msgList"
-        :class="item.sender == 'b' ? 'right' : 'left'"
-      >
+      <li v-for="item in msgList" :class="item.sender == 'b' ? 'right' : 'left'">
         {{ item.content }}
       </li>
     </ul>
