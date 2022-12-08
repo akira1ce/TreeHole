@@ -130,7 +130,7 @@ const navigate = (el) => {
       .flex__column();
       width: 100%;
       gap: 7px;
-      font-size: 6px;
+      font-size: 12px;
       font-weight: lighter;
       font-family: @defaultFont;
       color: @defaultColor;
