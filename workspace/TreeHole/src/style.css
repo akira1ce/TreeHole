@@ -156,3 +156,7 @@ table {
   background: rgb(180, 183, 188);
   border-radius: 10px;
 }
+
+.scroll::-webkit-scrollbar-corner {
+  background-color: rgb(241, 242, 243);
+}
