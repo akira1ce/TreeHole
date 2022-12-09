@@ -25,7 +25,7 @@ const otherSide = computed(() => {
 });
 
 const tag = computed(() => {
-  return order.tree.state == 0 ? { status: "warning", content: "进行中" } : { status: "success", content: "已完成" };
+  return order.state == 0 ? { status: "warning", content: "进行中" } : { status: "success", content: "已完成" };
 });
 </script>
 
