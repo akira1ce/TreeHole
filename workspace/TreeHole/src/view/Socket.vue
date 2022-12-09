@@ -1,10 +1,27 @@
 <script setup>
-import { computed, onMounted, reactive } from "vue-demi";
 import api from "../api";
-import request from "../api/request";
 import { local } from "../util";
+import request from "../api/request";
+import { io } from "socket.io-client";
+import { ElMessage } from "element-plus";
+import { computed, onMounted, reactive, toRaw } from "vue-demi";
+import { useRouter } from "vue-router";
 
+const socket = io("ws://localhost:3000");
 const user = local.getItem("user");
+const router = useRouter();
+
+socket.on("sendMessage", async function (msg) {
+  currentSocket.value.context.push(msg);
+  if (msg.senderID == user._id) {
+    const context = currentSocket.value.context;
+    const _id = currentSocket.value._id;
+    const params = { _id, context };
+
+    // 更新数据
+    await request.post(api.socket.modifyById, params);
+  }
+});
 
 // [state]
 const state = reactive({
@@ -14,6 +31,10 @@ const state = reactive({
 });
 
 // [methods]
+// 跳转用户空间
+const toSpace = () => {
+  router.push({ name: "Space", state: { spaceUser: toRaw(currentSocket.value.otherSide) } });
+};
 // 切换用户
 const selectOtherSide = (e) => {
   const id = e.target.dataset?.id || e.target.parentNode.dataset?.id;
@@ -26,13 +47,25 @@ const sendMsg = async () => {
   const senderID = user._id;
   const content = state.text;
   const time = new Date().toLocaleString();
-  currentSocket.value.context.push({
+  const msg = {
     data: {
       content,
       type: 1,
     },
     senderID,
-  });
+    time,
+  };
+
+  // 空白特判
+  if (content == "") {
+    ElMessage.warning("信息内容不能为空喔~");
+    return;
+  }
+
+  // socket 实时
+  socket.emit("sendMessage", msg);
+
+  state.text = "";
 };
 
 // [computed]
@@ -56,7 +89,7 @@ onMounted(async () => {
       </div>
     </div>
     <div class="container__dialog">
-      <div class="dialog__title">{{ currentSocket?.otherSide.name }}</div>
+      <div class="dialog__title" @click="toSpace">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
       <div class="dialog__msgList scroll">
         <div class="msgList__item" :class="item.senderID == user._id ? 'flexEnd' : 'flexStart'" v-for="item in currentSocket?.context">
           <img class="item__img" :src="item.senderID == user._id ? user.avator : currentSocket?.otherSide.avator" />
@@ -139,7 +172,9 @@ onMounted(async () => {
       text-align: center;
       line-height: 50px;
       font-size: 18px;
+      transition: all 0.5s;
       background-color: white;
+      cursor: pointer;
     }
     .dialog__msgList {
       .flex__column();
@@ -155,7 +190,6 @@ onMounted(async () => {
         .item__img {
           width: 40px;
           border-radius: 40px;
-          margin-right: 12px;
           align-self: flex-start;
         }
         .item__content {
