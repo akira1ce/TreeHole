@@ -24,5 +24,10 @@ const socketSchema = new mongoose.Schema({
      * }
      */
   },
+  treeID: {
+    type: Types.String,
+    required: false,
+    default: "",
+  },
 });
 module.exports = socketSchema;
