@@ -15,6 +15,18 @@ const state = reactive({
 });
 
 // [methods]
+// 收藏
+const collectHaddle = async (treeID) => {
+  const record = state.record;
+  const userID = state.user._id;
+  const params = {
+    userID,
+    treeID,
+    mode: 1,
+  };
+  await request.post(api.record.modifyRecordTree, params);
+};
+
 const errorHandler = () => true;
 
 // select user in userList (Left)
@@ -72,7 +84,7 @@ onMounted(async () => {
     </div>
     <div class="container__content scroll">
       <div class="content__treeList">
-        <TreeCard v-for="item in followTree" :tree="item" :key="item._id">
+        <TreeCard v-for="(item, index) in state.followTree" :key="item._id" :tree="item" :record="state.record" :collectHaddle="collectHaddle">
           <div class="unFollow" @click="switchFollow">
             {{ currentUser.isFollow ? "取消关注" : "关注" }}
           </div>
