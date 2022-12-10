@@ -15,10 +15,23 @@ const user = history.state.spaceUser || loginUser;
 const treeID = history.state.treeID || undefined;
 const state = reactive({
   record: defaultState.record,
+  loginRecord: defaultState.record,
   isFollow: false,
 });
 
 // [methods]
+// 收藏
+const collectHaddle = async (treeID) => {
+  const record = state.record;
+  const userID = loginUser._id;
+  const params = {
+    userID,
+    treeID,
+    mode: 1,
+  };
+  await request.post(api.record.modifyRecordTree, params);
+};
+
 // 路由导航
 const toRecord = () => {
   if (isCurrentUser.value) router.push({ name: "Record" });
@@ -62,8 +75,8 @@ const isCurrentUser = computed(() => {
 });
 
 onMounted(async () => {
-  let params = { userID: user._id };
-  state.record = await request.post(api.record.getRecordByUserID, params);
+  state.loginRecord = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
+  state.record = await request.post(api.record.getRecordByUserID, { userID: user._id });
   if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
 
   // 滚动条行为
@@ -106,8 +119,8 @@ onMounted(async () => {
     </div>
     <div class="container__main">
       <div class="release" v-if="isCurrentUser">发布🙌</div>
-      <el-empty description="description" v-if="state.record.treeList.length == 0" />
-      <TreeCard v-for="(item, index) in state.record.treeList" :tree="item" :user="user" :key="item._id">
+      <el-empty description="description" v-if="record.treeList.length == 0" />
+      <TreeCard v-for="(item, index) in record.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHaddle="collectHaddle">
         <el-dropdown trigger="click" @command="handleCommand" v-if="isCurrentUser">
           <span class="el-dropdown-link"><i class="iconfont icon-gengduo"></i></span>
           <template #dropdown>
