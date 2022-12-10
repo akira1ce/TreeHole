@@ -6,12 +6,12 @@ const { mergeSockets } = require("../util/merge");
 // addSocket
 const addSocket = async (req, res, next) => {
   try {
-    const { userID1, userID2 } = req.body;
+    const { userID1, userID2, treeID } = req.body;
     let socket = await Socket.findOne({
-      $or: [{ $and: [{ userID1 }, { userID2 }] }, { $and: [{ userID1: userID2 }, { userID2: userID1 }] }],
+      $or: [{ $and: [{ userID1 }, { userID2 }, { treeID }] }, { $and: [{ userID1: userID2 }, { userID2: userID1 }, { treeID }] }],
     });
     if (socket) {
-      next(err("socket already exists", 403, ""));
+      next(err("ok", 200, ""));
       return;
     }
     socket = new Socket(req.body);
