@@ -6,9 +6,12 @@ import { io } from "socket.io-client";
 import { ElMessage } from "element-plus";
 import { computed, onMounted, reactive, toRaw } from "vue-demi";
 import { useRouter } from "vue-router";
+import DialogCard from "../components/DialogCard.vue";
 
 const socket = io("ws://localhost:3000");
 const user = local.getItem("user");
+// 联系卖家 id
+const userID = history.state.userID || undefined;
 const router = useRouter();
 
 socket.on("sendMessage", async function (msg) {
@@ -31,13 +34,28 @@ const state = reactive({
 });
 
 // [methods]
+// 移除聊天
+const removeSocket = async (_id, index) => {
+  await request.post(api.socket.removeById, { _id });
+  state.socketList.splice(index, 1);
+  state.current = -1;
+};
+// 初始化
+const init = async () => {
+  if (userID != "") {
+    state.socketList.forEach((item, index) => {
+      if (item.userID1 == userID || item.userID2 == userID) state.current = index;
+    });
+  }
+};
 // 跳转用户空间
 const toSpace = () => {
   router.push({ name: "Space", state: { spaceUser: toRaw(currentSocket.value.otherSide) } });
 };
+
 // 切换用户
 const selectOtherSide = (e) => {
-  const id = e.target.dataset?.id || e.target.parentNode.dataset?.id;
+  const id = e.target.dataset?.id || e.target.parentNode.dataset?.id || e.target.parentNode.parentNode.dataset?.id;
   if (state.current == id || id == undefined) return;
   state.current = id;
 };
@@ -75,8 +93,8 @@ const currentSocket = computed(() => {
 });
 
 onMounted(async () => {
-  const params = { userID: user._id };
-  state.socketList = await request.post(api.socket.getSocketByUserID, params);
+  state.socketList = await request.post(api.socket.getSocketByUserID, { userID: user._id });
+  init();
 });
 </script>
 
@@ -84,20 +102,25 @@ onMounted(async () => {
   <div class="container">
     <div class="container__userList" @click="selectOtherSide">
       <div class="userList__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.socketList">
-        <img :src="item.otherSide.avator" />
-        <span>{{ item.otherSide.name }}</span>
+        <div class="item__left">
+          <img :src="item.otherSide.avator" />
+          <span>{{ item.otherSide.name }}</span>
+        </div>
+        <i class="iconfont icon-lajitong" @click="removeSocket(item._id, index)"></i>
       </div>
     </div>
-    <div class="container__dialog">
+    <el-empty class="container__dialog" description="description" v-show="state.current == -1" />
+    <div class="container__dialog" v-show="state.current != -1">
       <div class="dialog__title" @click="toSpace">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
       <div class="dialog__msgList scroll">
+        <DialogCard :tree="currentSocket?.tree" v-if="currentSocket?.treeID"/>
         <div class="msgList__item" :class="item.senderID == user._id ? 'flexEnd' : 'flexStart'" v-for="item in currentSocket?.context">
           <img class="item__img" :src="item.senderID == user._id ? user.avator : currentSocket?.otherSide.avator" />
           <div class="item__content">{{ item.data.content }}</div>
         </div>
       </div>
       <div class="dialog__sendBox">
-        <input class="sendBox-input" placeholder="发个信息聊聊呗~" type="text" name="text" v-model="state.text" />
+        <input class="sendBox-input" placeholder="发个信息聊聊呗~" type="text" name="text" v-model="state.text" @keydown.enter="sendMsg" />
         <button class="sendBox-send" @click="sendMsg">
           <div class="svg-wrapper-1">
             <div class="svg-wrapper">
@@ -145,6 +168,7 @@ onMounted(async () => {
     .userList__item {
       .flex__row();
       align-items: center;
+      justify-content: space-between;
       padding: 10px 15px;
       border-radius: 12px;
       overflow: hidden;
@@ -156,6 +180,19 @@ onMounted(async () => {
       }
       &:hover {
         background-color: @deepDefaultColor;
+        .icon-lajitong {
+          display: block;
+        }
+      }
+      .item__left {
+        .flex__row();
+        flex: 1;
+        align-items: center;
+      }
+      .icon-lajitong {
+        font-size: 20px;
+        display: none;
+        cursor: pointer;
       }
     }
     #active {
@@ -166,6 +203,7 @@ onMounted(async () => {
     .flex__column();
     flex: 1;
     height: 100%;
+    overflow: hidden;
     background-color: rgb(241, 242, 243);
     .dialog__title {
       height: 50px;
@@ -182,6 +220,9 @@ onMounted(async () => {
       overflow: scroll;
       padding: 10px;
       position: relative;
+      .msgList__tree {
+        margin: 0 50px;
+      }
       .msgList__item {
         .flex__row();
         gap: 10px;
