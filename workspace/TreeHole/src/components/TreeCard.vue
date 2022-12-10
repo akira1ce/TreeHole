@@ -4,18 +4,39 @@ import { defineProps, onMounted, reactive, toRaw } from "vue-demi";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Position } from "@element-plus/icons-vue";
+import { local } from "../util";
+import request from "../api/request";
+import api from "../api";
 
 const router = useRouter();
 const { toClipboard } = useClipboard();
 
 // [props]
-const props = defineProps(["tree"]);
-const { tree } = props;
+const props = defineProps(["tree", "collectHaddle", "record"]);
+const { tree, collectHaddle, record } = props;
 const user = tree.owner;
+const loginUser = local.getItem("user");
+
+const haddleCollect = async () => {
+  state.isCollect = !state.isCollect;
+  await collectHaddle(tree._id);
+};
 
 // [state]
-
+const state = reactive({
+  isCollect: false,
+});
 // [methods]
+// 跳转聊天
+const toSocket = async () => {
+  const userID1 = loginUser._id;
+  const userID2 = user._id;
+  const treeID = tree._id;
+  await request.post(api.socket.addSocket, { userID1, userID2, treeID });
+  router.push({ name: "Socket", state: { userID: userID2 } });
+};
+
+// 跳转用户空间
 const toSpace = () => {
   router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
 };
@@ -29,6 +50,10 @@ const copyLocation = async (location) => {
     ElMessage.error(e);
   }
 };
+
+onMounted(() => {
+  state.isCollect = record?.collect.indexOf(tree._id) != -1;
+});
 </script>
 
 <template>
@@ -78,6 +103,11 @@ const copyLocation = async (location) => {
             <img :src="src" class="view-box" />
           </photo-consumer>
         </photo-provider>
+      </div>
+      <div class="main__footer">
+        <i class="iconfont icon-shoucang-active" v-show="state.isCollect" @click="haddleCollect()"></i>
+        <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="haddleCollect()"></i>
+        <el-button round @click="toSocket">联系卖家</el-button>
       </div>
     </div>
   </el-card>
@@ -176,6 +206,18 @@ const copyLocation = async (location) => {
         padding: 2px;
         width: 180px;
         cursor: pointer;
+      }
+    }
+    .main__footer {
+      .flex__row();
+      align-items: center;
+      justify-content: space-between;
+      .iconfont {
+        cursor: pointer;
+        font-size: 20px;
+      }
+      .icon-shoucang-active {
+        color: #efb336;
       }
     }
   }
