@@ -47,8 +47,8 @@ const mergeSockets = async (data, userID) => {
     const item = data[i];
     const socket = {};
     Object.assign(socket, item._doc);
-    if (item.userID1 != userID) socket.otherSide = await User.findOne({ _id: item.userID1 }, { password: 0 });
-    else socket.otherSide = await User.findOne({ _id: item.userID2 }, { password: 0 });
+    socket.user1 = await User.findOne({ _id: item.userID1 }, { password: 0 });
+    socket.user2 = await User.findOne({ _id: item.userID2 }, { password: 0 });
     if (item.treeID != "") socket.tree = await Tree.findOne({ _id: item.treeID });
     sockets.push(socket);
   }

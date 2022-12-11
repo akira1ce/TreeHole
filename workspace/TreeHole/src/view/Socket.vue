@@ -9,14 +9,15 @@ import { useRouter } from "vue-router";
 import DialogCard from "../components/DialogCard.vue";
 
 const socket = io("ws://localhost:3000");
-const user = local.getItem("user");
-// 联系卖家 id
-const userID = history.state.userID || undefined;
+const loginUser = local.getItem("user");
+// 联系卖家 id & 树 id
+const userID = history.state.userID || "";
+const treeID = history.state.treeID || "";
 const router = useRouter();
 
 socket.on("sendMessage", async function (msg) {
   currentSocket.value.context.push(msg);
-  if (msg.senderID == user._id) {
+  if (msg.senderID == loginUser._id) {
     const context = currentSocket.value.context;
     const _id = currentSocket.value._id;
     const params = { _id, context };
@@ -43,14 +44,18 @@ const removeSocket = async (_id, index) => {
 // 初始化
 const init = async () => {
   if (userID != "") {
-    state.socketList.forEach((item, index) => {
-      if (item.userID1 == userID || item.userID2 == userID) state.current = index;
+    state.socketList.some((item, index) => {
+      if ((item.userID1 == userID || item.userID2 == userID) && item.treeID == treeID) {
+        state.current = index;
+        return true;
+      }
     });
   }
 };
 // 跳转用户空间
-const toSpace = () => {
-  router.push({ name: "Space", state: { spaceUser: toRaw(currentSocket.value.otherSide) } });
+const toSpace = (spaceUser, treeID) => {
+  spaceUser = toRaw(spaceUser);
+  router.push({ name: "Space", state: { spaceUser, treeID } });
 };
 
 // 切换用户
@@ -62,7 +67,7 @@ const selectOtherSide = (e) => {
 
 // 发送信息
 const sendMsg = async () => {
-  const senderID = user._id;
+  const senderID = loginUser._id;
   const content = state.text;
   const time = new Date().toLocaleString();
   const msg = {
@@ -93,7 +98,11 @@ const currentSocket = computed(() => {
 });
 
 onMounted(async () => {
-  state.socketList = await request.post(api.socket.getSocketByUserID, { userID: user._id });
+  state.socketList = await request.post(api.socket.getSocketByUserID, { userID: loginUser._id });
+  state.socketList.forEach((item) => {
+    if (loginUser._id == item.userID1) item.otherSide = item.user2;
+    else item.otherSide = item.user1;
+  });
   init();
 });
 </script>
@@ -111,11 +120,11 @@ onMounted(async () => {
     </div>
     <el-empty class="container__dialog" description="description" v-show="state.current == -1" />
     <div class="container__dialog" v-show="state.current != -1">
-      <div class="dialog__title" @click="toSpace">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
+      <div class="dialog__title" @click="toSpace(currentSocket?.otherSide, '')">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
       <div class="dialog__msgList scroll">
-        <DialogCard :tree="currentSocket?.tree" v-if="currentSocket?.treeID"/>
-        <div class="msgList__item" :class="item.senderID == user._id ? 'flexEnd' : 'flexStart'" v-for="item in currentSocket?.context">
-          <img class="item__img" :src="item.senderID == user._id ? user.avator : currentSocket?.otherSide.avator" />
+        <DialogCard :tree="currentSocket?.tree" v-if="currentSocket?.treeID" :toSpace="toSpace" :loginUser="loginUser" :otherSide="currentSocket?.otherSide" />
+        <div class="msgList__item" :class="item.senderID == loginUser._id ? 'flexEnd' : 'flexStart'" v-for="item in currentSocket?.context">
+          <img class="item__img" :src="item.senderID == loginUser._id ? loginUser.avator : currentSocket?.otherSide.avator" />
           <div class="item__content">{{ item.data.content }}</div>
         </div>
       </div>

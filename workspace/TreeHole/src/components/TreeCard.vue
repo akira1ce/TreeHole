@@ -33,7 +33,7 @@ const toSocket = async () => {
   const userID2 = user._id;
   const treeID = tree._id;
   await request.post(api.socket.addSocket, { userID1, userID2, treeID });
-  router.push({ name: "Socket", state: { userID: userID2 } });
+  router.push({ name: "Socket", state: { userID: userID2, treeID } });
 };
 
 // 跳转用户空间
@@ -104,7 +104,7 @@ onMounted(() => {
           </photo-consumer>
         </photo-provider>
       </div>
-      <div class="main__footer">
+      <div class="main__footer" v-if="user._id != loginUser._id">
         <i class="iconfont icon-shoucang-active" v-show="state.isCollect" @click="haddleCollect()"></i>
         <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="haddleCollect()"></i>
         <el-button round @click="toSocket">联系卖家</el-button>

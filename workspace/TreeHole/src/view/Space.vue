@@ -12,7 +12,7 @@ const router = useRouter();
 // [state]
 const loginUser = local.getItem("user");
 const user = history.state.spaceUser || loginUser;
-const treeID = history.state.treeID || undefined;
+const treeID = history.state.treeID || "";
 const state = reactive({
   record: defaultState.record,
   loginRecord: defaultState.record,
@@ -37,8 +37,12 @@ const toRecord = () => {
   if (isCurrentUser.value) router.push({ name: "Record" });
 };
 
-const toSocket = () => {
-  router.push({ name: "Socket" });
+const toSocket = async () => {
+  const userID1 = loginUser._id;
+  const userID2 = user._id;
+  const treeID = "";
+  await request.post(api.socket.addSocket, { userID1, userID2, treeID });
+  router.push({ name: "Socket", state: { userID: userID2 } });
 };
 
 const handleCommand = (command) => {
@@ -80,16 +84,16 @@ onMounted(async () => {
   if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
 
   // 滚动条行为
-  nextTick(() => {
-    const mainRef = document.getElementsByClassName("el-card");
-    if (treeID) {
+  if (treeID != "") {
+    nextTick(() => {
+      const mainRef = document.getElementsByClassName("el-card");
       let targetTree = 0;
       state.record.treeList.forEach((item, index) => {
         if (item._id == treeID) targetTree = index;
       });
       mainRef[targetTree].scrollIntoView({ block: "center" });
-    }
-  });
+    });
+  }
 });
 </script>
 

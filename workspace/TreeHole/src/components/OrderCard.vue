@@ -2,6 +2,8 @@
 import { Delete } from "@element-plus/icons-vue";
 import { computed, defineProps, toRaw } from "vue-demi";
 import { useRouter } from "vue-router";
+import api from "../api";
+import request from "../api/request";
 import { local } from "../util";
 
 const router = useRouter();
@@ -14,9 +16,14 @@ const { order, deleteOrder, index } = props;
 const user = local.getItem("user");
 
 // [methods]
-const toSpace = (spaceUser) => {
+const toSocket = async (userID1, userID2, treeID) => {
+  await request.post(api.socket.addSocket, { userID1, userID2, treeID });
+  router.push({ name: "Socket", state: { userID: otherSide.value._id, treeID } });
+};
+
+const toSpace = (spaceUser, treeID) => {
   spaceUser = toRaw(spaceUser);
-  router.push({ name: "Space", state: { spaceUser } });
+  router.push({ name: "Space", state: { spaceUser, treeID } });
 };
 
 // [computed]
@@ -31,11 +38,19 @@ const tag = computed(() => {
 
 <template>
   <div class="order">
-    <div class="order__otherSide" @click="toSpace(otherSide)">
+    <div class="order__otherSide" @click="toSpace(otherSide, '')">
       <img class="otherSide__avator" :src="otherSide.avator" alt="" />
       <span class="otherSide_name">{{ otherSide.name }}</span>
     </div>
-    <div class="order__tree">
+    <div
+      class="order__tree"
+      @click="
+        () => {
+          if (otherSide._id == order.tree.ownerID) toSpace(otherSide, order.tree._id);
+          else toSpace(user, order.tree._id);
+        }
+      "
+    >
       <img class="tree__cover" :src="order.tree.imgs[0]" alt="" />
       <span class="tree__title">{{ order.tree.title }}</span>
     </div>
@@ -43,7 +58,7 @@ const tag = computed(() => {
     <span>{{ order.tree.time }}</span>
     <el-tag :type="tag.status">{{ tag.content }}</el-tag>
     <div class="order-btns">
-      <el-button round>联系树友</el-button>
+      <el-button round @click="toSocket(order.sellerID, order.buyerID, order.treeID)">联系树友</el-button>
       <el-button class="order-delete" type="danger" :icon="Delete" circle @click="deleteOrder(order._id, index)" />
     </div>
   </div>

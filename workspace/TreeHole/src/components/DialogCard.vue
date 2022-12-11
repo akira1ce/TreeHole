@@ -1,6 +1,10 @@
 <script setup>
-const props = defineProps(["tree"]);
-const { tree } = props;
+import { local } from "../util";
+
+// [props]
+const props = defineProps(["tree", "loginUser", "otherSide", "toSpace"]);
+const { tree, loginUser, otherSide, toSpace } = props;
+// [methods]
 </script>
 
 <template>
@@ -10,12 +14,21 @@ const { tree } = props;
         <img :src="tree.imgs[0]" />
       </div>
       <div class="tree__info">
-        <span class="info__title">{{ tree.title }}</span>
+        <span
+          class="info__title"
+          @click="
+            () => {
+              if (tree.ownerID == loginUser._id) toSpace(loginUser, tree._id);
+              else toSpace(otherSide, tree._id);
+            }
+          "
+          >{{ tree.title }}</span
+        >
         <span class="info__describe">{{ tree.describe }}</span>
       </div>
       <div class="tree__options">
         <span class="options__price">￥{{ tree.price }}</span>
-        <el-button type="warning" round>立即购买</el-button>
+        <el-button type="warning" round v-if="tree.ownerID != loginUser._id">立即购买</el-button>
       </div>
     </div>
     <div class="card__tips">look here 👀</div>
@@ -60,6 +73,9 @@ const { tree } = props;
       }
     }
     .tree__info {
+      .info__title {
+        cursor: pointer;
+      }
       .flex__column();
       flex: 1;
       gap: 10px;
