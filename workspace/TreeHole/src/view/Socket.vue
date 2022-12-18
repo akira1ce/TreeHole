@@ -4,27 +4,34 @@ import { local } from "../util";
 import request from "../api/request";
 import { io } from "socket.io-client";
 import { ElMessage } from "element-plus";
-import { computed, onMounted, reactive, toRaw } from "vue-demi";
+import { computed, nextTick, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { useRouter } from "vue-router";
 import DialogCard from "../components/DialogCard.vue";
+
+const router = useRouter();
+const dialogRef = ref(null);
 
 const socket = io("ws://localhost:3000");
 const loginUser = local.getItem("user");
 // 联系卖家 id & 树 id
 const userID = history.state.userID || "";
 const treeID = history.state.treeID || "";
-const router = useRouter();
 
+// socket 信息中转
 socket.on("sendMessage", async function (msg) {
-  currentSocket.value.context.push(msg);
+  // 接收方 数据缓存
+  if (currentSocket.value.otherSide._id == msg.senderID) {
+    currentSocket.value.context.push(msg);
+  }
+  // 发送方 数据缓存 + 存储
   if (msg.senderID == loginUser._id) {
-    const context = currentSocket.value.context;
+    state.socketList[state.current].context.push(msg);
     const _id = currentSocket.value._id;
-    const params = { _id, context };
-
+    const params = { _id, msg };
     // 更新数据
     await request.post(api.socket.modifyById, params);
   }
+  downScroll();
 });
 
 // [state]
@@ -35,13 +42,23 @@ const state = reactive({
 });
 
 // [methods]
+// 下放滚动条
+const downScroll = () => {
+  nextTick(() => {
+    dialogRef.value.scrollTop = dialogRef.value.scrollHeight;
+  });
+};
+
 // 移除聊天
 const removeSocket = async (_id, index) => {
   await request.post(api.socket.removeById, { _id });
   state.socketList.splice(index, 1);
   state.current = -1;
 };
+
 // 初始化
+// 1. 用户自行进入聊天界面
+// 2. 用户对用户发起聊天
 const init = async () => {
   if (userID != "") {
     state.socketList.some((item, index) => {
@@ -52,6 +69,7 @@ const init = async () => {
     });
   }
 };
+
 // 跳转用户空间
 const toSpace = (spaceUser, treeID) => {
   spaceUser = toRaw(spaceUser);
@@ -104,6 +122,7 @@ onMounted(async () => {
     else item.otherSide = item.user1;
   });
   init();
+  downScroll();
 });
 </script>
 
@@ -121,7 +140,7 @@ onMounted(async () => {
     <el-empty class="container__dialog" description="description" v-show="state.current == -1" />
     <div class="container__dialog" v-show="state.current != -1">
       <div class="dialog__title" @click="toSpace(currentSocket?.otherSide, '')">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
-      <div class="dialog__msgList scroll">
+      <div class="dialog__msgList scroll" ref="dialogRef">
         <DialogCard :tree="currentSocket?.tree" v-if="currentSocket?.treeID" :toSpace="toSpace" :loginUser="loginUser" :otherSide="currentSocket?.otherSide" />
         <div class="msgList__item" :class="item.senderID == loginUser._id ? 'flexEnd' : 'flexStart'" v-for="item in currentSocket?.context">
           <img class="item__img" :src="item.senderID == loginUser._id ? loginUser.avator : currentSocket?.otherSide.avator" />
