@@ -40,10 +40,16 @@ const removeById = async (req, res, next) => {
 // modifyById
 const modifyById = async (req, res, next) => {
   try {
-    const { _id } = req.body;
-    const data = await Socket.findByIdAndUpdate(_id, req.body);
-    if (!data) {
+    const { _id, msg } = req.body;
+    const socket = await Socket.findOne({ _id });
+    if (!socket) {
       next(err("The Socket does not exist", 403, ""));
+      return;
+    }
+    socket.context.push(msg);
+    const data = await Socket.findByIdAndUpdate(_id, socket);
+    if (!data) {
+      next(err("update socket error", 403, ""));
       return;
     }
     res.send(result(200, data, "ok"));
