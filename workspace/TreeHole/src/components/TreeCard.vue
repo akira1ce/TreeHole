@@ -71,8 +71,9 @@ onMounted(() => {
       </div>
     </div>
     <div class="treeCard__main">
-      <div class="main__price">
-        <el-tag type="danger">￥{{ tree.price }}</el-tag>
+      <div class="main__title">
+        <span>{{ tree.title }}</span>
+        <el-tag type="danger" class="title__price">￥{{ tree.price }}</el-tag>
       </div>
       <div class="main__describe">{{ tree.describe }}</div>
       <div class="main__location" @click="copyLocation(tree.location)"><i class="iconfont icon-dingweidian--"></i>{{ tree.location }}</div>
@@ -166,10 +167,16 @@ onMounted(() => {
     .flex__column();
     padding: 10px 0;
     gap: 12px;
-    .main__price {
-      font-size: 20px;
-      font-weight: bold;
-      color: rgb(255, 79, 0);
+    .main__title {
+      .flex__row();
+      gap: 10px;
+      align-items: center;
+      font-size: 16px;
+      .title__price {
+        font-size: 12px;
+        font-weight: bold;
+        color: rgb(255, 105, 36);
+      }
     }
     .main__describe {
       font-size: 16px;
