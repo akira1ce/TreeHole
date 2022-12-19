@@ -20,6 +20,7 @@ const defaultState = {
     following: [],
     order: [],
     treeList: [],
+    orderList: [],
     userID: "",
   },
 };
