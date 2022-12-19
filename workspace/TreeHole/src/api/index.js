@@ -31,6 +31,7 @@ export default {
     removeById: "/order/removeById",
     modifyById: "/order/modifyById",
     getOrderListByUserID: "/order/getOrderListByUserID",
+    modifyByTreeID: "/order/modifyByTreeID",
   },
   socket: {
     addSocket: "/socket/addSocket",
