@@ -42,6 +42,28 @@ const state = reactive({
 });
 
 // [methods]
+/**
+ * 订单操作
+ * - 立即购买 code 0
+ * - 确认售出 code 1
+ * @param {object} tree
+ * @param {number} code
+ */
+const orderOp = async (tree, code) => {
+  if (code == -1) return;
+  if (code == 0) {
+    const time = new Date().toLocaleString();
+    await request.post(api.order.addOrder, { treeID: tree._id, buyerID: loginUser._id, sellerID: tree.ownerID, time, state: 0 });
+    await request.post(api.tree.modifyById, { _id: tree._id, state: 1 });
+    state.socketList[state.current].tree.state = 1;
+    ElMessage.success("购买成功");
+  } else {
+    await request.post(api.order.modifyByTreeID, { treeID: tree._id, state: 1 });
+    await request.post(api.tree.modifyById, { _id: tree._id, state: 2 });
+    state.socketList[state.current].tree.state = 2;
+    ElMessage.success("售出成功");
+  }
+};
 // 下放滚动条
 const downScroll = () => {
   nextTick(() => {
@@ -141,7 +163,7 @@ onMounted(async () => {
     <div class="container__dialog" v-show="state.current != -1">
       <div class="dialog__title" @click="toSpace(currentSocket?.otherSide, '')">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
       <div class="dialog__msgList scroll" ref="dialogRef">
-        <DialogCard :tree="currentSocket?.tree" v-if="currentSocket?.treeID" :toSpace="toSpace" :loginUser="loginUser" :otherSide="currentSocket?.otherSide" />
+        <DialogCard :key="currentSocket?.treeID" :tree="currentSocket?.tree" v-if="currentSocket?.treeID" :toSpace="toSpace" :loginUser="loginUser" :otherSide="currentSocket?.otherSide" :orderOp="orderOp" />
         <div class="msgList__item" :class="item.senderID == loginUser._id ? 'flexEnd' : 'flexStart'" v-for="item in currentSocket?.context">
           <img class="item__img" :src="item.senderID == loginUser._id ? loginUser.avator : currentSocket?.otherSide.avator" />
           <div class="item__content">{{ item.data.content }}</div>

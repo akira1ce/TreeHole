@@ -1,10 +1,42 @@
 <script setup>
+import { computed } from "vue-demi";
 import { local } from "../util";
 
 // [props]
-const props = defineProps(["tree", "loginUser", "otherSide", "toSpace"]);
-const { tree, loginUser, otherSide, toSpace } = props;
-// [methods]
+const props = defineProps(["tree", "loginUser", "otherSide", "toSpace", "orderOp"]);
+const { tree, loginUser, otherSide, toSpace, orderOp } = props;
+// [computed]
+const orderBtn = computed(() => {
+  let type = "";
+  let content = "";
+  let code = -1;
+  if (tree.ownerID == loginUser._id) {
+    if (tree.state == 0) {
+      type = "warning";
+      content = "等待购买";
+    } else if (tree.state == 1) {
+      type = "warning";
+      content = "确认售出";
+      code = 1;
+    } else if (tree.state == 2) {
+      type = "success";
+      content = "售出成功";
+    }
+  } else {
+    if (tree.state == 0) {
+      type = "warning";
+      content = "立即购买";
+      code = 0;
+    } else if (tree.state == 1) {
+      type = "warning";
+      content = "等待出售";
+    } else if (tree.state == 2) {
+      type = "success";
+      content = "购买成功";
+    }
+  }
+  return { type, content, code };
+});
 </script>
 
 <template>
@@ -28,10 +60,9 @@ const { tree, loginUser, otherSide, toSpace } = props;
       </div>
       <div class="tree__options">
         <span class="options__price">￥{{ tree.price }}</span>
-        <el-button type="warning" round v-if="tree.ownerID != loginUser._id">立即购买</el-button>
+        <el-button :type="orderBtn.type" round @click="orderOp(tree, orderBtn.code)">{{ orderBtn.content }}</el-button>
       </div>
     </div>
-    <div class="card__tips">look here 👀</div>
   </div>
 </template>
 
@@ -47,23 +78,16 @@ const { tree, loginUser, otherSide, toSpace } = props;
 .card {
   .flex__column();
   align-items: center;
-  width: 500px;
+  align-self: center;
+  width: 550px;
   max-height: 155px;
   font-family: inherit;
-  position: absolute;
-  left: 50%;
-  top: -145px;
-  transform: translateX(-50%);
-  transition: all 0.5s;
-  &:hover {
-    top: 20px;
-  }
   .card__tips {
     padding-top: 20px;
   }
   .card__tree {
     .flex__row();
-    gap: 10px;
+    gap: 15px;
     padding: 20px;
     border-radius: 10px;
     background-color: white;
