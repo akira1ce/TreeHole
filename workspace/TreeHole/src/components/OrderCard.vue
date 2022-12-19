@@ -9,10 +9,10 @@ import { local } from "../util";
 const router = useRouter();
 
 // [props]
-const props = defineProps(["order", "deleteOrder"]);
+const props = defineProps(["order", "deleteOrder", "removeOrder", "index"]);
 
 // [state]
-const { order, deleteOrder, index } = props;
+const { order, deleteOrder, index, removeOrder } = props;
 const user = local.getItem("user");
 
 // [methods]
@@ -24,6 +24,11 @@ const toSocket = async (userID1, userID2, treeID) => {
 const toSpace = (spaceUser, treeID) => {
   spaceUser = toRaw(spaceUser);
   router.push({ name: "Space", state: { spaceUser, treeID } });
+};
+
+const spaceLink = () => {
+  if (otherSide.value._id == order.tree.ownerID) toSpace(otherSide.value, order.tree._id);
+  else toSpace(user, order.tree._id);
 };
 
 // [computed]
@@ -42,24 +47,18 @@ const tag = computed(() => {
       <img class="otherSide__avator" :src="otherSide.avator" alt="" />
       <span class="otherSide_name">{{ otherSide.name }}</span>
     </div>
-    <div
-      class="order__tree"
-      @click="
-        () => {
-          if (otherSide._id == order.tree.ownerID) toSpace(otherSide, order.tree._id);
-          else toSpace(user, order.tree._id);
-        }
-      "
-    >
+    <div class="order__tree" @click="spaceLink">
       <img class="tree__cover" :src="order.tree.imgs[0]" alt="" />
       <span class="tree__title">{{ order.tree.title }}</span>
     </div>
-
-    <span>{{ order.tree.time }}</span>
-    <el-tag :type="tag.status">{{ tag.content }}</el-tag>
+    <div class="order__info">
+      <span>{{ order.time }}</span>
+      <el-tag :type="tag.status">{{ tag.content }}</el-tag>
+    </div>
     <div class="order-btns">
       <el-button round @click="toSocket(order.sellerID, order.buyerID, order.treeID)">联系树友</el-button>
-      <el-button class="order-delete" type="danger" :icon="Delete" circle @click="deleteOrder(order._id, index)" />
+      <el-button round @click="removeOrder(order._id, order.treeID, index)" v-if="order.state == 0">取消订单</el-button>
+      <el-button type="danger" round @click="deleteOrder(order._id, index)" v-if="order.state == 1">删除订单</el-button>
     </div>
   </div>
 </template>
@@ -82,8 +81,15 @@ const tag = computed(() => {
   justify-content: space-between;
   align-items: center;
   padding: 15px 10px;
+  .order__otherSide,
+  .order__tree,
+  .order__info,
+  .order-btns {
+    flex: 1;
+  }
   .order__otherSide {
     .flex__row();
+    flex: 0.6;
     align-items: center;
     cursor: pointer;
     .otherSide__avator {
@@ -96,7 +102,6 @@ const tag = computed(() => {
 
   .order__tree {
     .flex__row();
-    flex: 0.5;
     align-items: center;
     cursor: pointer;
     .tree__cover {
@@ -110,7 +115,14 @@ const tag = computed(() => {
       text-overflow: ellipsis;
     }
   }
+
+  .order__info {
+    .flex__row();
+    align-items: center;
+    gap: 50px;
+  }
   .order-btns {
+    flex: 0.6;
     .order-delete {
       visibility: hidden;
     }

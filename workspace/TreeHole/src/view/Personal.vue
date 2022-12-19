@@ -6,6 +6,7 @@ import { useRouter } from "vue-router";
 import { local, defaultState } from "../util";
 import Card from "../components/Card.vue";
 import OrderCard from "../components/OrderCard.vue";
+import { ElMessage } from "element-plus";
 
 const router = useRouter();
 const sliderRef = ref();
@@ -22,6 +23,13 @@ const sliderLeft = ["22px", "125px", "228px"];
 const user = local.getItem("user");
 
 // [methods]
+const removeOrder = async (orderID, treeID, index) => {
+  await request.post(api.order.removeById, { _id: orderID });
+  await request.post(api.tree.modifyById, { _id: treeID, state: 0 });
+  state.record.order.splice(index, 1);
+  state.record.orderList.splice(index, 1);
+  ElMessage.success("取消成功");
+};
 const toSpace = () => {
   router.push({ name: "Space" });
 };
@@ -123,7 +131,7 @@ const record = computed(() => {
           <Card v-for="(item, index) in state.currentList" :key="item._id" :tree="item" />
         </div>
         <div class="content__orders" v-else>
-          <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" />
+          <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" :removeOrder="removeOrder" />
         </div>
       </div>
     </div>
