@@ -3,12 +3,18 @@ import { defineProps, toRaw } from "vue-demi";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-
-// [props]
 const props = defineProps(["tree"]);
+
+// [state]
 const tree = props.tree;
 
 // [methods]
+/**
+ * 跳转个人空间
+ * - 若 treeID 存在，滚动条跳转至对应位置
+ * @param {object} spaceUser
+ * @param {string} treeID
+ */
 const toSpace = (spaceUser, treeID) => {
   spaceUser = toRaw(spaceUser);
   router.push({ name: "Space", state: { spaceUser, treeID } });
@@ -16,9 +22,13 @@ const toSpace = (spaceUser, treeID) => {
 </script>
 
 <template>
+  <!-- 首页树卡片 -->
   <div class="card">
+    <!-- 树-封面 -->
     <img class="card__cover" :src="tree.imgs[0]" @click="toSpace(tree.owner, tree._id)" />
+    <!-- 树-标题 -->
     <div class="card__title">{{ tree.title }}</div>
+    <!-- 树-拥有者 -->
     <div class="card__author" @click="toSpace(tree.owner)"><i class="iconfont icon-shuye"></i> {{ `${tree.owner.name} · ${tree.time.split(" ")[0]}` }}</div>
   </div>
 </template>

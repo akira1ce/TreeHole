@@ -6,13 +6,17 @@ import { local } from "../util";
 const route = useRoute();
 const router = useRouter();
 
-// state
+// [state]
 const sliderRef = ref();
-const user = local.getItem("user") || {};
+const loginUser = local.getItem("user") || {};
 const current = local.getItem("current");
 const subRouting = ["Recommend", "Area"];
 
 // methods
+/**
+ * tab 切换
+ * @param {vnode} target 
+ */
 const tabHandler = (target) => {
   // Home -> recommend / area
   if (target == "Recommend") {
@@ -38,13 +42,18 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- 顶部栏 -->
   <div class="topbar">
+    <!-- logo -->
     <i class="iconfont icon-Treehouse topbar__logo"></i>
     <div class="topbar__tab" v-show="route.path.startsWith('/home')">
+      <!-- 推荐 -->
       <div class="topbar__item" @click="tabHandler('Recommend')" :id="route.path.endsWith('/recommend') && 'active'">推荐</div>
+      <!-- 地区 -->
       <div class="topbar__item" @click="tabHandler('Area')" :id="route.path.endsWith('/area') && 'active'">
-        {{ user.location?.split("-")[1] }}
+        {{ loginUser.location?.split("-")[1] }}
       </div>
+      <!-- 滑块 -->
       <div class="slider" ref="sliderRef"></div>
       <div></div>
     </div>

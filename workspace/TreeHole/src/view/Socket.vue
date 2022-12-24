@@ -21,7 +21,7 @@ const treeID = history.state.treeID || "";
 socket.on("sendMessage", async function (msg) {
   // 接收方 数据缓存
   if (currentSocket.value.otherSide._id == msg.senderID) {
-    currentSocket.value.context.push(msg);
+    state.socketList[state.current].context.push(msg);
   }
   // 发送方 数据缓存 + 存储
   if (msg.senderID == loginUser._id) {

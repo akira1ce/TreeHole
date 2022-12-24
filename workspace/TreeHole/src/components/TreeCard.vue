@@ -10,35 +10,45 @@ import api from "../api";
 
 const router = useRouter();
 const { toClipboard } = useClipboard();
-
-// [props]
 const props = defineProps(["tree", "collectHaddle", "record"]);
+
+// [state]
 const { tree, collectHaddle, record } = props;
 const user = tree.owner;
 const loginUser = local.getItem("user");
+const state = reactive({
+  isCollect: false,
+});
 
+// [methods]
 const haddleCollect = async () => {
   state.isCollect = !state.isCollect;
   await collectHaddle(tree._id);
 };
 
-// [state]
-const state = reactive({
-  isCollect: false,
-});
-// [methods]
-// 跳转聊天
-const toSocket = async () => {
-  const userID1 = loginUser._id;
-  const userID2 = user._id;
-  const treeID = tree._id;
+/**
+ * 跳转聊天
+ * - user1
+ * - user2
+ * - tree
+ * @param {string} userID1
+ * @param {string} userID2
+ * @param {string} treeID
+ */
+const toSocket = async (userID1, userID2, treeID) => {
   await request.post(api.socket.addSocket, { userID1, userID2, treeID });
   router.push({ name: "Socket", state: { userID: userID2, treeID } });
 };
 
-// 跳转用户空间
-const toSpace = () => {
-  router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
+/**
+ * 跳转个人空间
+ * - 若 treeID 存在，滚动条跳转至对应位置
+ * @param {object} spaceUser
+ * @param {string} treeID
+ */
+const toSpace = (spaceUser) => {
+  spaceUser = toRaw(spaceUser);
+  router.push({ name: "Space", state: { spaceUser } });
 };
 
 const copyLocation = async (location) => {
@@ -60,9 +70,9 @@ onMounted(() => {
   <el-card class="treeCard" shadow="hover">
     <div class="treeCard__header">
       <div class="header__left">
-        <img class="header__avator" :src="user.avator" @click="toSpace" />
+        <img class="header__avator" :src="user.avator" @click="toSpace(user)" />
         <div class="header__info">
-          <span class="info__name" @click="toSpace">{{ user.name }}</span>
+          <span class="info__name" @click="toSpace(user)">{{ user.name }}</span>
           <span class="info__time">{{ tree.time.split(" ")[0].substring(5).split("/").join("-") }}</span>
         </div>
       </div>
@@ -108,7 +118,7 @@ onMounted(() => {
       <div class="main__footer" v-if="user._id != loginUser._id">
         <i class="iconfont icon-shoucang-active" v-show="state.isCollect" @click="haddleCollect()"></i>
         <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="haddleCollect()"></i>
-        <el-button round @click="toSocket">联系卖家</el-button>
+        <el-button round @click="toSocket(loginUser._id, user._id, tree._id)">联系卖家</el-button>
       </div>
     </div>
   </el-card>

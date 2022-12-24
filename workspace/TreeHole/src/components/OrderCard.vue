@@ -7,8 +7,6 @@ import request from "../api/request";
 import { local } from "../util";
 
 const router = useRouter();
-
-// [props]
 const props = defineProps(["order", "deleteOrder", "removeOrder", "index"]);
 
 // [state]
@@ -16,11 +14,26 @@ const { order, deleteOrder, index, removeOrder } = props;
 const user = local.getItem("user");
 
 // [methods]
+/**
+ * 跳转聊天
+ * - user1
+ * - user2
+ * - tree
+ * @param {string} userID1 
+ * @param {string} userID2 
+ * @param {string} treeID 
+ */
 const toSocket = async (userID1, userID2, treeID) => {
   await request.post(api.socket.addSocket, { userID1, userID2, treeID });
   router.push({ name: "Socket", state: { userID: otherSide.value._id, treeID } });
 };
 
+/**
+ * 跳转个人空间
+ * - 若 treeID 存在，滚动条跳转至对应位置
+ * @param {object} spaceUser
+ * @param {string} treeID
+ */
 const toSpace = (spaceUser, treeID) => {
   spaceUser = toRaw(spaceUser);
   router.push({ name: "Space", state: { spaceUser, treeID } });
@@ -32,6 +45,7 @@ const spaceLink = () => {
 };
 
 // [computed]
+// 当前聊天对方
 const otherSide = computed(() => {
   return user._id == order.buyerID ? order.seller : order.buyer;
 });
@@ -42,19 +56,24 @@ const tag = computed(() => {
 </script>
 
 <template>
+  <!-- 个人中心 订单卡片 -->
   <div class="order">
+    <!-- 订单-对方 -->
     <div class="order__otherSide" @click="toSpace(otherSide, '')">
       <img class="otherSide__avator" :src="otherSide.avator" alt="" />
       <span class="otherSide_name">{{ otherSide.name }}</span>
     </div>
+    <!-- 订单-树 -->
     <div class="order__tree" @click="spaceLink">
       <img class="tree__cover" :src="order.tree.imgs[0]" alt="" />
       <span class="tree__title">{{ order.tree.title }}</span>
     </div>
+    <!-- 订单-基本信息 -->
     <div class="order__info">
       <span>{{ order.time }}</span>
       <el-tag :type="tag.status">{{ tag.content }}</el-tag>
     </div>
+    <!-- 订单-操作按钮 -->
     <div class="order-btns">
       <el-button round @click="toSocket(order.sellerID, order.buyerID, order.treeID)">联系树友</el-button>
       <el-button round @click="removeOrder(order._id, order.treeID, index)" v-if="order.state == 0">取消订单</el-button>

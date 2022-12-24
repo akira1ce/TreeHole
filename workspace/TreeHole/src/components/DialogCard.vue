@@ -2,10 +2,17 @@
 import { computed } from "vue-demi";
 import { local } from "../util";
 
-// [props]
+// props
 const props = defineProps(["tree", "loginUser", "otherSide", "toSpace", "orderOp"]);
+
+// [state]
 const { tree, loginUser, otherSide, toSpace, orderOp } = props;
+
 // [computed]
+/**
+ * 对话框 树卡片 订单处理按钮
+ * 该按钮对应双方,会有不同的状态
+ */
 const orderBtn = computed(() => {
   let type = "";
   let content = "";
@@ -40,11 +47,14 @@ const orderBtn = computed(() => {
 </script>
 
 <template>
+  <!-- 对话框 树卡片 -->
   <div class="card">
     <div class="card__tree">
+      <!-- 树-封面 -->
       <div class="tree__cover">
         <img :src="tree.imgs[0]" />
       </div>
+      <!-- 树-信息 -->
       <div class="tree__info">
         <span
           class="info__title"
@@ -58,9 +68,13 @@ const orderBtn = computed(() => {
         >
         <span class="info__describe">{{ tree.describe }}</span>
       </div>
+      <!-- 树-操作 -->
       <div class="tree__options">
+        <!-- 树-价格 -->
         <span class="options__price">￥{{ tree.price }}</span>
+        <!-- 树-订单处理 -->
         <el-button :type="orderBtn.type" round @click="orderOp(tree, orderBtn.code)">{{ orderBtn.content }}</el-button>
+        <!-- 取消 -->
       </div>
     </div>
   </div>
