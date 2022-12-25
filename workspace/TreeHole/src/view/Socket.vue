@@ -12,10 +12,6 @@ const router = useRouter();
 const dialogRef = ref(null);
 
 const socket = io("ws://localhost:3000");
-const loginUser = local.getItem("user");
-// 联系卖家 id & 树 id
-const userID = history.state.userID || "";
-const treeID = history.state.treeID || "";
 
 // socket 信息中转
 socket.on("sendMessage", async function (msg) {
@@ -35,6 +31,10 @@ socket.on("sendMessage", async function (msg) {
 });
 
 // [state]
+const loginUser = local.getItem("user");
+// 联系卖家 id & 树 id
+const userID = history.state.userID || "";
+const treeID = history.state.treeID || "";
 const state = reactive({
   current: 0,
   text: "",
@@ -64,6 +64,7 @@ const orderOp = async (tree, code) => {
     ElMessage.success("售出成功");
   }
 };
+
 // 下放滚动条
 const downScroll = () => {
   nextTick(() => {
@@ -71,7 +72,11 @@ const downScroll = () => {
   });
 };
 
-// 移除聊天
+/**
+ * 移除聊天
+ * @param {string} _id
+ * @param {number} index
+ */
 const removeSocket = async (_id, index) => {
   await request.post(api.socket.removeById, { _id });
   state.socketList.splice(index, 1);
@@ -150,6 +155,7 @@ onMounted(async () => {
 
 <template>
   <div class="container">
+    <!-- 聊天列表 -->
     <div class="container__userList" @click="selectOtherSide">
       <div class="userList__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.socketList">
         <div class="item__left">
@@ -160,15 +166,20 @@ onMounted(async () => {
       </div>
     </div>
     <el-empty class="container__dialog" description="description" v-show="state.current == -1" />
+    <!-- 对话框 -->
     <div class="container__dialog" v-show="state.current != -1">
+      <!-- 标题 -->
       <div class="dialog__title" @click="toSpace(currentSocket?.otherSide, '')">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
+      <!-- 信息列表 -->
       <div class="dialog__msgList scroll" ref="dialogRef">
+        <!-- 树卡片 -->
         <DialogCard :key="currentSocket?.treeID" :tree="currentSocket?.tree" v-if="currentSocket?.treeID" :toSpace="toSpace" :loginUser="loginUser" :otherSide="currentSocket?.otherSide" :orderOp="orderOp" />
         <div class="msgList__item" :class="item.senderID == loginUser._id ? 'flexEnd' : 'flexStart'" v-for="item in currentSocket?.context">
           <img class="item__img" :src="item.senderID == loginUser._id ? loginUser.avator : currentSocket?.otherSide.avator" />
           <div class="item__content">{{ item.data.content }}</div>
         </div>
       </div>
+      <!-- 输入框 -->
       <div class="dialog__sendBox">
         <input class="sendBox-input" placeholder="发个信息聊聊呗~" type="text" name="text" v-model="state.text" @keydown.enter="sendMsg" />
         <button class="sendBox-send" @click="sendMsg">

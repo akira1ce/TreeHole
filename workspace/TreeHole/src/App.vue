@@ -10,7 +10,9 @@ const whitelist = ["Login", "Register"];
 </script>
 
 <template>
+  <!-- 侧边栏 -->
   <Sidebar v-if="whitelist.indexOf(route.name) == -1" />
+  <!-- 顶部栏 -->
   <Topbar v-if="whitelist.indexOf(route.name) == -1" />
   <router-view></router-view>
 </template>

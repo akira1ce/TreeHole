@@ -6,15 +6,13 @@ import api from "../api";
 import { local } from "../util";
 
 const router = useRouter();
-
-// [state]
 const formRef = ref();
 
+// [state]
 const user = reactive({
   account: "17756287961",
   password: "admin123",
 });
-
 const rules = reactive({
   account: [
     {
@@ -35,7 +33,11 @@ const rules = reactive({
 });
 
 // [methods]
-// submit
+/**
+ * 登陆
+ * @param {object} formEl 
+ * @param {number} mode 
+ */
 const Submit = async (formEl, mode) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
@@ -75,13 +77,17 @@ onMounted(() => {
 
 <template>
   <div class="container">
+    <!-- 登陆框 -->
     <div class="box">
       <div class="main">
         <h2 class="main-title">Welcome TreeHole 🙌</h2>
+        <!-- 表单 -->
         <el-form :model="user" :rules="rules" label-width="50px" ref="formRef" class="main-form" @keydown.enter="Submit(formRef, 1)" status-icon>
+          <!-- 账号 -->
           <el-form-item label="Account" prop="account">
             <el-input v-model="user.account"></el-input>
           </el-form-item>
+          <!-- 密码 -->
           <el-form-item label="Password" prop="password">
             <el-input v-model="user.password" type="password"></el-input>
           </el-form-item>
@@ -92,6 +98,7 @@ onMounted(() => {
         </el-form>
       </div>
     </div>
+    <!-- 注册 -->
     <el-button class="register" type="primary" round @click="toRegister">Sign Up</el-button>
   </div>
 </template>

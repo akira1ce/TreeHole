@@ -20,7 +20,10 @@ const state = reactive({
 });
 
 // [methods]
-// 收藏
+/**
+ * 收藏
+ * @param {string} treeID 
+ */
 const collectHaddle = async (treeID) => {
   const record = state.record;
   const userID = loginUser._id;
@@ -32,11 +35,12 @@ const collectHaddle = async (treeID) => {
   await request.post(api.record.modifyRecordTree, params);
 };
 
-// 路由导航
+// 跳转记录
 const toRecord = () => {
   if (isCurrentUser.value) router.push({ name: "Record" });
 };
 
+// 跳转聊天
 const toSocket = async () => {
   const userID1 = loginUser._id;
   const userID2 = user._id;
@@ -74,6 +78,7 @@ const switchFollow = async () => {
 // [computed]
 const record = computed(() => state.record);
 
+// 是否是当前用户
 const isCurrentUser = computed(() => {
   return user._id == loginUser._id;
 });
@@ -99,8 +104,11 @@ onMounted(async () => {
 
 <template>
   <div class="container scroll">
+    <!-- 个人空间-顶部 -->
     <div class="container__top">
+      <!-- 封面 -->
       <div class="top__cover"></div>
+      <!-- 用户信息 -->
       <div class="top__user">
         <span class="user__name">{{ user.name }}</span>
         <div class="user__record">
@@ -121,6 +129,7 @@ onMounted(async () => {
         <div class="message btn" @click="toSocket">发信息</div>
       </div>
     </div>
+    <!-- 主体-树列表 -->
     <div class="container__main">
       <div class="release" v-if="isCurrentUser">发布🙌</div>
       <el-empty description="description" v-if="record.treeList.length == 0" />

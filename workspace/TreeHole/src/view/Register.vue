@@ -34,6 +34,11 @@ const rules = reactive({
 });
 
 // [methods]
+/**
+ * 注册
+ * @param {object} formEl 
+ * @param {number} mode 
+ */
 const Submit = async (formEl, mode) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {

@@ -15,7 +15,10 @@ const state = reactive({
 });
 
 // [methods]
-// 收藏
+/**
+ * 收藏树
+ * @param {string} treeID
+ */
 const collectHaddle = async (treeID) => {
   const record = state.record;
   const userID = state.user._id;
@@ -29,7 +32,10 @@ const collectHaddle = async (treeID) => {
 
 const errorHandler = () => true;
 
-// select user in userList (Left)
+/**
+ * 选择关注列表中的用户
+ * @param {vnode} e
+ */
 const selectUser = async (e) => {
   const id = e.target.dataset?.id || e.target.parentNode.dataset?.id;
   if (state.current == id || id == undefined) return;
@@ -37,13 +43,18 @@ const selectUser = async (e) => {
   await getTreeList(state.current);
 };
 
+/**
+ * 获取树列表
+ */
 const getTreeList = async (index) => {
   state.followTree = await request.post(api.tree.getTreeListByUserID, {
     userID: state.record.followList[index]?._id,
   });
 };
 
-// follow
+/**
+ * 关注-取消关注
+ */
 const switchFollow = async () => {
   const index = state.current;
   const follow_index = state.record.followList[index];
@@ -57,10 +68,12 @@ const switchFollow = async () => {
 };
 
 // [computed]
+// 当前用户
 const currentUser = computed(() => {
   return state.record.followList[state.current];
 });
 
+// 当前关注用户树列表
 const followTree = computed(() => {
   return state.followTree;
 });
@@ -76,12 +89,14 @@ onMounted(async () => {
 
 <template>
   <div class="container">
+    <!-- 关注列表 -->
     <div class="container__follow" @click="selectUser">
       <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.record.followList">
         <img :src="item.avator" />
         <span>{{ item.name }}</span>
       </div>
     </div>
+    <!-- 树列表 -->
     <div class="container__content scroll">
       <div class="content__treeList">
         <TreeCard v-for="(item, index) in state.followTree" :key="item._id" :tree="item" :record="state.record" :collectHaddle="collectHaddle">

@@ -51,6 +51,10 @@ const toSpace = (spaceUser) => {
   router.push({ name: "Space", state: { spaceUser } });
 };
 
+/**
+ * 复制地址
+ * @param {string} location
+ */
 const copyLocation = async (location) => {
   try {
     await toClipboard(location);
@@ -67,26 +71,37 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- 个人空间、动态 树卡片 -->
   <el-card class="treeCard" shadow="hover">
+    <!-- 树-头部 -->
     <div class="treeCard__header">
+      <!-- 树-头左 -->
       <div class="header__left">
+        <!-- 用户信息 -->
         <img class="header__avator" :src="user.avator" @click="toSpace(user)" />
         <div class="header__info">
           <span class="info__name" @click="toSpace(user)">{{ user.name }}</span>
           <span class="info__time">{{ tree.time.split(" ")[0].substring(5).split("/").join("-") }}</span>
         </div>
       </div>
+      <!-- 树-头右 -->
       <div class="header__right">
+        <!-- 插槽-option -->
         <slot></slot>
       </div>
     </div>
+    <!-- 卡片-主体 -->
     <div class="treeCard__main">
+      <!-- 树-标题 -->
       <div class="main__title">
         <span>{{ tree.title }}</span>
         <el-tag type="danger" class="title__price">￥{{ tree.price }}</el-tag>
       </div>
+      <!-- 树-描述 -->
       <div class="main__describe">{{ tree.describe }}</div>
+      <!-- 树-地址 -->
       <div class="main__location" @click="copyLocation(tree.location)"><i class="iconfont icon-dingweidian--"></i>{{ tree.location }}</div>
+      <!-- 树-信息 -->
       <div class="main__Info">
         <div class="info__item">
           <div class="item__key">树种</div>
@@ -108,6 +123,7 @@ onMounted(() => {
           <div class="item__value">{{ tree.branchPoint }}</div>
         </div>
       </div>
+      <!-- 树-图片 -->
       <div class="main__imgList">
         <photo-provider>
           <photo-consumer v-for="src in tree.imgs" :intro="src" :key="src" :src="src">
@@ -115,9 +131,12 @@ onMounted(() => {
           </photo-consumer>
         </photo-provider>
       </div>
+      <!-- 卡片-底部 -->
       <div class="main__footer" v-if="user._id != loginUser._id">
+        <!-- 收藏 -->
         <i class="iconfont icon-shoucang-active" v-show="state.isCollect" @click="haddleCollect()"></i>
         <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="haddleCollect()"></i>
+        <!-- 联系卖家 -->
         <el-button round @click="toSocket(loginUser._id, user._id, tree._id)">联系卖家</el-button>
       </div>
     </div>

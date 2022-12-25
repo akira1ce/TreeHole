@@ -12,7 +12,9 @@ const state = reactive({
 });
 
 // [methods]
-// getTreeList
+/**
+ * 获取树列表
+ */
 const getTreeList = () => {
   setTimeout(async () => {
     let res = await request.get(api.tree.getTreeList);

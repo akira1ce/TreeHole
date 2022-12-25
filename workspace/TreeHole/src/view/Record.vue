@@ -20,7 +20,10 @@ const record = computed(() => {
 });
 
 // [methods]
-// 个人中心
+/**
+ * 跳转个人中心
+ * @param {object} spaceUser 
+ */
 const toSpace = (spaceUser) => {
   spaceUser = toRaw(spaceUser);
   router.push({ name: "Space", state: { spaceUser } });
@@ -51,6 +54,7 @@ onMounted(async () => {
 <template>
   <div class="container">
     <el-collapse v-model="activeName" accordion>
+      <!-- 关注列表 -->
       <el-collapse-item title="关注列表 👀" name="1">
         <div class="list">
           <div class="list__item" v-for="(item, index) in record.followList" :key="item._id">
@@ -62,6 +66,7 @@ onMounted(async () => {
           </div>
         </div>
       </el-collapse-item>
+      <!-- 粉丝列表 -->
       <el-collapse-item title="粉丝列表 😍" name="2">
         <div class="list">
           <div class="list__item" v-for="(item, index) in record.fansList" :key="item._id">

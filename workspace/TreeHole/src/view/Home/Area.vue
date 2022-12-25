@@ -12,7 +12,9 @@ const state = reactive({
 });
 
 // [methods]
-// getTreeList
+/**
+ * 获取对应地区树列表
+ */
 const getTreeList = () => {
   const location = user.location;
   setTimeout(async () => {
@@ -20,6 +22,7 @@ const getTreeList = () => {
     // filter current location
     res = res.filter((item) => item.location.indexOf(location?.split("-")[1]) != -1 && item.state == 0);
     state.treeList = res;
+    console.log(res);
   }, 300);
 };
 

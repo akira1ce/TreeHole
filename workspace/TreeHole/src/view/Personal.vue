@@ -12,17 +12,22 @@ const router = useRouter();
 const sliderRef = ref();
 
 // [state]
+const navMenu = ["历史记录", "我的收藏", "我的交易"];
+const sliderLeft = ["22px", "125px", "228px"];
+const user = local.getItem("user");
 const state = reactive({
   current: 0,
   currentList: [],
   record: defaultState.record,
 });
 
-const navMenu = ["历史记录", "我的收藏", "我的交易"];
-const sliderLeft = ["22px", "125px", "228px"];
-const user = local.getItem("user");
-
 // [methods]
+/**
+ * 取消订单
+ * @param {string} orderID 
+ * @param {string} treeID 
+ * @param {number} index 
+ */
 const removeOrder = async (orderID, treeID, index) => {
   await request.post(api.order.removeById, { _id: orderID });
   await request.post(api.tree.modifyById, { _id: treeID, state: 0 });
@@ -30,14 +35,21 @@ const removeOrder = async (orderID, treeID, index) => {
   state.record.orderList.splice(index, 1);
   ElMessage.success("取消成功");
 };
+
+// 跳转个人空间
 const toSpace = () => {
   router.push({ name: "Space" });
 };
 
+// 跳转记录 - 关注 - 粉丝
 const toRecord = () => {
   router.push({ name: "Record" });
 };
 
+/**
+ * 切换导航 -> 我的收藏 历史记录 我的订单
+ * @param {number} index 
+ */
 const switchNav = (index) => {
   state.current = index;
   sliderRef.value.style.left = sliderLeft[index];
@@ -47,6 +59,7 @@ const switchNav = (index) => {
   else state.currentList = record.orderList;
 };
 
+// 清楚历史记录
 const clearBrowsing = async () => {
   state.record.browsingHistory = [];
   state.record.historyList = [];
@@ -61,6 +74,11 @@ const clearBrowsing = async () => {
   await request.post(api.record.modifyRecordTree, params);
 };
 
+/**
+ * 删除订单
+ * @param {string} orderID 
+ * @param {number} index 
+ */
 const deleteOrder = async (orderID, index) => {
   const params = {
     userID: user._id,
@@ -85,7 +103,9 @@ const record = computed(() => {
 
 <template>
   <div class="container scroll">
+    <!-- 用户栏 -->
     <div class="container__userInfo">
+      <!-- 用户基本信息 -->
       <div class="userInfo__base">
         <div class="base__avator" @click="toSpace">
           <img class="avator" :src="user.avator" alt="" />
@@ -97,6 +117,7 @@ const record = computed(() => {
           </div>
         </div>
       </div>
+      <!-- 记录-动态关注粉丝 -->
       <div class="userInfo__record">
         <div class="record__item" @click="toSpace">
           <span class="item__count">{{ record.treeList?.length || "-" }}</span>
@@ -111,10 +132,12 @@ const record = computed(() => {
           <span class="item__type">粉丝</span>
         </div>
       </div>
+      <!-- 个人空间 -->
       <div class="space" @click="toSpace">空间 <i class="iconfont icon-youjiantou"></i></div>
     </div>
     <div class="container__main">
       <el-affix :offset="76">
+        <!-- 导航 -->
         <div class="main__navMenu">
           <div v-for="(item, index) in navMenu" class="navMenu__item" :class="{ active: state.current == index }" @click="switchNav(index)">
             {{ item }}
@@ -126,10 +149,13 @@ const record = computed(() => {
           </div>
         </div>
       </el-affix>
+      <!-- 主体 -->
       <div class="main__content">
+        <!-- 树 -->
         <div class="content__trees" v-if="state.current < 2">
           <Card v-for="(item, index) in state.currentList" :key="item._id" :tree="item" />
         </div>
+        <!-- 订单 -->
         <div class="content__orders" v-else>
           <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" :removeOrder="removeOrder" />
         </div>
