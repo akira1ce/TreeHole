@@ -24,16 +24,15 @@ const state = reactive({
 // [methods]
 /**
  * 取消订单
- * @param {string} orderID 
- * @param {string} treeID 
- * @param {number} index 
+ * @param {string} orderID
+ * @param {string} treeID
+ * @param {number} index
  */
 const removeOrder = async (orderID, treeID, index) => {
   await request.post(api.order.removeById, { _id: orderID });
   await request.post(api.tree.modifyById, { _id: treeID, state: 0 });
   state.record.order.splice(index, 1);
   state.record.orderList.splice(index, 1);
-  ElMessage.success("取消成功");
 };
 
 // 跳转个人空间
@@ -48,7 +47,7 @@ const toRecord = () => {
 
 /**
  * 切换导航 -> 我的收藏 历史记录 我的订单
- * @param {number} index 
+ * @param {number} index
  */
 const switchNav = (index) => {
   state.current = index;
@@ -76,8 +75,8 @@ const clearBrowsing = async () => {
 
 /**
  * 删除订单
- * @param {string} orderID 
- * @param {number} index 
+ * @param {string} orderID
+ * @param {number} index
  */
 const deleteOrder = async (orderID, index) => {
   const params = {
@@ -295,11 +294,8 @@ const record = computed(() => {
       width: 100%;
       .content__trees {
         display: grid;
-        justify-content: center;
+        justify-content: flex-start;
         grid-template-columns: repeat(auto-fill, 36vmin);
-        align-content: flex-start;
-      }
-      .content__orders {
       }
     }
   }

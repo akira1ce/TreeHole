@@ -56,7 +56,7 @@ const orderOp = async (tree, code) => {
     await request.post(api.order.addOrder, { treeID: tree._id, buyerID: loginUser._id, sellerID: tree.ownerID, time, state: 0 });
     await request.post(api.tree.modifyById, { _id: tree._id, state: 1 });
     state.socketList[state.current].tree.state = 1;
-    ElMessage.success("购买成功");
+    ElMessage.success("购买成功,等待卖家售出");
   } else {
     await request.post(api.order.modifyByTreeID, { treeID: tree._id, state: 1 });
     await request.post(api.tree.modifyById, { _id: tree._id, state: 2 });
@@ -165,7 +165,7 @@ onMounted(async () => {
         <i class="iconfont icon-lajitong" @click="removeSocket(item._id, index)"></i>
       </div>
     </div>
-    <el-empty class="container__dialog" description="description" v-show="state.current == -1" />
+    <el-empty class="container__dialog" description="nothing" v-show="state.current == -1" />
     <!-- 对话框 -->
     <div class="container__dialog" v-show="state.current != -1">
       <!-- 标题 -->
