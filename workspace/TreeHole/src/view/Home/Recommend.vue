@@ -9,6 +9,7 @@ import Card from "../../components/Card.vue";
 const user = local.getItem("user");
 const state = reactive({
   treeList: [],
+  skeletoning: true,
 });
 
 // [methods]
@@ -20,6 +21,7 @@ const getTreeList = () => {
     let res = await request.get(api.tree.getTreeList);
     res = res.filter((item) => item.state == 0);
     state.treeList = res;
+    state.skeletoning = false;
   }, 300);
 };
 
@@ -30,7 +32,8 @@ onMounted(() => {
 
 <template>
   <div class="container scroll">
-    <el-skeleton class="skeleton" :rows="15" animated v-show="state.treeList.length == 0" />
+    <el-empty class="empty" v-show="state.treeList.length == 0 && !state.skeletoning"></el-empty>
+    <el-skeleton class="skeleton" :rows="15" animated v-show="state.skeletoning" />
     <Card v-for="(tree, index) in state.treeList" :key="tree._id" :tree="tree" />
   </div>
 </template>
@@ -65,6 +68,12 @@ onMounted(() => {
   .skeleton {
     margin-top: 20px;
     grid-column: 1 / 6;
+  }
+  .empty {
+    position: absolute;
+    left: 50%;
+    top: 25%;
+    transform: translate(-50%);
   }
 }
 </style>
