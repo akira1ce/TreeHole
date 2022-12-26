@@ -10,10 +10,10 @@ import api from "../api";
 
 const router = useRouter();
 const { toClipboard } = useClipboard();
-const props = defineProps(["tree", "collectHaddle", "record"]);
+const props = defineProps(["tree", "collectHandle", "record"]);
 
 // [state]
-const { tree, collectHaddle, record } = props;
+const { tree, collectHandle, record } = props;
 const user = tree.owner;
 const loginUser = local.getItem("user");
 const state = reactive({
@@ -21,9 +21,9 @@ const state = reactive({
 });
 
 // [methods]
-const haddleCollect = async () => {
+const handleCollect = async () => {
   state.isCollect = !state.isCollect;
-  await collectHaddle(tree._id);
+  await collectHandle(tree);
 };
 
 /**
@@ -134,8 +134,8 @@ onMounted(() => {
       <!-- 卡片-底部 -->
       <div class="main__footer" v-if="user._id != loginUser._id">
         <!-- 收藏 -->
-        <i class="iconfont icon-shoucang-active" v-show="state.isCollect" @click="haddleCollect()"></i>
-        <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="haddleCollect()"></i>
+        <i class="iconfont icon-shoucang-active" v-show="state.isCollect" @click="handleCollect()"></i>
+        <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="handleCollect()"></i>
         <!-- 联系卖家 -->
         <el-button round @click="toSocket(loginUser._id, user._id, tree._id)">联系卖家</el-button>
       </div>

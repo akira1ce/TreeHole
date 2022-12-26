@@ -1,11 +1,12 @@
 <script setup>
+import { ElMessage } from "element-plus";
 import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { useRouter } from "vue-router";
 import api from "../api";
 import request from "../api/request";
 import { local, defaultState } from "../util";
 
-const user = local.getItem("user");
+const loginUser = local.getItem("user");
 const router = useRouter();
 
 // [state]
@@ -22,25 +23,25 @@ const record = computed(() => {
 // [methods]
 /**
  * 跳转个人中心
- * @param {object} spaceUser 
+ * @param {object} spaceUser
  */
 const toSpace = (spaceUser) => {
   spaceUser = toRaw(spaceUser);
   router.push({ name: "Space", state: { spaceUser } });
 };
 // 取消关注
-const cancelFollow = async (item) => {
-  const params = {
-    userID1: user._id,
-    userID2: item._id,
-  };
-  // update follow status
+const followHandle = async (item) => {
+  const userID1 = loginUser._id;
+  const userID2 = item._id;
+  await request.post(api.record.modifyRecordUser, { userID1, userID2 });
+  // 更新缓存
   item.isFollow = !item.isFollow;
-  await request.post(api.record.modifyRecordUser, params);
+  if (item.isFollow) ElMessage.success("关注成功");
+  else ElMessage.success("取消关注成功");
 };
 
 onMounted(async () => {
-  const params = { userID: user._id };
+  const params = { userID: loginUser._id };
   state.record = await request.post(api.record.getRecordByUserID, params);
   const { followList, fansList, following } = state.record;
   followList.forEach((item) => (item.isFollow = true));
@@ -61,7 +62,7 @@ onMounted(async () => {
             <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
             <div class="item__info">
               <span class="info__name">{{ item.name }}</span>
-              <span class="info__follow" @click="cancelFollow(item)">{{ item.isFollow ? "取消关注" : "关注" }}</span>
+              <span class="info__follow" @click="followHandle(item)">{{ item.isFollow ? "取消关注" : "关注" }}</span>
             </div>
           </div>
         </div>
@@ -73,7 +74,7 @@ onMounted(async () => {
             <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
             <div class="item__info">
               <span class="info__name">{{ item.name }}</span>
-              <span class="info__follow" @click="cancelFollow(item)">{{ item.isFollow ? "取消关注" : "关注" }}</span>
+              <span class="info__follow" @click="followHandle(item)">{{ item.isFollow ? "取消关注" : "关注" }}</span>
             </div>
           </div>
         </div>

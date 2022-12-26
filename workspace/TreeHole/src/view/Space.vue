@@ -2,10 +2,11 @@
 import api from "../api";
 import request from "../api/request";
 import { computed, nextTick, onMounted, reactive, ref } from "vue-demi";
-import { local, defaultState } from "../util";
+import { local, defaultState, recordHandle } from "../util";
 import TreeCard from "../components/TreeCard.vue";
 import { Edit, Delete } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
 
 const router = useRouter();
 
@@ -22,17 +23,10 @@ const state = reactive({
 // [methods]
 /**
  * 收藏
- * @param {string} treeID 
+ * @param {string} treeID
  */
-const collectHaddle = async (treeID) => {
-  const record = state.record;
-  const userID = loginUser._id;
-  const params = {
-    userID,
-    treeID,
-    mode: 1,
-  };
-  await request.post(api.record.modifyRecordTree, params);
+const collectHandle = (tree) => {
+  recordHandle.collect(state.record, loginUser, tree);
 };
 
 // 跳转记录
@@ -53,25 +47,25 @@ const handleCommand = (command) => {
   console.log(`output->command`, command);
 };
 
-// 关注
-const switchFollow = async () => {
-  state.isFollow = !state.isFollow;
+// 关注/取消关注
+const followHandle = async () => {
   const { fans, fansList } = state.record;
-  const params = {
-    userID1: loginUser._id,
-    userID2: user._id,
-  };
-  await request.post(api.record.modifyRecordUser, params);
+
+  const userID1 = loginUser._id;
+  const userID2 = user._id;
+  await request.post(api.record.modifyRecordUser, { userID1, userID2 });
+  
   // 更新缓存
-  if (state.isFollow) {
+  state.isFollow = !state.isFollow;
+  const index = fans.indexOf(loginUser._id);
+  if (index == -1) {
     fans.push(loginUser._id);
     fansList.push(loginUser);
+    ElMessage.success("关注成功");
   } else {
-    const index = fans.indexOf(loginUser._id);
-    if (index != -1) {
-      fans.splice(index, 1);
-      fansList.splice(index, 1);
-    }
+    fans.splice(index, 1);
+    fansList.splice(index, 1);
+    ElMessage.success("取消关注成功");
   }
 };
 
@@ -123,17 +117,17 @@ onMounted(async () => {
         </div>
       </div>
       <img class="avator" :src="user.avator" />
-      <el-button class="editUserInfo" v-if="isCurrentUser">编辑个人资料</el-button>
-      <div v-else>
-        <div class="unFollow btn" @click="switchFollow">{{ state.isFollow ? "取消关注" : "关注" }}</div>
-        <div class="message btn" @click="toSocket">发信息</div>
+      <div class="btnOption">
+        <el-button class="editUserInfo" v-if="isCurrentUser">编辑个人资料</el-button>
+        <div class="unFollow btn" @click="followHandle" v-if="!isCurrentUser">{{ state.isFollow ? "取消关注" : "关注" }}</div>
+        <div class="message btn" @click="toSocket" v-if="!isCurrentUser">发信息</div>
       </div>
     </div>
     <!-- 主体-树列表 -->
     <div class="container__main">
       <div class="release" v-if="isCurrentUser">发布🙌</div>
       <el-empty description="description" v-if="record.treeList.length == 0" />
-      <TreeCard v-for="(item, index) in record.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHaddle="collectHaddle">
+      <TreeCard v-for="(item, index) in record.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
         <el-dropdown trigger="click" @command="handleCommand" v-if="isCurrentUser">
           <span class="el-dropdown-link"><i class="iconfont icon-gengduo"></i></span>
           <template #dropdown>
@@ -168,8 +162,6 @@ onMounted(async () => {
 
 .btn {
   font-size: 14px;
-  position: absolute;
-  bottom: 10px;
   padding: 10px;
   border-radius: 8px;
   transition: all 0.3s;
@@ -234,25 +226,27 @@ onMounted(async () => {
       bottom: 0.833vw;
       left: 2.5vw;
     }
-    .editUserInfo {
+    .btnOption {
       position: absolute;
+      left: calc(2.5vw + 110px);
       bottom: 10px;
-      left: calc(2.5vw + 110px);
-    }
-    .unFollow {
-      .btn();
-      left: calc(2.5vw + 110px);
-      color: @activeColor;
-      background-color: rgba(94, 161, 97, 0.11);
-      &:hover {
-        color: white;
-        background-color: @activeColor;
+      gap: 10px;
+      .flex__row();
+      .editUserInfo {
+        bottom: 10px;
       }
-    }
-    .message {
-      left: calc(2.5vw + 190px);
-      color: black;
-      background-color: rgba(164, 179, 165, 0.144);
+      .unFollow {
+        color: @activeColor;
+        background-color: rgba(94, 161, 97, 0.11);
+        &:hover {
+          color: white;
+          background-color: @activeColor;
+        }
+      }
+      .message {
+        color: black;
+        background-color: rgba(164, 179, 165, 0.144);
+      }
     }
   }
   .container__main {

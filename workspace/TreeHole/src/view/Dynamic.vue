@@ -2,8 +2,9 @@
 import api from "../api";
 import request from "../api/request";
 import { computed, onMounted, reactive, ref } from "vue-demi";
-import { local, defaultState } from "../util";
+import { local, defaultState, recordHandle } from "../util";
 import TreeCard from "../components/TreeCard.vue";
+import { ElMessage } from "element-plus";
 
 // [state]
 const state = reactive({
@@ -12,6 +13,7 @@ const state = reactive({
   following: [],
   followTree: [],
   user: local.getItem("user"),
+  a: 1,
 });
 
 // [methods]
@@ -19,15 +21,8 @@ const state = reactive({
  * 收藏树
  * @param {string} treeID
  */
-const collectHaddle = async (treeID) => {
-  const record = state.record;
-  const userID = state.user._id;
-  const params = {
-    userID,
-    treeID,
-    mode: 1,
-  };
-  await request.post(api.record.modifyRecordTree, params);
+const collectHandle = (tree) => {
+  recordHandle.collect(state.record, state.user, tree);
 };
 
 const errorHandler = () => true;
@@ -55,16 +50,18 @@ const getTreeList = async (index) => {
 /**
  * 关注-取消关注
  */
-const switchFollow = async () => {
-  const index = state.current;
-  const follow_index = state.record.followList[index];
-  const params = {
-    userID1: state.user._id,
-    userID2: follow_index._id,
-  };
-  // update follow status
-  follow_index.isFollow = !follow_index.isFollow;
-  await request.post(api.record.modifyRecordUser, params);
+const followHandle = async () => {
+  const { current, record, user } = state;
+  const follow_current = record.followList[current];
+
+  const userID1 = user._id;
+  const userID2 = follow_current._id;
+  await request.post(api.record.modifyRecordUser, { userID1, userID2 });
+  
+  // 更新缓存
+  follow_current.isFollow = !follow_current.isFollow;
+  if (follow_current.isFollow) ElMessage.success("关注成功");
+  else ElMessage.success("取消关注成功");
 };
 
 // [computed]
@@ -99,8 +96,8 @@ onMounted(async () => {
     <!-- 树列表 -->
     <div class="container__content scroll">
       <div class="content__treeList">
-        <TreeCard v-for="(item, index) in state.followTree" :key="item._id" :tree="item" :record="state.record" :collectHaddle="collectHaddle">
-          <div class="unFollow" @click="switchFollow">
+        <TreeCard v-for="(item, index) in state.followTree" :key="item._id" :tree="item" :record="state.record" :collectHandle="collectHandle">
+          <div class="unFollow" @click="followHandle">
             {{ currentUser.isFollow ? "取消关注" : "关注" }}
           </div>
         </TreeCard>
