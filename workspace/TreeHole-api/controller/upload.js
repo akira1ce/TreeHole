@@ -14,11 +14,12 @@ const mongoClient = new MongoClient(url);
 const uploadFiles = async (req, res) => {
   try {
     await upload(req, res);
+    console.log(res);
     if (req.file == undefined) {
       return res.status(400).send({ message: "请选择要上传的文件" });
     }
     return res.status(200).send({
-      message: "文件上传成功" + req.file.originalname,
+      message: baseUrl + req.file.filename,
     });
   } catch (error) {
     console.log(error);
