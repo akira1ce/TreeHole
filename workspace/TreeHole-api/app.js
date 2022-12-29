@@ -18,8 +18,8 @@ app.use(
       "/user/login",
       "/user/register",
       {
-        url: /^\/uploadCenter\/files\/.*/,
-        methods: ["GET"],
+        url: /^\/uploadCenter\/.*/,
+        methods: ["GET","POST"],
       },
     ],
   })
