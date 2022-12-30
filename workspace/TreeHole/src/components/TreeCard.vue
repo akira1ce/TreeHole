@@ -21,6 +21,7 @@ const state = reactive({
 });
 
 // [methods]
+// 收藏
 const handleCollect = async () => {
   state.isCollect = !state.isCollect;
   await collectHandle(tree);

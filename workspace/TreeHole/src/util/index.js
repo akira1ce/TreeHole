@@ -47,11 +47,11 @@ const recordHandle = {
     if (index == -1) {
       record.collect.push(treeID);
       record.collectList.push(tree);
-      ElMessage.success("收藏成功");
+      ElMessage.warning("收藏成功");
     } else {
       record.collect.splice(index, 1);
       record.collectList.splice(index, 1);
-      ElMessage.success("取消收藏成功");
+      ElMessage.warning("取消收藏成功");
     }
   },
 };
