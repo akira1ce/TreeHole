@@ -15,11 +15,6 @@ const state = reactive({
 });
 const activeName = ref("1");
 
-// [computed]
-const record = computed(() => {
-  return state.record;
-});
-
 // [methods]
 /**
  * 跳转个人中心
@@ -29,14 +24,21 @@ const toSpace = (spaceUser) => {
   spaceUser = toRaw(spaceUser);
   router.push({ name: "Space", state: { spaceUser } });
 };
-// 取消关注
+// 关注/取消关注
 const followHandle = async (item) => {
   const userID1 = loginUser._id;
   const userID2 = item._id;
   await request.post(api.record.modifyRecordUser, { userID1, userID2 });
   // 更新缓存
-  item.isFollow = !item.isFollow;
-  if (item.isFollow) ElMessage.success("关注成功");
+  const { fans, fansList, following, followList } = state.record;
+  const isFollow = item.isFollow;
+
+  const index_follow = following.indexOf(userID2);
+  const index_fans = fans.indexOf(userID2);
+  if (index_follow != -1) followList[index_follow].isFollow = !isFollow;
+  if (index_fans != -1) fansList[index_fans].isFollow = !isFollow;
+
+  if (!isFollow) ElMessage.success("关注成功");
   else ElMessage.success("取消关注成功");
 };
 
@@ -54,11 +56,11 @@ onMounted(async () => {
 
 <template>
   <div class="container">
-    <el-collapse v-model="activeName" accordion>
+    <el-collapse v-model="activeName">
       <!-- 关注列表 -->
       <el-collapse-item title="关注列表 👀" name="1">
         <div class="list">
-          <div class="list__item" v-for="(item, index) in record.followList" :key="item._id">
+          <div class="list__item" v-for="(item, index) in state.record.followList">
             <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
             <div class="item__info">
               <span class="info__name">{{ item.name }}</span>
@@ -70,7 +72,7 @@ onMounted(async () => {
       <!-- 粉丝列表 -->
       <el-collapse-item title="粉丝列表 😍" name="2">
         <div class="list">
-          <div class="list__item" v-for="(item, index) in record.fansList" :key="item._id">
+          <div class="list__item" v-for="(item, index) in state.record.fansList">
             <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
             <div class="item__info">
               <span class="info__name">{{ item.name }}</span>
@@ -102,8 +104,12 @@ onMounted(async () => {
   padding: 30px 3.333vw;
   .el-collapse {
     border: none;
-    &:deep .el-collapse-item__header {
+    .el-collapse-item {
       border: none;
+    }
+    :deep(.el-collapse-item__header) {
+      border: none;
+      border-radius: 10px;
       font-size: 16px;
     }
   }

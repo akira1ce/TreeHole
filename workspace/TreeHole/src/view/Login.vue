@@ -35,8 +35,8 @@ const rules = reactive({
 // [methods]
 /**
  * 登陆
- * @param {object} formEl 
- * @param {number} mode 
+ * @param {object} formEl
+ * @param {number} mode
  */
 const Submit = async (formEl, mode) => {
   if (!formEl) return;
@@ -144,7 +144,7 @@ onMounted(() => {
         font-size: 2vw;
         padding-bottom: 1.667vw;
       }
-      .main-form:deep {
+      :deep(.main-form) {
         .el-form-item__label {
           color: #fff;
         }
