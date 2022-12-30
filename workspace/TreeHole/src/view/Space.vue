@@ -1,26 +1,75 @@
 <script setup>
 import api from "../api";
 import request from "../api/request";
-import { computed, nextTick, onMounted, reactive, ref } from "vue-demi";
+import { computed, nextTick, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { local, defaultState, recordHandle } from "../util";
 import TreeCard from "../components/TreeCard.vue";
 import { Edit, Delete } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
+import { Plus } from "@element-plus/icons-vue";
 
 const router = useRouter();
 
 // [state]
 const loginUser = local.getItem("user");
-const user = history.state.spaceUser || loginUser;
 const treeID = history.state.treeID || "";
 const state = reactive({
+  user: history.state.spaceUser || loginUser,
   record: defaultState.record,
   loginRecord: defaultState.record,
   isFollow: false,
+  // 弹出层
+  dialog_user: false,
+  dialog_tree: false,
+  from_user: loginUser,
+  from_tree: {},
 });
 
 // [methods]
+// 更新用户信息
+const updateUserInfo = async () => {
+  // 验证地区格式
+  if (state.from_user.location.split("-").length != 2) {
+    ElMessage.error("地区格式有误，正确格式：xx(省)-xx(市) 如：安徽-安庆");
+    return;
+  }
+  await request.post(api.user.modifyById, state.from_user);
+  // 更新缓存
+  ElMessage.success("用户信息更新成功");
+  local.setItem("user", state.from_user);
+  state.dialog_user = false;
+};
+
+/**
+ * 头像上传成功回调
+ * @param {object} response
+ * @param {file} uploadFile
+ */
+const handleAvatarSuccess = async (response, uploadFile) => {
+  state.user.avator = response.message;
+  await request.post(api.user.modifyById, toRaw(state.user));
+  local.setItem("user", state.user);
+  ElMessage.success("头像上传成功");
+};
+
+/**
+ * 头像上传成功之前回调
+ * @param {file} rawFile
+ */
+const beforeAvatarUpload = (rawFile) => {
+  if (rawFile.type !== "image/jpeg") {
+    // 图片资源格式验证
+    ElMessage.error("Avatar picture must be JPG format!");
+    return false;
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    // 图片大小限制
+    ElMessage.error("Avatar picture size can not exceed 2MB!");
+    return false;
+  }
+  return true;
+};
+
 /**
  * 收藏
  * @param {string} treeID
@@ -37,7 +86,7 @@ const toRecord = () => {
 // 跳转聊天
 const toSocket = async () => {
   const userID1 = loginUser._id;
-  const userID2 = user._id;
+  const userID2 = state.user._id;
   const treeID = "";
   await request.post(api.socket.addSocket, { userID1, userID2, treeID });
   router.push({ name: "Socket", state: { userID: userID2 } });
@@ -52,9 +101,9 @@ const followHandle = async () => {
   const { fans, fansList } = state.record;
 
   const userID1 = loginUser._id;
-  const userID2 = user._id;
+  const userID2 = state.user._id;
   await request.post(api.record.modifyRecordUser, { userID1, userID2 });
-  
+
   // 更新缓存
   state.isFollow = !state.isFollow;
   const index = fans.indexOf(loginUser._id);
@@ -74,12 +123,12 @@ const record = computed(() => state.record);
 
 // 是否是当前用户
 const isCurrentUser = computed(() => {
-  return user._id == loginUser._id;
+  return state.user._id == loginUser._id;
 });
 
 onMounted(async () => {
-  state.loginRecord = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
-  state.record = await request.post(api.record.getRecordByUserID, { userID: user._id });
+  if (loginUser._id != state.user._id) state.loginRecord = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
+  state.record = await request.post(api.record.getRecordByUserID, { userID: state.user._id });
   if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
 
   // 滚动条行为
@@ -98,30 +147,60 @@ onMounted(async () => {
 
 <template>
   <div class="container scroll">
+    <!-- 用户信息对话框 -->
+    <el-dialog title="用户信息" v-model="state.dialog_user" width="45%" align-center>
+      <el-form :model="state.from_user" label-width="auto">
+        <el-form-item label="用户名">
+          <el-input v-model="state.from_user.account" autocomplete="off" disabled />
+        </el-form-item>
+        <el-form-item label="姓名">
+          <el-input v-model="state.from_user.name" />
+        </el-form-item>
+        <el-form-item label="地区">
+          <el-input v-model="state.from_user.location" placeholder="xx(省)-xx(市) 如：安徽-安庆" />
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-radio-group v-model="state.from_user.sex">
+            <el-radio :label="'0'">🤦‍♀️</el-radio>
+            <el-radio :label="'1'">🤦‍♂️</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="state.dialog_user = false">取消</el-button>
+          <el-button type="primary" @click="updateUserInfo">保存</el-button>
+        </span>
+      </template>
+    </el-dialog>
     <!-- 个人空间-顶部 -->
     <div class="container__top">
       <!-- 封面 -->
       <div class="top__cover"></div>
       <!-- 用户信息 -->
       <div class="top__user">
-        <span class="user__name">{{ user.name }}</span>
-        <div class="user__record">
-          <div class="record__item" @click="toRecord">
+        <div class="user_info">
+          <span class="user__name">{{ state.user.name }}</span>
+          <div class="btnOption">
+            <el-button class="editUserInfo" v-if="isCurrentUser" @click="state.dialog_user = true">编辑个人资料</el-button>
+            <div class="unFollow btn" @click="followHandle" v-if="!isCurrentUser">{{ state.isFollow ? "取消关注" : "关注" }}</div>
+            <div class="message btn" @click="toSocket" v-if="!isCurrentUser">发信息</div>
+          </div>
+        </div>
+        <div class="user__record" @click="toRecord">
+          <div class="record__item">
             <span class="item__count">{{ record.following?.length || "-" }}</span>
             <span class="item__type">关注</span>
           </div>
-          <div class="record__item" @click="toRecord">
+          <div class="record__item">
             <span class="item__count">{{ record.fans?.length || "-" }}</span>
             <span class="item__type">粉丝</span>
           </div>
         </div>
       </div>
-      <img class="avator" :src="user.avator" />
-      <div class="btnOption">
-        <el-button class="editUserInfo" v-if="isCurrentUser">编辑个人资料</el-button>
-        <div class="unFollow btn" @click="followHandle" v-if="!isCurrentUser">{{ state.isFollow ? "取消关注" : "关注" }}</div>
-        <div class="message btn" @click="toSocket" v-if="!isCurrentUser">发信息</div>
-      </div>
+      <el-upload class="avatar-uploader" action="/api/uploadCenter/upload" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :disabled="!isCurrentUser">
+        <img :src="state.user.avator || 'https://bpic.51yuansu.com/pic3/cover/01/69/80/595f67c042c1b_610.jpg?x-oss-process=image/resize,w_260/sharpen,100'" class="avator" />
+      </el-upload>
     </div>
     <!-- 主体-树列表 -->
     <div class="container__main">
@@ -172,6 +251,10 @@ onMounted(async () => {
   height: calc(100vh - @topbar_height);
   overflow-y: auto;
   position: relative;
+  :deep(.el-dialog) {
+    border-radius: 10px;
+  }
+
   .container__top {
     .flex__column();
     height: 300px;
@@ -190,22 +273,45 @@ onMounted(async () => {
       flex: 1;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 20px;
-      .user__name {
-        font-size: 20px;
-        font-weight: bold;
-        margin-left: calc(2.5vw + 130px);
-        padding-top: 15px;
-        align-self: flex-start;
+      margin-left: calc(2.5vw + 130px);
+      .user_info {
+        .flex__column();
+        align-items: center;
+        gap: 10px;
+        .user__name {
+          font-size: 20px;
+          font-weight: bold;
+          padding-top: 15px;
+          align-self: flex-start;
+        }
+        .btnOption {
+          gap: 10px;
+          .flex__row();
+          .editUserInfo {
+            bottom: 10px;
+          }
+          .unFollow {
+            color: @activeColor;
+            background-color: rgba(94, 161, 97, 0.11);
+            &:hover {
+              color: white;
+              background-color: @activeColor;
+            }
+          }
+          .message {
+            color: black;
+            background-color: rgba(164, 179, 165, 0.144);
+          }
+        }
       }
       .user__record {
         .flex__row();
         margin-right: 4.167vw;
+        cursor: pointer;
         .record__item {
           .flex__column();
           align-items: center;
           margin: 0 20px;
-          cursor: pointer;
           .item__count {
             font-size: 20px;
             font-weight: 500;
@@ -226,26 +332,24 @@ onMounted(async () => {
       bottom: 0.833vw;
       left: 2.5vw;
     }
-    .btnOption {
-      position: absolute;
-      left: calc(2.5vw + 110px);
-      bottom: 10px;
-      gap: 10px;
-      .flex__row();
-      .editUserInfo {
-        bottom: 10px;
+    .avatar-uploader {
+      .el-upload {
+        border: 1px dashed var(--el-border-color-darker);
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: var(--el-transition-duration-fast);
       }
-      .unFollow {
-        color: @activeColor;
-        background-color: rgba(94, 161, 97, 0.11);
-        &:hover {
-          color: white;
-          background-color: @activeColor;
-        }
+      .el-upload:hover {
+        border-color: var(--el-color-primary);
       }
-      .message {
-        color: black;
-        background-color: rgba(164, 179, 165, 0.144);
+      .el-icon.avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 100px;
+        height: 100px;
+        text-align: center;
       }
     }
   }
