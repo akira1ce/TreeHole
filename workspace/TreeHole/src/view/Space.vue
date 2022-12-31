@@ -12,6 +12,55 @@ import { Plus } from "@element-plus/icons-vue";
 const router = useRouter();
 
 // [state]
+// DOM
+const form_user_Ref = ref();
+const form_tree_Ref = ref();
+const imgUploadRef = ref();
+// 表单规则
+const form_user_Rules = {
+  name: [
+    { required: true, message: "请输入姓名", trigger: "blur" },
+    { min: 3, max: 5, message: "Length should be 3 to 5", trigger: "blur" },
+  ],
+  location: [
+    { required: true, message: "请输入地区：xx(省)-xx(市) 如：安徽-安庆", trigger: "blur" },
+    { min: 5, max: 10, message: "Length should be 5 to 10", trigger: "blur" },
+  ],
+};
+const form_tree_Rules = {
+  title: [
+    { required: true, message: "请输入标题", trigger: "blur" },
+    { min: 1, max: 20, message: "Length should be 1 to 20", trigger: "blur" },
+  ],
+  describe: [
+    { required: true, message: "请输入描述", trigger: "blur" },
+    { min: 5, max: 200, message: "Length should be 5 to 200", trigger: "blur" },
+  ],
+  location: [
+    { required: true, message: "请输入地区：xx(省)xx(市)xx(县)xx(镇) 如：安徽省安庆市怀宁县金拱镇", trigger: "blur" },
+    { min: 3, max: 20, message: "Length should be 3 to 20", trigger: "blur" },
+  ],
+  price: [
+    { required: true, message: "请输入价格", trigger: "blur" },
+    { min: 2, max: 5, message: "Length should be 2 to 5", trigger: "blur" },
+  ],
+  type: [
+    { required: true, message: "请输入苗木种类", trigger: "blur" },
+    { min: 1, max: 4, message: "Length should be 1 to 4", trigger: "blur" },
+  ],
+  height: [
+    { required: true, message: "请输入苗木高度", trigger: "blur" },
+    { min: 2, max: 4, message: "Length should be 2 to 4", trigger: "blur" },
+  ],
+  branchPoint: [
+    { required: true, message: "请输入苗木分支点", trigger: "blur" },
+    { min: 2, max: 4, message: "Length should be 2 to 4", trigger: "blur" },
+  ],
+  diameter: [
+    { required: true, message: "请输入苗木直径", trigger: "blur" },
+    { min: 2, max: 4, message: "Length should be 2 to 4", trigger: "blur" },
+  ],
+};
 const loginUser = local.getItem("user");
 const treeID = history.state.treeID || "";
 const state = reactive({
@@ -22,22 +71,97 @@ const state = reactive({
   // 弹出层
   dialog_user: false,
   dialog_tree: false,
-  from_user: loginUser,
-  from_tree: {},
+  form_user: loginUser,
+  form_tree: defaultState.tree,
+  imgFiles: [],
+  previewImgUrl: "",
+  previewImg: false,
 });
 
 // [methods]
+/**
+ * 移除图片
+ * @param {file} uploadFile
+ * @param {array} uploadFiles
+ */
+const handleRemove = (uploadFile, uploadFiles) => {
+  console.log(uploadFile, uploadFiles);
+};
+
+/**
+ * 图片预览
+ * @param {file} uploadFile
+ */
+const handlePictureCardPreview = (uploadFile) => {
+  state.previewImgUrl = uploadFile.url;
+  state.previewImg = true;
+};
+
+// 提交并校验 用户表单
+const submitForm = async (formRef, mode) => {
+  if (!formRef) return;
+  await formRef.validate((valid, fields) => {
+    if (valid) {
+      if (mode == 0) updateTreeInfo();
+      else if (mode == 1) updateUserInfo();
+    }
+  });
+};
+
+// 更新/发布 苗木信息
+const updateTreeInfo = async () => {
+  if (state.imgFiles.length != 0) await imgUploadRef.value.submit();
+};
+
+/**
+ * 图片上传成功回调
+ * @param {object} response
+ * @param {file} uploadFile
+ */
+const handleImageSuccess = async (response, uploadFile) => {
+  state.form_tree.imgs.push(response.message);
+  if (state.form_tree.imgs.length == state.imgFiles.length) {
+    state.form_tree.time = new Date().toLocaleString();
+    const tree = await request.post(api.tree.addTree, state.form_tree);
+    tree.owner = state.user;
+    state.dialog_tree = false;
+    // 更新缓存
+    state.record.treeList.push(tree);
+    // 数据重置
+    state.form_tree = defaultState.tree;
+    state.imgFiles = [];
+    ElMessage.success("发布成功");
+  }
+};
+
+/**
+ * 图片上传成功之前回调
+ * @param {file} rawFile
+ */
+const beforeImageUpload = (rawFile) => {
+  if (["image/jpeg", "image/png"].indexOf(rawFile.type) == -1) {
+    // 图片资源格式验证
+    ElMessage.error("Picture must be JPG/PNG format!");
+    return false;
+  } else if (rawFile.size / 1024 / 1024 > 5) {
+    // 图片大小限制
+    ElMessage.error("Picture size can not exceed 5MB!");
+    return false;
+  }
+  return true;
+};
+
 // 更新用户信息
 const updateUserInfo = async () => {
   // 验证地区格式
-  if (state.from_user.location.split("-").length != 2) {
+  if (state.form_user.location.split("-").length != 2) {
     ElMessage.error("地区格式有误，正确格式：xx(省)-xx(市) 如：安徽-安庆");
     return;
   }
-  await request.post(api.user.modifyById, state.from_user);
+  await request.post(api.user.modifyById, state.form_user);
   // 更新缓存
   ElMessage.success("用户信息更新成功");
-  local.setItem("user", state.from_user);
+  local.setItem("user", state.form_user);
   state.dialog_user = false;
 };
 
@@ -147,20 +271,85 @@ onMounted(async () => {
 
 <template>
   <div class="container scroll">
+    <!-- 苗木 对话框 -->
+    <el-dialog title="苗木信息" v-model="state.dialog_tree" align-center>
+      <el-form :model="state.form_tree" label-width="auto" ref="form_tree_Ref" :rules="form_tree_Rules">
+        <el-form-item label="标题" prop="title">
+          <el-input v-model="state.form_tree.title" />
+        </el-form-item>
+        <el-form-item label="描述" prop="describe">
+          <el-input v-model="state.form_tree.describe" :rows="2" type="textarea" />
+        </el-form-item>
+        <el-form-item label="地区" prop="location">
+          <el-input v-model="state.form_tree.location" />
+        </el-form-item>
+        <el-form-item label="价格(元)" prop="price">
+          <el-input v-model="state.form_tree.price" />
+        </el-form-item>
+        <el-form-item label="基本信息">
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="苗木种类" prop="type">
+                <el-input v-model="state.form_tree.type" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="高度(cm)" prop="height">
+                <el-input v-model="state.form_tree.height" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="分支点(cm)" prop="branchPoint">
+                <el-input v-model="state.form_tree.branchPoint" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="直径(cm)" prop="diameter">
+                <el-input v-model="state.form_tree.diameter" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form-item>
+        <el-form-item label="图片" prop="imgs">
+          <el-upload
+            ref="imgUploadRef"
+            v-model:file-list="state.imgFiles"
+            action="/api/uploadCenter/upload"
+            list-type="picture-card"
+            :before-upload="beforeImageUpload"
+            :on-success="handleImageSuccess"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+            :auto-upload="false"
+          >
+            <el-icon><Plus /></el-icon>
+          </el-upload>
+          <el-dialog v-model="state.previewImg">
+            <img w-full :src="state.previewImgUrl" alt="Preview Image" />
+          </el-dialog>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="state.dialog_tree = false">取消</el-button>
+          <el-button type="primary" @click="submitForm(form_tree_Ref, 0)">保存</el-button>
+        </span>
+      </template>
+    </el-dialog>
     <!-- 用户信息对话框 -->
     <el-dialog title="用户信息" v-model="state.dialog_user" width="45%" align-center>
-      <el-form :model="state.from_user" label-width="auto">
-        <el-form-item label="用户名">
-          <el-input v-model="state.from_user.account" autocomplete="off" disabled />
+      <el-form :model="state.form_user" label-width="auto" ref="form_user_Ref" :rules="form_user_Rules">
+        <el-form-item label="用户名" prop="account">
+          <el-input v-model="state.form_user.account" autocomplete="off" disabled />
         </el-form-item>
-        <el-form-item label="姓名">
-          <el-input v-model="state.from_user.name" />
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="state.form_user.name" />
         </el-form-item>
-        <el-form-item label="地区">
-          <el-input v-model="state.from_user.location" placeholder="xx(省)-xx(市) 如：安徽-安庆" />
+        <el-form-item label="地区" prop="location">
+          <el-input v-model="state.form_user.location" />
         </el-form-item>
         <el-form-item label="性别">
-          <el-radio-group v-model="state.from_user.sex">
+          <el-radio-group v-model="state.form_user.sex">
             <el-radio :label="'0'">🤦‍♀️</el-radio>
             <el-radio :label="'1'">🤦‍♂️</el-radio>
           </el-radio-group>
@@ -169,7 +358,7 @@ onMounted(async () => {
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="state.dialog_user = false">取消</el-button>
-          <el-button type="primary" @click="updateUserInfo">保存</el-button>
+          <el-button type="primary" @click="submitForm(form_user_Ref, 1)">保存</el-button>
         </span>
       </template>
     </el-dialog>
@@ -204,7 +393,7 @@ onMounted(async () => {
     </div>
     <!-- 主体-树列表 -->
     <div class="container__main">
-      <div class="release" v-if="isCurrentUser">发布🙌</div>
+      <div class="release" v-if="isCurrentUser" @click="state.dialog_tree = true">发布🙌</div>
       <el-empty description="description" v-if="record.treeList.length == 0" />
       <TreeCard v-for="(item, index) in record.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
         <el-dropdown trigger="click" @command="handleCommand" v-if="isCurrentUser">
@@ -252,7 +441,14 @@ onMounted(async () => {
   overflow-y: auto;
   position: relative;
   :deep(.el-dialog) {
-    border-radius: 10px;
+    .el-dialog__body {
+      img {
+        width: 100%;
+      }
+    }
+    .el-col {
+      margin-bottom: 20px;
+    }
   }
 
   .container__top {
