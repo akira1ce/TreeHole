@@ -15,7 +15,7 @@ var storage = new GridFsStorage({
 });
 
 // 大小限制
-const maxSize = 10 * 1024 * 1024;
+const maxSize = 5 * 1024 * 1024;
 
 var uploadFiles = multer({
   storage: storage,

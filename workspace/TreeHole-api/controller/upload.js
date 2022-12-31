@@ -14,7 +14,6 @@ const mongoClient = new MongoClient(url);
 const uploadFiles = async (req, res) => {
   try {
     await upload(req, res);
-    console.log(res);
     if (req.file == undefined) {
       return res.status(400).send({ message: "请选择要上传的文件" });
     }
@@ -25,7 +24,7 @@ const uploadFiles = async (req, res) => {
     console.log(error);
     if (error.code == "LIMIT_FILE_SIZE") {
       return res.status(500).send({
-        message: "文件大小不能超过 10MB",
+        message: "文件大小不能超过 5MB",
       });
     }
     return res.status(500).send({
