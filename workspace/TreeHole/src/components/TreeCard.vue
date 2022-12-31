@@ -82,7 +82,7 @@ onMounted(() => {
         <img class="header__avator" :src="user.avator" @click="toSpace(user)" />
         <div class="header__info">
           <span class="info__name" @click="toSpace(user)">{{ user.name }}</span>
-          <span class="info__time">{{ tree.time.split(" ")[0].substring(5).split("/").join("-") }}</span>
+          <span class="info__time">{{ tree.time.split(",")[0] }}</span>
         </div>
       </div>
       <!-- 树-头右 -->
