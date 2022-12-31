@@ -31,6 +31,20 @@ const defaultState = {
     orderList: [],
     userID: "",
   },
+  tree: {
+    ownerID: local.getItem("user")?._id || "",
+    type: "123",
+    height: "123",
+    diameter: "123",
+    branchPoint: "123",
+    location: "123213",
+    describe: "12312",
+    imgs: [],
+    price: "123",
+    state: "0",
+    time: "",
+    title: "12312",
+  },
 };
 
 const recordHandle = {
