@@ -373,7 +373,6 @@ onMounted(async () => {
           <div class="btnOption">
             <el-button class="editUserInfo" v-if="isCurrentUser" @click="state.dialog_user = true">编辑个人资料</el-button>
             <div class="unFollow btn" @click="followHandle" v-if="!isCurrentUser">{{ state.isFollow ? "取消关注" : "关注" }}</div>
-            <div class="message btn" @click="toSocket" v-if="!isCurrentUser">发信息</div>
           </div>
         </div>
         <div class="user__record" @click="toRecord">
