@@ -29,7 +29,7 @@ const toSpace = (spaceUser, treeID) => {
     <!-- 树-标题 -->
     <div class="card__title">{{ tree.title }}</div>
     <!-- 树-拥有者 -->
-    <div class="card__author" @click="toSpace(tree.owner)"><i class="iconfont icon-shuye"></i> {{ `${tree.owner.name} · ${tree.time.split(" ")[0]}` }}</div>
+    <div class="card__author" @click="toSpace(tree.owner)"><i class="iconfont icon-shuye"></i> {{ `${tree.owner.name} · ${tree.time.split(",")[0]}` }}</div>
   </div>
 </template>
 
