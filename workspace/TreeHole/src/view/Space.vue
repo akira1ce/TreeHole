@@ -16,11 +16,12 @@ const router = useRouter();
 const form_user_Ref = ref();
 const form_tree_Ref = ref();
 const imgUploadRef = ref();
+
 // 表单规则
 const form_user_Rules = {
   name: [
     { required: true, message: "请输入姓名", trigger: "blur" },
-    { min: 3, max: 5, message: "Length should be 3 to 5", trigger: "blur" },
+    { min: 3, max: 18, message: "Length should be 3 to 18", trigger: "blur" },
   ],
   location: [
     { required: true, message: "请输入地区：xx(省)-xx(市) 如：安徽-安庆", trigger: "blur" },
@@ -61,8 +62,10 @@ const form_tree_Rules = {
     { min: 2, max: 4, message: "Length should be 2 to 4", trigger: "blur" },
   ],
 };
+
 const loginUser = local.getItem("user");
 const treeID = history.state.treeID || "";
+
 const state = reactive({
   user: history.state.spaceUser || loginUser,
   record: defaultState.record,
@@ -71,87 +74,24 @@ const state = reactive({
   // 弹出层
   dialog_user: false,
   dialog_tree: false,
-  form_user: loginUser,
-  form_tree: defaultState.tree,
-  imgFiles: [],
+  dialog_previewImg: false,
+  form_user: { ...loginUser },
+  form_tree: { ...defaultState.tree },
   previewImgUrl: "",
-  previewImg: false,
 });
 
 // [methods]
 /**
- * 移除图片
- * @param {file} uploadFile
- * @param {array} uploadFiles
+ * 编辑用户个人信息
  */
-const handleRemove = (uploadFile, uploadFiles) => {
-  console.log(uploadFile, uploadFiles);
+const editUserInfo = () => {
+  state.dialog_user = true;
+  state.form_user = { ...loginUser };
 };
 
 /**
- * 图片预览
- * @param {file} uploadFile
+ * 更新用户信息
  */
-const handlePictureCardPreview = (uploadFile) => {
-  state.previewImgUrl = uploadFile.url;
-  state.previewImg = true;
-};
-
-// 提交并校验 用户表单
-const submitForm = async (formRef, mode) => {
-  if (!formRef) return;
-  await formRef.validate((valid, fields) => {
-    if (valid) {
-      if (mode == 0) updateTreeInfo();
-      else if (mode == 1) updateUserInfo();
-    }
-  });
-};
-
-// 更新/发布 苗木信息
-const updateTreeInfo = async () => {
-  if (state.imgFiles.length != 0) await imgUploadRef.value.submit();
-};
-
-/**
- * 图片上传成功回调
- * @param {object} response
- * @param {file} uploadFile
- */
-const handleImageSuccess = async (response, uploadFile) => {
-  state.form_tree.imgs.push(response.message);
-  if (state.form_tree.imgs.length == state.imgFiles.length) {
-    state.form_tree.time = new Date().toLocaleString();
-    const tree = await request.post(api.tree.addTree, state.form_tree);
-    tree.owner = state.user;
-    state.dialog_tree = false;
-    // 更新缓存
-    state.record.treeList.push(tree);
-    // 数据重置
-    state.form_tree = defaultState.tree;
-    state.imgFiles = [];
-    ElMessage.success("发布成功");
-  }
-};
-
-/**
- * 图片上传成功之前回调
- * @param {file} rawFile
- */
-const beforeImageUpload = (rawFile) => {
-  if (["image/jpeg", "image/png"].indexOf(rawFile.type) == -1) {
-    // 图片资源格式验证
-    ElMessage.error("Picture must be JPG/PNG format!");
-    return false;
-  } else if (rawFile.size / 1024 / 1024 > 5) {
-    // 图片大小限制
-    ElMessage.error("Picture size can not exceed 5MB!");
-    return false;
-  }
-  return true;
-};
-
-// 更新用户信息
 const updateUserInfo = async () => {
   // 验证地区格式
   if (state.form_user.location.split("-").length != 2) {
@@ -195,6 +135,135 @@ const beforeAvatarUpload = (rawFile) => {
 };
 
 /**
+ * 发布苗木
+ */
+const release = () => {
+  state.dialog_tree = true;
+  state.form_tree = { ...defaultState.tree };
+};
+
+/**
+ * 更新/发布 苗木信息
+ */
+const updateTreeInfo = async () => {
+  if (state.form_tree._id == "") {
+    // 发布
+    delete state.form_tree._id;
+    state.form_tree.time = new Date().toLocaleString();
+    const tree = await request.post(api.tree.addTree, state.form_tree);
+    tree.owner = state.user;
+    state.dialog_tree = false;
+    // 更新缓存
+    state.record.treeList.push(tree);
+    // 数据重置
+    state.form_tree = defaultState.tree;
+    ElMessage.success("发布成功");
+  } else {
+    // 编辑
+    await request.post(api.tree.modifyById, state.form_tree);
+    state.dialog_tree = false;
+    state.form_tree = defaultState.tree;
+    ElMessage.success("编辑成功");
+  }
+};
+
+/**
+ * 手动上传苗木图片
+ */
+const submitImageUpload = async () => {
+  await imgUploadRef.value.submit();
+};
+
+/**
+ * 苗木图片上传成功回调
+ * @param {object} response
+ * @param {file} uploadFile
+ */
+const handleImageSuccess = async (response, uploadFile) => {
+  state.form_tree.imgs.push(response.message);
+};
+
+/**
+ * 苗木图片上传成功之前回调
+ * @param {file} rawFile
+ */
+const beforeImageUpload = (rawFile) => {
+  if (["image/jpeg", "image/png"].indexOf(rawFile.type) == -1) {
+    // 图片资源格式验证
+    ElMessage.error("Picture must be JPG/PNG format!");
+    return false;
+  } else if (rawFile.size / 1024 / 1024 > 5) {
+    // 图片大小限制
+    ElMessage.error("Picture size can not exceed 5MB!");
+    return false;
+  }
+  return true;
+};
+
+/**
+ * 移除苗木图片
+ * @param {number} index
+ */
+const removeImg = (index) => {
+  state.form_tree.imgs.splice(index, 1);
+};
+
+/**
+ * 预览苗木图片
+ * @param {string} imgUrl
+ */
+const previewImg = (imgUrl) => {
+  state.dialog_previewImg = true;
+  state.previewImgUrl = imgUrl;
+};
+
+/**
+ * 下拉菜单回调
+ * - command: { mode:xx, index:xx }
+ * @param {object} command
+ */
+const handleCommand = async (command) => {
+  const tree = state.record.treeList[command.index];
+  if (command.mode == 0) {
+    // 编辑
+    state.dialog_tree = true;
+    state.form_tree = { ...tree };
+  } else {
+    // 删除
+    await request.post(api.tree.removeById, { _id: tree._id });
+    state.record.treeList.splice(command.index, 1);
+    ElMessage.success("删除成功");
+  }
+};
+
+/**
+ * 下拉菜单回调传递参数
+ * @param {number} mode
+ * @param {object} index
+ */
+const beforeHandleCommand = (mode, index) => {
+  return { mode, index };
+};
+
+/**
+ * 提交并校验 表单
+ * - mode
+ *    - 0: 苗木表单
+ *    - 1: 用户表单
+ * @param {object} formRef
+ * @param {number} mode
+ */
+const submitForm = async (formRef, mode) => {
+  if (!formRef) return;
+  await formRef.validate((valid, fields) => {
+    if (valid) {
+      if (mode == 0) updateTreeInfo();
+      else if (mode == 1) updateUserInfo();
+    }
+  });
+};
+
+/**
  * 收藏
  * @param {string} treeID
  */
@@ -202,12 +271,16 @@ const collectHandle = (tree) => {
   recordHandle.collect(state.record, loginUser, tree);
 };
 
-// 跳转记录
+/**
+ * 跳转记录
+ */
 const toRecord = () => {
   if (isCurrentUser.value) router.push({ name: "Record" });
 };
 
-// 跳转聊天
+/**
+ * 跳转聊天
+ */
 const toSocket = async () => {
   const userID1 = loginUser._id;
   const userID2 = state.user._id;
@@ -216,11 +289,9 @@ const toSocket = async () => {
   router.push({ name: "Socket", state: { userID: userID2 } });
 };
 
-const handleCommand = (command) => {
-  console.log(`output->command`, command);
-};
-
-// 关注/取消关注
+/**
+ * 关注/取消关注
+ */
 const followHandle = async () => {
   const { fans, fansList } = state.record;
 
@@ -271,8 +342,12 @@ onMounted(async () => {
 
 <template>
   <div class="container scroll">
+    <el-dialog v-model="state.dialog_previewImg">
+      <img w-full :src="state.previewImgUrl" alt="Preview Image" />
+    </el-dialog>
     <!-- 苗木 对话框 -->
     <el-dialog title="苗木信息" v-model="state.dialog_tree" align-center>
+      <!-- 苗木表单 -->
       <el-form :model="state.form_tree" label-width="auto" ref="form_tree_Ref" :rules="form_tree_Rules">
         <el-form-item label="标题" prop="title">
           <el-input v-model="state.form_tree.title" />
@@ -311,24 +386,29 @@ onMounted(async () => {
           </el-row>
         </el-form-item>
         <el-form-item label="图片" prop="imgs">
-          <el-upload
-            ref="imgUploadRef"
-            v-model:file-list="state.imgFiles"
-            action="/api/uploadCenter/upload"
-            list-type="picture-card"
-            :before-upload="beforeImageUpload"
-            :on-success="handleImageSuccess"
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
-            :auto-upload="false"
-          >
-            <el-icon><Plus /></el-icon>
-          </el-upload>
-          <el-dialog v-model="state.previewImg">
-            <img w-full :src="state.previewImgUrl" alt="Preview Image" />
-          </el-dialog>
+          <div class="form_item_imgs">
+            <div class="imgList">
+              <div class="imgList_item" v-for="(item, index) in state.form_tree.imgs" :key="item">
+                <img class="item_img" :src="item" />
+                <div class="item_options">
+                  <div class="options_previewImg" @click="previewImg(item)"><i class="iconfont icon-fangda"></i></div>
+                  <div class="options_removeImg" @click="removeImg(index)"><i class="iconfont icon-lajitong"></i></div>
+                </div>
+              </div>
+            </div>
+            <el-upload ref="imgUploadRef" class="imgUpload" action="/api/uploadCenter/upload" :before-upload="beforeImageUpload" :on-success="handleImageSuccess" :auto-upload="false">
+              <template #trigger>
+                <el-button type="primary">select file</el-button>
+              </template>
+              <el-button style="margin-left: 10px" type="success" @click="submitImageUpload"> upload to server </el-button>
+              <template #tip>
+                <div class="el-upload__tip">jpg/png files with a size less than 5M</div>
+              </template>
+            </el-upload>
+          </div>
         </el-form-item>
       </el-form>
+      <!-- 底部操作按钮 -->
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="state.dialog_tree = false">取消</el-button>
@@ -337,7 +417,8 @@ onMounted(async () => {
       </template>
     </el-dialog>
     <!-- 用户信息对话框 -->
-    <el-dialog title="用户信息" v-model="state.dialog_user" width="45%" align-center>
+    <el-dialog title="用户信息" v-model="state.dialog_user" align-center>
+      <!-- 用户表单 -->
       <el-form :model="state.form_user" label-width="auto" ref="form_user_Ref" :rules="form_user_Rules">
         <el-form-item label="用户名" prop="account">
           <el-input v-model="state.form_user.account" autocomplete="off" disabled />
@@ -355,6 +436,7 @@ onMounted(async () => {
           </el-radio-group>
         </el-form-item>
       </el-form>
+      <!-- 底部操作按钮 -->
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="state.dialog_user = false">取消</el-button>
@@ -371,10 +453,11 @@ onMounted(async () => {
         <div class="user_info">
           <span class="user__name">{{ state.user.name }}</span>
           <div class="btnOption">
-            <el-button class="editUserInfo" v-if="isCurrentUser" @click="state.dialog_user = true">编辑个人资料</el-button>
+            <el-button class="editUserInfo" v-if="isCurrentUser" @click="editUserInfo">编辑个人资料</el-button>
             <div class="unFollow btn" @click="followHandle" v-if="!isCurrentUser">{{ state.isFollow ? "取消关注" : "关注" }}</div>
           </div>
         </div>
+        <!-- 个人记录 关注 粉丝 -->
         <div class="user__record" @click="toRecord">
           <div class="record__item">
             <span class="item__count">{{ record.following?.length || "-" }}</span>
@@ -386,21 +469,24 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+      <!-- 头像 -->
       <el-upload class="avatar-uploader" action="/api/uploadCenter/upload" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :disabled="!isCurrentUser">
         <img :src="state.user.avator || 'https://bpic.51yuansu.com/pic3/cover/01/69/80/595f67c042c1b_610.jpg?x-oss-process=image/resize,w_260/sharpen,100'" class="avator" />
       </el-upload>
     </div>
     <!-- 主体-树列表 -->
     <div class="container__main">
-      <div class="release" v-if="isCurrentUser" @click="state.dialog_tree = true">发布🙌</div>
+      <!-- 发布 -->
+      <div class="release" v-if="isCurrentUser" @click="release">发布🙌</div>
       <el-empty description="description" v-if="record.treeList.length == 0" />
+      <!-- 苗木卡片 -->
       <TreeCard v-for="(item, index) in record.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
         <el-dropdown trigger="click" @command="handleCommand" v-if="isCurrentUser">
           <span class="el-dropdown-link"><i class="iconfont icon-gengduo"></i></span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item :icon="Edit" command="0">编辑</el-dropdown-item>
-              <el-dropdown-item :icon="Delete" command="1">删除</el-dropdown-item>
+              <el-dropdown-item :icon="Edit" :command="beforeHandleCommand(0, index)">编辑</el-dropdown-item>
+              <el-dropdown-item :icon="Delete" :command="beforeHandleCommand(1, index)">删除</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -447,6 +533,47 @@ onMounted(async () => {
     }
     .el-col {
       margin-bottom: 20px;
+    }
+    .form_item_imgs {
+      .flex__column();
+      gap: 10px;
+      .imgList {
+        .flex__row();
+        gap: 10px;
+        .imgList_item {
+          position: relative;
+          height: fit-content;
+          .item_img {
+            height: 100px;
+            min-width: 100px;
+          }
+          .item_options {
+            .flex__row();
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: all 0.3s;
+            color: white;
+            &:hover {
+              opacity: 1;
+            }
+            .options_previewImg,
+            .options_removeImg {
+              cursor: pointer;
+              .iconfont {
+                font-size: 22px;
+              }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -568,7 +695,7 @@ onMounted(async () => {
       background-color: @activeColor;
       color: white;
       cursor: pointer;
-
+      transition: all 0.2s;
       &:hover {
         transform: scale(1.05);
       }
