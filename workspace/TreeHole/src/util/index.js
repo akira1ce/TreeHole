@@ -32,6 +32,7 @@ const defaultState = {
     userID: "",
   },
   tree: {
+    _id: "",
     ownerID: local.getItem("user")?._id || "",
     type: "",
     height: "",

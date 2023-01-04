@@ -73,7 +73,7 @@ const orderBtn = computed(() => {
         <!-- 树-价格 -->
         <span class="options__price">￥{{ tree.price }}</span>
         <!-- 树-订单处理 -->
-        <el-button :type="orderBtn.type" round @click="orderOp(tree, orderBtn.code)">{{ orderBtn.content }}</el-button>
+        <el-button :type="orderBtn.type" round @click="orderOp(tree, orderBtn.code)" v-if="loginUser.role == '1'">{{ orderBtn.content }}</el-button>
         <!-- 取消 -->
       </div>
     </div>
@@ -128,6 +128,7 @@ const orderBtn = computed(() => {
       .flex__column();
       align-items: center;
       justify-content: space-between;
+      gap: 10px;
       .options__price {
         font-weight: bold;
         color: rgb(255, 75, 75);
