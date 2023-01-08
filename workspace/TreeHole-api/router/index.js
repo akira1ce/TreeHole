@@ -10,5 +10,6 @@ router.use("/uploadCenter", require("./upload"));
 router.use("/record", multipartyMid, require("./record"));
 router.use("/order", multipartyMid, require("./order"));
 router.use("/socket", multipartyMid, require("./socket"));
+router.use("/alipay", multipartyMid, require("./alipay"));
 
 module.exports = router;
