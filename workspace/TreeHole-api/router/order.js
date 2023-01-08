@@ -3,16 +3,19 @@ const orderCtrl = require("../controller/order");
 
 const router = express.Router();
 
-// 添加
+// 增
 router.post("/addOrder", orderCtrl.addOrder);
-// 删除
+// 删
 router.post("/removeById", orderCtrl.removeById);
-// 修改
+// 改
 router.post("/modifyById", orderCtrl.modifyById);
 router.post("/modifyByTreeID", orderCtrl.modifyByTreeID);
-// 获取所有的订单列表
+// 查
 router.get("/getOrderList", orderCtrl.getOrderList);
-// 获取用户的订单列表
+
+// 订单列表[用户]
 router.post("/getOrderListByUserID", orderCtrl.getOrderListByUserID);
+// 获取订单[苗木]
+router.post("/getOrderByTreeID", orderCtrl.getOrderByTreeID);
 
 module.exports = router;
