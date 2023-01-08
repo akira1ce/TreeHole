@@ -141,7 +141,6 @@ onMounted(() => {
         <el-button round @click="toSocket(loginUser._id, user._id, tree._id)" v-if="tree.state == 0">联系卖家</el-button>
         <!-- <el-button round plain type="success" v-if="tree.state != 0">已出售</el-button> -->
       </div>
-      <img src="../assets/sold_out.png" class="sold_out" v-if="tree.state != 0" />
     </div>
   </el-card>
 </template>
@@ -168,13 +167,6 @@ onMounted(() => {
   border-radius: 5px;
   margin: 5px 0;
   position: relative;
-  .sold_out {
-    width: 120px;
-    position: absolute;
-    right: -12px;
-    bottom: 18px;
-    transform: rotate(-30deg);
-  }
   .treeCard__header {
     .flex__row();
     justify-content: space-between;
