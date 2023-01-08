@@ -1,6 +1,7 @@
 <script setup>
 import api from "../api";
 import request from "../api/request";
+import service from "../api/interceptor";
 import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { useRouter } from "vue-router";
 import { local, defaultState } from "../util";
@@ -28,11 +29,14 @@ const state = reactive({
  * @param {string} treeID
  * @param {number} index
  */
-const removeOrder = async (orderID, treeID, index) => {
-  await request.post(api.order.removeById, { _id: orderID });
-  await request.post(api.tree.modifyById, { _id: treeID, state: 0 });
+const cancelOrder = async (order, index) => {
+  await request.post(api.order.removeById, { _id: order._id });
+  await request.post(api.tree.modifyById, { _id: order.treeID, state: 0 });
+  // const refundUrl = await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
+  // const refundRes = await service.get(refundUrl);
   state.record.order.splice(index, 1);
   state.record.orderList.splice(index, 1);
+  // ElMessage.success("取消订单并退款成功");
 };
 
 // 跳转个人空间
@@ -156,7 +160,7 @@ const record = computed(() => {
         </div>
         <!-- 订单 -->
         <div class="content__orders" v-else>
-          <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" :removeOrder="removeOrder" />
+          <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" :cancelOrder="cancelOrder" />
         </div>
       </div>
     </div>
