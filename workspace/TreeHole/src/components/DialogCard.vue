@@ -23,8 +23,8 @@ const orderBtn = computed(() => {
       content = "等待购买";
     } else if (tree.state == 1) {
       type = "warning";
-      content = "确认售出";
-      code = 1;
+      content = "查看订单";
+      code = 2;
     } else if (tree.state == 2) {
       type = "success";
       content = "售出成功";
@@ -36,7 +36,8 @@ const orderBtn = computed(() => {
       code = 0;
     } else if (tree.state == 1) {
       type = "warning";
-      content = "等待出售";
+      content = "查看订单";
+      code = 1;
     } else if (tree.state == 2) {
       type = "success";
       content = "购买成功";
