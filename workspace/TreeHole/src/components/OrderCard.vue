@@ -7,10 +7,10 @@ import request from "../api/request";
 import { local } from "../util";
 
 const router = useRouter();
-const props = defineProps(["order", "deleteOrder", "removeOrder", "index"]);
+const props = defineProps(["order", "deleteOrder", "cancelOrder", "index"]);
 
 // [state]
-const { order, deleteOrder, index, removeOrder } = props;
+const { order, deleteOrder, index, cancelOrder } = props;
 const user = local.getItem("user");
 
 // [methods]
@@ -19,9 +19,9 @@ const user = local.getItem("user");
  * - user1
  * - user2
  * - tree
- * @param {string} userID1 
- * @param {string} userID2 
- * @param {string} treeID 
+ * @param {string} userID1
+ * @param {string} userID2
+ * @param {string} treeID
  */
 const toSocket = async (userID1, userID2, treeID) => {
   await request.post(api.socket.addSocket, { userID1, userID2, treeID });
@@ -42,6 +42,10 @@ const toSpace = (spaceUser, treeID) => {
 const spaceLink = () => {
   if (otherSide.value._id == order.tree.ownerID) toSpace(otherSide.value, order.tree._id);
   else toSpace(user, order.tree._id);
+};
+const checkOrder = (order) => {
+  order = toRaw(order);
+  router.push({ name: "OrderDetail", state: { order } });
 };
 
 // [computed]
@@ -76,8 +80,8 @@ const tag = computed(() => {
     <!-- 订单-操作按钮 -->
     <div class="order-btns">
       <el-button round @click="toSocket(order.sellerID, order.buyerID, order.treeID)">联系树友</el-button>
-      <el-button round @click="removeOrder(order._id, order.treeID, index)" v-if="order.state == 0">取消订单</el-button>
-      <el-button type="danger" round @click="deleteOrder(order._id, index)" v-if="order.state == 1">删除订单</el-button>
+      <el-button round @click="checkOrder(order)" v-if="order.state == 0">查看订单</el-button>
+      <el-button type="danger" round @click="deleteOrder(order._id, index)" v-if="order.state == 2">删除订单</el-button>
     </div>
   </div>
 </template>
