@@ -45,24 +45,35 @@ const state = reactive({
 /**
  * 订单操作
  * - 立即购买 code 0
- * - 确认售出 code 1
+ * - 查看订单 code 1
  * @param {object} tree
  * @param {number} code
  */
 const orderOp = async (tree, code) => {
+  tree = toRaw(tree);
+  const { title, describe, price } = tree;
   if (code == -1) return;
   if (code == 0) {
     const time = new Date().toLocaleString();
-    await request.post(api.order.addOrder, { treeID: tree._id, buyerID: loginUser._id, sellerID: tree.ownerID, time, state: 0 });
+    const order = await request.post(api.order.addOrder, { treeID: tree._id, buyerID: loginUser._id, sellerID: tree.ownerID, time, state: 0 });
     await request.post(api.tree.modifyById, { _id: tree._id, state: 1 });
+    const payUrl = await request.post(api.alipay.pagePay, { orderID: order._id, title, describe, price });
     state.socketList[state.current].tree.state = 1;
-    ElMessage.success("购买成功,等待卖家售出");
-  } else {
-    await request.post(api.order.modifyByTreeID, { treeID: tree._id, state: 1 });
-    await request.post(api.tree.modifyById, { _id: tree._id, state: 2 });
-    state.socketList[state.current].tree.state = 2;
-    ElMessage.success("售出成功");
+    ElMessage.success("购买成功");
+    window.open(payUrl);
+  } else if (code == 1) {
+    const order = await request.post(api.order.getOrderByTreeID, { treeID: tree._id });
+    router.push({
+      name: "OrderDetail",
+      state: { order },
+    });
   }
+  // else {
+  //   await request.post(api.order.modifyByTreeID, { treeID: tree._id, state: 1 });
+  //   await request.post(api.tree.modifyById, { _id: tree._id, state: 2 });
+  //   state.socketList[state.current].tree.state = 2;
+  //   ElMessage.success("售出成功");
+  // }
 };
 
 // 下放滚动条
