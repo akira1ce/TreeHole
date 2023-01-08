@@ -31,6 +31,7 @@ export default {
     removeById: "/order/removeById",
     modifyById: "/order/modifyById",
     getOrderListByUserID: "/order/getOrderListByUserID",
+    getOrderByTreeID: "/order/getOrderByTreeID",
     modifyByTreeID: "/order/modifyByTreeID",
   },
   socket: {
@@ -38,5 +39,9 @@ export default {
     removeById: "/socket/removeById",
     modifyById: "/socket/modifyById",
     getSocketByUserID: "/socket/getSocketByUserID",
+  },
+  alipay: {
+    pagePay: "/alipay/pagePay",
+    refund: "/alipay/refund",
   },
 };
