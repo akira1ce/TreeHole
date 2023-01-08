@@ -9,6 +9,7 @@ const Space = () => import("../view/Space.vue");
 const Socket = () => import("../view/Socket.vue");
 const Record = () => import("../view/Record.vue");
 const Map = () => import("../view/Map.vue");
+const OrderDetail = () => import("../view/OrderDetail.vue");
 
 const routes = [
   {
@@ -68,6 +69,11 @@ const routes = [
     path: "/map",
     name: "Map",
     component: Map,
+  },
+  {
+    path: "/orderDetail",
+    name: "OrderDetail",
+    component: OrderDetail,
   },
   { path: "/", redirect: "/home" },
 ];
