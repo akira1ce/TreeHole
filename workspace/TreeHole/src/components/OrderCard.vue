@@ -74,8 +74,8 @@ const tag = computed(() => {
     </div>
     <!-- 订单-基本信息 -->
     <div class="order__info">
-      <span>{{ order.time }}</span>
-      <el-tag :type="tag.status">{{ tag.content }}</el-tag>
+      <span class="info__time">{{ order.time }}</span>
+      <el-tag class="info__status" :type="tag.status">{{ tag.content }}</el-tag>
     </div>
     <!-- 订单-操作按钮 -->
     <div class="order-btns">
@@ -142,7 +142,9 @@ const tag = computed(() => {
   .order__info {
     .flex__row();
     align-items: center;
-    gap: 50px;
+    .info__time {
+      flex: .8;
+    }
   }
   .order-btns {
     flex: 0.6;
