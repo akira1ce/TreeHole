@@ -43,5 +43,6 @@ export default {
   alipay: {
     pagePay: "/alipay/pagePay",
     refund: "/alipay/refund",
+    query: "/alipay/query",
   },
 };
