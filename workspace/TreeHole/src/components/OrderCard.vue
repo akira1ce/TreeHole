@@ -55,7 +55,7 @@ const otherSide = computed(() => {
 });
 
 const tag = computed(() => {
-  return order.state == 0 ? { status: "warning", content: "进行中" } : { status: "success", content: "已完成" };
+  return order.status == 0 ? { status: "warning", content: "进行中" } : { status: "success", content: "已完成" };
 });
 </script>
 
@@ -80,8 +80,8 @@ const tag = computed(() => {
     <!-- 订单-操作按钮 -->
     <div class="order-btns">
       <el-button round @click="toSocket(order.sellerID, order.buyerID, order.treeID)">联系树友</el-button>
-      <el-button round @click="checkOrder(order)" v-if="order.state == 0">查看订单</el-button>
-      <el-button type="danger" round @click="deleteOrder(order._id, index)" v-if="order.state == 2">删除订单</el-button>
+      <el-button round @click="checkOrder(order)" v-if="order.status == 0">查看订单</el-button>
+      <el-button type="danger" round @click="deleteOrder(order._id, index)" v-if="order.status == 2">删除订单</el-button>
     </div>
   </div>
 </template>
