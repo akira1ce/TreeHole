@@ -123,6 +123,11 @@ const orderBtn = computed(() => {
       .info__describe {
         font-size: 16px;
         color: grey;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
       }
     }
     .tree__options {
