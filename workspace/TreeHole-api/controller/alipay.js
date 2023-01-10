@@ -39,9 +39,18 @@ const refund = async (req, res, next) => {
     formData.addField("bizContent", JSON.stringify(bizContent));
 
     const url = await alipaySdk.exec("alipay.trade.refund", {}, { formData });
-    const refundRes = await axios.get(url);
+    let refundRes = await axios.get(url);
+    refundRes = refundRes.data.alipay_trade_query_response;
 
-    res.send(result(200, refundRes.data, "ok"));
+    if (refundRes.code == "10000") {
+      // 接口调用成功
+      if (refundRes?.fund_change == "Y") res.send(result(200, { status: 1, message: "退款成功" }, "ok"));
+      else if (refundRes?.fund_change == "N") {
+        res.send(result(200, { status: 0, message: "正在退款，请稍后进一步确认退款状态" }, "ok"));
+      }
+    } else if (refundRes.code == "20000") {
+      res.send(result(500, { status: -1, message: "系统繁忙" }, "ok"));
+    }
   } catch (e) {
     next(err(e));
   }
@@ -67,20 +76,20 @@ const query = async (req, res, next) => {
       // 接口调用成功
       switch (queryRes.trade_status) {
         case "WAIT_BUYER_PAY":
-          res.send(result(200, { status: 0, massage: "交易创建，等待买家付款" }, "success"));
+          res.send(result(200, { queryRes, status: 0, massage: "交易创建，等待买家付款" }, "ok"));
           break;
         case "TRADE_CLOSED":
-          res.send(result(200, { status: 1, massage: "未付款交易超时关闭，或支付完成后全额退款" }, "success"));
+          res.send(result(200, { queryRes, status: 1, massage: "未付款交易超时关闭，或支付完成后全额退款" }, "ok"));
           break;
         case "TRADE_SUCCESS":
-          res.send(result(200, { status: 2, massage: "交易支付成功" }, "success"));
+          res.send(result(200, { queryRes, status: 2, massage: "交易支付成功" }, "ok"));
           break;
         case "TRADE_FINISHED":
-          res.send(result(200, { status: 3, massage: "交易结束，不可退款" }, "success"));
+          res.send(result(200, { queryRes, status: 3, massage: "交易结束，不可退款" }, "ok"));
           break;
       }
     } else if (queryRes.code == "40004") {
-      res.send(result(200, { status: -1, massage: "交易不存在" }, "success"));
+      res.send(result(200, { queryRes, status: -1, massage: "交易不存在" }, "ok"));
     }
   } catch (e) {
     next(err(e));
