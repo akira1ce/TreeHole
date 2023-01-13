@@ -34,6 +34,37 @@ onMounted(async () => {
   <div class="container">
     <!-- 订单 -->
     <div class="container__order">
+      <!-- 订单状态 -->
+      <div class="order__status" shadow="hover">
+        <div class="status__icon">
+          <div class="icon__item">
+            <i class="iconfont icon-round_check" v-if="state.order.status > '-1'"></i>
+            <i class="iconfont icon-round" v-else></i>
+            <span class="item__line" :class="{ lineActive: state.order.status > '-1' }"></span>
+          </div>
+          <div class="icon__item">
+            <i class="iconfont icon-round_check" v-if="state.order.status > '0'"></i>
+            <i class="iconfont icon-round" v-else></i>
+            <span class="item__line" :class="{ lineActive: state.order.status > '0' }"></span>
+          </div>
+          <div class="icon__item">
+            <i class="iconfont icon-round_check" v-if="state.order.status > '1'"></i>
+            <i class="iconfont icon-round" v-else></i>
+            <span class="item__line" :class="{ lineActive: state.order.status > '1' }"></span>
+          </div>
+
+          <div class="icon__item">
+            <i class="iconfont icon-round_check" v-if="state.order.status > '1'"></i>
+            <i class="iconfont icon-round" v-else></i>
+          </div>
+        </div>
+        <div class="status__tag">
+          <span class="tag__text" :class="{ textActive: state.order.status > '-1' }">已拍下</span>
+          <span class="tag__text" :class="{ textActive: state.order.status > '0' }" style="margin-left: 8px">已付款</span>
+          <span class="tag__text" :class="{ textActive: state.order.status > '1' }" style="margin-left: 8px">已收货</span>
+          <span class="tag__text" :class="{ textActive: state.order.status > '1' }">交易成功</span>
+        </div>
+      </div>
       <!-- 苗木信息 -->
       <div class="order__tree">
         <!-- 封面 -->
@@ -43,7 +74,7 @@ onMounted(async () => {
           <!-- 标题 -->
           <div class="info__title">
             <span class="title__content">{{ tree.title }}</span>
-            <el-tag size="large" type="error" class="title__price">￥{{ tree.price }}</el-tag>
+            <el-tag size="large" type="danger" class="title__price">￥{{ tree.price }}</el-tag>
           </div>
           <!-- 描述 -->
           <span class="info__describe"> {{ tree.describe }}</span>
@@ -54,7 +85,7 @@ onMounted(async () => {
         <!-- 头部 -->
         <div class="info__header">
           <span class="header__title">订单信息</span>
-          <el-button size="large" round>{{ isCurrent ? "联系卖家" : "联系买家" }}</el-button>
+          <el-button  round>{{ isCurrent ? "联系卖家" : "联系买家" }}</el-button>
         </div>
         <!-- 主体 -->
         <div class="info__main">
@@ -65,7 +96,9 @@ onMounted(async () => {
           <span>拍下时间: {{ state.order.time.split(",").join(" ") }}</span>
           <span v-if="state.order.status > '0'">付款时间: {{}}</span>
           <span v-if="state.order.status > '1'">交易完成时间: {{}}</span>
-          <span>支付状态: <el-tag :type="state.order.status == 0 ? 'warning' : 'success'">{{ state.order.status == 0 ? "未支付" : "已支付" }}</el-tag></span>
+          <span
+            >支付状态: <el-tag :type="state.order.status == 0 ? 'warning' : 'success'">{{ state.order.status == 0 ? "未支付" : "已支付" }}</el-tag></span
+          >
         </div>
       </div>
       <div class="order__option">
@@ -80,6 +113,7 @@ onMounted(async () => {
 
 <style lang="less" scoped>
 @defaultColor: rgb(241, 242, 243);
+@activeColor: rgb(94, 161, 97);
 
 // calc sidebar topbar
 @sidebar_width: 65px;
@@ -102,16 +136,56 @@ onMounted(async () => {
   background-color: @defaultColor;
   .container__order {
     .flex__column();
-    gap: 10px;
+    gap: 20px;
     width: 80%;
     height: 100%;
     padding: 20px;
     background-color: white;
+    .order__status {
+      .flex__column();
+      margin: 40px 20px;
+      .status__icon {
+        .flex__row();
+        align-items: center;
+        padding: 0 18px 0 12px;
+        .icon__item {
+          .flex__row();
+          align-items: center;
+          flex: 1;
+          &:last-child {
+            flex: none;
+          }
+          .item__line {
+            flex: 1;
+            height: 1px;
+            background-color: grey;
+          }
+          .lineActive {
+            background-color: black;
+          }
+          .iconfont {
+            font-size: 20px;
+            color: grey;
+          }
+          .icon-round_check {
+            color: @activeColor;
+          }
+        }
+      }
+      .status__tag {
+        .flex__row();
+        justify-content: space-between;
+        font-size: 14px;
+        color: grey;
+        .textActive {
+          color: black;
+        }
+      }
+    }
     .order__tree {
       .flex__row();
       gap: 20px;
       .tree__cover {
-        // flex: 1;
         width: 200px;
       }
       .tree__info {
@@ -135,17 +209,16 @@ onMounted(async () => {
           -webkit-box-orient: vertical;
         }
       }
-      .tree__price {
-      }
     }
     .order__info {
       .flex__column();
-      padding: 20px 0;
       .info__header {
         .flex__row();
         justify-content: space-between;
+        align-content: center;
         .header__title {
           font-size: 20px;
+          line-height: 32px;
         }
       }
       .info__main {
