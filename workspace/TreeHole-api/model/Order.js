@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
     type: Types.String,
     required: true,
   },
-  state: {
+  status: {
     type: Types.String,
     required: true,
   },
