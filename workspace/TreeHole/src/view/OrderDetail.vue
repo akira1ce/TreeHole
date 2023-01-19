@@ -1,23 +1,69 @@
 <script setup>
-import { computed, onMounted, reactive } from "vue-demi";
+import { ElMessage } from "element-plus";
+import { computed, onMounted, reactive, toRaw } from "vue-demi";
+import { useRouter } from "vue-router";
 import api from "../api";
 import request from "../api/request";
-import { local } from "../util";
+import { defaultState, local } from "../util";
+
+const router = useRouter();
 
 const state = reactive({
-  order: history.state?.order || {},
+  order: history.state.order || defaultState.order,
   loginUser: local.getItem("user") || {},
 });
 
+// [methods]
+/**
+ * 取消订单
+ * @param {string} orderID
+ */
+const cancelOrder = async (order) => {
+  await request.post(api.order.removeById, { _id: order._id });
+  await request.post(api.tree.modifyById, { _id: order.treeID, state: 0 });
+  if (state.order.status == 1) {
+    const refundRes = await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
+    ElMessage.success("已取消订单并退款成功");
+  }
+  ElMessage.success("已取消订单");
+  history.state.order = null;
+  toSpace(seller, tree.value._id);
+};
+
+/**
+ * 跳转个人空间
+ * - 若 treeID 存在，滚动条跳转至对应位置
+ * @param {object} spaceUser
+ * @param {string} treeID
+ */
+const toSpace = (spaceUser, treeID) => {
+  spaceUser = toRaw(spaceUser);
+  router.push({ name: "Space", state: { spaceUser, treeID } });
+};
+
+/**
+ * 跳转聊天
+ * - user1
+ * - user2
+ * - tree
+ * @param {string} userID1
+ * @param {string} userID2
+ * @param {string} treeID
+ */
+const toSocket = async (userID1, userID2, treeID) => {
+  await request.post(api.socket.addSocket, { userID1, userID2, treeID });
+  router.push({ name: "Socket", state: { userID: userID2, treeID } });
+};
+
 // [computed]
 const tree = computed(() => {
-  return state.order.tree;
+  return state.order.tree || {};
 });
 const buyer = computed(() => {
-  return state.order.buyer;
+  return state.order.buyer || {};
 });
 const seller = computed(() => {
-  return state.order.seller;
+  return state.order.seller || {};
 });
 const isCurrent = computed(() => {
   return buyer.value._id == state.loginUser._id;
@@ -25,15 +71,23 @@ const isCurrent = computed(() => {
 
 onMounted(async () => {
   const orderID = state.order._id;
+  if (!orderID) {
+    ElMessage.error("订单不存在");
+    return;
+  }
   const queryRes = await request.post(api.alipay.query, { orderID });
+  ElMessage.success(queryRes.massage);
   console.log(`output->queryRes`, queryRes);
 });
 </script>
 
 <template>
   <div class="container">
+    <!-- 空状态 -->
+    <el-empty class="empty" v-if="state.order._id == ''"></el-empty>
+
     <!-- 订单 -->
-    <div class="container__order">
+    <div class="container__order" v-else>
       <!-- 订单状态 -->
       <div class="order__status" shadow="hover">
         <div class="status__icon">
@@ -62,13 +116,13 @@ onMounted(async () => {
           <span class="tag__text" :class="{ textActive: state.order.status > '-1' }">已拍下</span>
           <span class="tag__text" :class="{ textActive: state.order.status > '0' }" style="margin-left: 8px">已付款</span>
           <span class="tag__text" :class="{ textActive: state.order.status > '1' }" style="margin-left: 8px">已收货</span>
-          <span class="tag__text" :class="{ textActive: state.order.status > '1' }">交易成功</span>
+          <span class="tag__text" :class="{ textActive: state.order.status > '2' }">交易成功</span>
         </div>
       </div>
       <!-- 苗木信息 -->
-      <div class="order__tree">
+      <div class="order__tree" @click="toSpace(seller, tree._id)">
         <!-- 封面 -->
-        <img class="tree__cover" :src="state.order.tree.imgs[0]" />
+        <img class="tree__cover" :src="tree.imgs[0]" />
         <!-- 详细信息 -->
         <div class="tree__info">
           <!-- 标题 -->
@@ -85,7 +139,7 @@ onMounted(async () => {
         <!-- 头部 -->
         <div class="info__header">
           <span class="header__title">订单信息</span>
-          <el-button  round>{{ isCurrent ? "联系卖家" : "联系买家" }}</el-button>
+          <el-button round @click="toSocket(buyer._id, seller._id, tree._id)">{{ isCurrent ? "联系卖家" : "联系买家" }}</el-button>
         </div>
         <!-- 主体 -->
         <div class="info__main">
@@ -102,10 +156,10 @@ onMounted(async () => {
         </div>
       </div>
       <div class="order__option">
-        <el-button type="">取消订单</el-button>
+        <el-button @click="cancelOrder(state.order)">取消订单</el-button>
         <!-- 买家 -->
-        <el-button type="" v-if="isCurrent && state.order.status == 0">立即支付</el-button>
-        <el-button type="" v-if="isCurrent && state.order.status == 1">确认收货</el-button>
+        <el-button v-if="isCurrent && state.order.status == 0">立即支付</el-button>
+        <el-button v-if="isCurrent && state.order.status == 1">确认收货</el-button>
       </div>
     </div>
   </div>
@@ -134,12 +188,15 @@ onMounted(async () => {
   position: relative;
   padding: 0px 3.333vw;
   background-color: @defaultColor;
+  .empty {
+    flex: 1;
+  }
   .container__order {
     .flex__column();
     gap: 20px;
     width: 80%;
     height: 100%;
-    padding: 20px;
+    padding: 30px;
     background-color: white;
     .order__status {
       .flex__column();
@@ -185,6 +242,7 @@ onMounted(async () => {
     .order__tree {
       .flex__row();
       gap: 20px;
+      cursor: pointer;
       .tree__cover {
         width: 200px;
       }
@@ -212,6 +270,8 @@ onMounted(async () => {
     }
     .order__info {
       .flex__column();
+      flex: 1;
+      gap: 10px;
       .info__header {
         .flex__row();
         justify-content: space-between;
