@@ -43,6 +43,11 @@ const spaceLink = () => {
   if (otherSide.value._id == order.tree.ownerID) toSpace(otherSide.value, order.tree._id);
   else toSpace(user, order.tree._id);
 };
+
+/**
+ * 查看订单
+ * @param {object} order 
+ */
 const checkOrder = (order) => {
   order = toRaw(order);
   router.push({ name: "OrderDetail", state: { order } });

@@ -55,7 +55,7 @@ const orderOp = async (tree, code) => {
   if (code == -1) return;
   if (code == 0) {
     const time = new Date().toLocaleString();
-    const order = await request.post(api.order.addOrder, { treeID: tree._id, buyerID: loginUser._id, sellerID: tree.ownerID, time, state: 0 });
+    const order = await request.post(api.order.addOrder, { treeID: tree._id, buyerID: loginUser._id, sellerID: tree.ownerID, time, status: 0 });
     await request.post(api.tree.modifyById, { _id: tree._id, state: 1 });
     const payUrl = await request.post(api.alipay.pagePay, { orderID: order._id, title, describe, price });
     state.socketList[state.current].tree.state = 1;
@@ -63,6 +63,7 @@ const orderOp = async (tree, code) => {
     window.open(payUrl);
   } else if (code == 1) {
     const order = await request.post(api.order.getOrderByTreeID, { treeID: tree._id });
+    console.log(`output->order`, order);
     router.push({
       name: "OrderDetail",
       state: { order },
