@@ -1,0 +1,73 @@
+[{
+  "_id": {
+    "$oid": "634a46aae553096bd0c95c10"
+  },
+  "account": "17756287961",
+  "password": "admin123",
+  "name": "Akira",
+  "sex": "1",
+  "location": "安徽-滁州",
+  "avator": "http://127.0.0.1:5000/uploadCenter/files/1672479168541-avator5.jpg",
+  "role": "1",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "634a6349e553096bd0c95c4b"
+  },
+  "account": "19855916679",
+  "password": "admin123",
+  "name": "Amoslier",
+  "sex": "1",
+  "location": "安徽-铜陵",
+  "avator": "http://127.0.0.1:5000/uploadCenter/files/1672479186555-avator2.jpg",
+  "role": "0",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "634a63a0e553096bd0c95c4c"
+  },
+  "account": "15391612278",
+  "password": "admin123",
+  "name": "L",
+  "sex": "0",
+  "location": "安徽-铜陵",
+  "avator": "http://127.0.0.1:5000/uploadCenter/files/1672479203962-avator3.jpg",
+  "role": "0",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "636616c07a179f73dd085492"
+  },
+  "account": "admin",
+  "password": "admin",
+  "name": "Admin",
+  "sex": "1",
+  "location": "安徽-铜陵",
+  "avator": "http://127.0.0.1:5000/uploadCenter/files/1672479218174-avator4.jpg",
+  "role": "1",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63730123c2b1a0a8b2d9558d"
+  },
+  "account": "17756287960",
+  "password": "admin123",
+  "role": "0",
+  "avator": "",
+  "name": "",
+  "sex": "",
+  "location": "安徽-滁州",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "637304ecc2b1a0a8b2d955ab"
+  },
+  "account": "test",
+  "password": "test",
+  "role": "0",
+  "avator": "http://127.0.0.1:5000/uploadCenter/files/1672479218174-avator4.jpg",
+  "name": "Test",
+  "sex": "",
+  "location": "安徽-黄山",
+  "__v": 0
+}]

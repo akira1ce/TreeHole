@@ -1,0 +1,37 @@
+[{
+  "_id": {
+    "$oid": "63b1a510d5732a6b8c043c4c"
+  },
+  "userID1": "634a63a0e553096bd0c95c4c",
+  "userID2": "634a46aae553096bd0c95c10",
+  "context": [],
+  "treeID": "634a6764e553096bd0c95c53",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63b1a5a4d5732a6b8c043c79"
+  },
+  "userID1": "634a63a0e553096bd0c95c4c",
+  "userID2": "634a46aae553096bd0c95c10",
+  "context": [],
+  "treeID": "634a679fe553096bd0c95c54",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63bcd6aa402c06222f2f94b9"
+  },
+  "userID1": "634a46aae553096bd0c95c10",
+  "userID2": "634a63a0e553096bd0c95c4c",
+  "context": [],
+  "treeID": "636b707d5114d74461d66788",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c96377d35e3165b5aaf56a"
+  },
+  "userID1": "634a46aae553096bd0c95c10",
+  "userID2": "636616c07a179f73dd085492",
+  "context": [],
+  "treeID": "63774226c0acc1eac23a0f5b",
+  "__v": 0
+}]
