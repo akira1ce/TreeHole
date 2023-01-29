@@ -23,21 +23,6 @@ const state = reactive({
 });
 
 // [methods]
-/**
- * 取消订单
- * @param {string} orderID
- * @param {string} treeID
- * @param {number} index
- */
-const cancelOrder = async (order, index) => {
-  await request.post(api.order.removeById, { _id: order._id });
-  await request.post(api.tree.modifyById, { _id: order.treeID, state: 0 });
-  const refundRes = await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
-  state.record.order.splice(index, 1);
-  state.record.orderList.splice(index, 1);
-  ElMessage.success("取消订单并退款成功");
-};
-
 // 跳转个人空间
 const toSpace = () => {
   router.push({ name: "Space" });
@@ -159,7 +144,7 @@ const record = computed(() => {
         </div>
         <!-- 订单 -->
         <div class="content__orders" v-else>
-          <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" :cancelOrder="cancelOrder" />
+          <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index"/>
         </div>
       </div>
     </div>

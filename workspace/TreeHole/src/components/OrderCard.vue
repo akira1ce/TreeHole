@@ -7,10 +7,10 @@ import request from "../api/request";
 import { local } from "../util";
 
 const router = useRouter();
-const props = defineProps(["order", "deleteOrder", "cancelOrder", "index"]);
+const props = defineProps(["order", "deleteOrder", "index"]);
 
 // [state]
-const { order, deleteOrder, index, cancelOrder } = props;
+const { order, deleteOrder, index } = props;
 const user = local.getItem("user");
 
 // [methods]
@@ -46,7 +46,7 @@ const spaceLink = () => {
 
 /**
  * 查看订单
- * @param {object} order 
+ * @param {object} order
  */
 const checkOrder = (order) => {
   order = toRaw(order);
@@ -60,7 +60,9 @@ const otherSide = computed(() => {
 });
 
 const tag = computed(() => {
-  return order.status == 0 ? { status: "warning", content: "进行中" } : { status: "success", content: "已完成" };
+  if (order.status == 0) return { status: "error", content: "待付款" };
+  if (order.status == 1) return { status: "warning", content: "待收货" };
+  if (order.status == 2) return { status: "success", content: "已完成" };
 });
 </script>
 
@@ -85,7 +87,7 @@ const tag = computed(() => {
     <!-- 订单-操作按钮 -->
     <div class="order-btns">
       <el-button round @click="toSocket(order.sellerID, order.buyerID, order.treeID)">联系树友</el-button>
-      <el-button round @click="checkOrder(order)" v-if="order.status == 0">查看订单</el-button>
+      <el-button type="warning" round @click="checkOrder(order)" v-if="order.status != 2">查看订单</el-button>
       <el-button type="danger" round @click="deleteOrder(order._id, index)" v-if="order.status == 2">删除订单</el-button>
     </div>
   </div>
@@ -148,7 +150,7 @@ const tag = computed(() => {
     .flex__row();
     align-items: center;
     .info__time {
-      flex: .8;
+      flex: 0.8;
     }
   }
   .order-btns {
