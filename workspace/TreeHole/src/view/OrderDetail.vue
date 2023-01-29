@@ -4,7 +4,7 @@ import { computed, onMounted, reactive, toRaw } from "vue-demi";
 import { useRouter } from "vue-router";
 import api from "../api";
 import request from "../api/request";
-import { defaultState, local } from "../util";
+import { defaultState, local, tools } from "../util";
 
 const router = useRouter();
 
@@ -20,7 +20,7 @@ const state = reactive({
  */
 const cancelOrder = async (order) => {
   await request.post(api.order.removeById, { _id: order._id });
-  await request.post(api.tree.modifyById, { _id: order.treeID, state: 0 });
+  await request.post(api.tree.modifyById, { _id: order.treeID, status: 0 });
   if (state.order.status == 1) {
     const refundRes = await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
     ElMessage.success("已取消订单并退款成功");
@@ -55,6 +55,28 @@ const toSocket = async (userID1, userID2, treeID) => {
   router.push({ name: "Socket", state: { userID: userID2, treeID } });
 };
 
+/**
+ * 立即支付
+ * @param {object} order
+ */
+const toPay = async (order) => {
+  const orderID = order._id;
+  const { title, describe, price } = order.tree;
+  const payUrl = await request.post(api.alipay.pagePay, { orderID, title, describe, price });
+  window.open(payUrl);
+};
+
+/**
+ * 确认收货，完成订单
+ * @param {object} order
+ */
+const completeOrder = async (order) => {
+  await request.post(api.order.modifyById, { _id: order._id, status: "2" });
+  state.order.status = "2";
+  ElMessage.success("确认收货完成");
+  ElMessage.success("交易完成");
+};
+
 // [computed]
 const tree = computed(() => {
   return state.order.tree || {};
@@ -75,9 +97,17 @@ onMounted(async () => {
     ElMessage.error("订单不存在");
     return;
   }
-  const queryRes = await request.post(api.alipay.query, { orderID });
-  ElMessage.success(queryRes.massage);
-  console.log(`output->queryRes`, queryRes);
+  if (state.order.status == 0) {
+    const queryRes = await request.post(api.alipay.query, { orderID });
+    if (queryRes.status == 2) {
+      queryRes.send_pay_date = tools.timeFormat(queryRes.send_pay_date);
+      await request.post(api.order.modifyById, { _id: orderID, status: "1", payTime: queryRes.send_pay_date });
+      state.order.status = "1";
+      state.order.payTime = queryRes.send_pay_date;
+    }
+    ElMessage.success(queryRes.massage);
+    console.log(`output->queryRes`, queryRes);
+  }
 });
 </script>
 
@@ -148,7 +178,7 @@ onMounted(async () => {
           <span>交易金额: ￥{{ tree.price }}</span>
           <span>订单编号: {{ state.order._id }}</span>
           <span>拍下时间: {{ state.order.time.split(",").join(" ") }}</span>
-          <span v-if="state.order.status > '0'">付款时间: {{}}</span>
+          <span v-if="state.order.status > '0'">付款时间: {{ state.order.payTime }}</span>
           <span v-if="state.order.status > '1'">交易完成时间: {{}}</span>
           <span
             >支付状态: <el-tag :type="state.order.status == 0 ? 'warning' : 'success'">{{ state.order.status == 0 ? "未支付" : "已支付" }}</el-tag></span
@@ -156,10 +186,10 @@ onMounted(async () => {
         </div>
       </div>
       <div class="order__option">
-        <el-button @click="cancelOrder(state.order)">取消订单</el-button>
+        <el-button v-if="state.order.status != 2" @click="cancelOrder(state.order)">取消订单</el-button>
         <!-- 买家 -->
-        <el-button v-if="isCurrent && state.order.status == 0">立即支付</el-button>
-        <el-button v-if="isCurrent && state.order.status == 1">确认收货</el-button>
+        <el-button v-if="isCurrent && state.order.status == 0" @click="toPay(state.order)">立即支付</el-button>
+        <el-button v-if="isCurrent && state.order.status == 1" @click="completeOrder(state.order)">确认收货</el-button>
       </div>
     </div>
   </div>
