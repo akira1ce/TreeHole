@@ -54,11 +54,10 @@ const orderOp = async (tree, code) => {
   const { title, describe, price } = tree;
   if (code == -1) return;
   if (code == 0) {
-    const time = new Date().toLocaleString();
-    const order = await request.post(api.order.addOrder, { treeID: tree._id, buyerID: loginUser._id, sellerID: tree.ownerID, time, status: 0 });
-    await request.post(api.tree.modifyById, { _id: tree._id, state: 1 });
+    const order = await request.post(api.order.addOrder, { treeID: tree._id, buyerID: loginUser._id, sellerID: tree.ownerID });
+    await request.post(api.tree.modifyById, { _id: tree._id, status: "1" });
     const payUrl = await request.post(api.alipay.pagePay, { orderID: order._id, title, describe, price });
-    state.socketList[state.current].tree.state = 1;
+    state.socketList[state.current].tree.status = 1;
     ElMessage.success("购买成功");
     window.open(payUrl);
   } else if (code == 1) {
@@ -69,12 +68,6 @@ const orderOp = async (tree, code) => {
       state: { order },
     });
   }
-  // else {
-  //   await request.post(api.order.modifyByTreeID, { treeID: tree._id, state: 1 });
-  //   await request.post(api.tree.modifyById, { _id: tree._id, state: 2 });
-  //   state.socketList[state.current].tree.state = 2;
-  //   ElMessage.success("售出成功");
-  // }
 };
 
 // 下放滚动条

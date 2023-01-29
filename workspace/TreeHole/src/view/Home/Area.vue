@@ -21,7 +21,7 @@ const getTreeList = () => {
   setTimeout(async () => {
     let res = await request.get(api.tree.getTreeList);
     // filter current location
-    res = res.filter((item) => item.location.indexOf(location?.split("-")[1]) != -1 && item.state == 0);
+    res = res.filter((item) => item.location.indexOf(location?.split("-")[1]) != -1 && item.status == 0);
     state.treeList = res;
     state.skeletoning = false;
   }, 300);

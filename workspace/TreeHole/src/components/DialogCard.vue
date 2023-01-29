@@ -18,29 +18,23 @@ const orderBtn = computed(() => {
   let content = "";
   let code = -1;
   if (tree.ownerID == loginUser._id) {
-    if (tree.state == 0) {
+    if (tree.status == 0) {
       type = "warning";
       content = "等待购买";
-    } else if (tree.state == 1) {
+    } else if (tree.status == 1) {
       type = "warning";
       content = "查看订单";
       code = 2;
-    } else if (tree.state == 2) {
-      type = "success";
-      content = "售出成功";
     }
   } else {
-    if (tree.state == 0) {
+    if (tree.status == 0) {
       type = "warning";
       content = "立即购买";
       code = 0;
-    } else if (tree.state == 1) {
+    } else if (tree.status == 1) {
       type = "warning";
       content = "查看订单";
       code = 1;
-    } else if (tree.state == 2) {
-      type = "success";
-      content = "购买成功";
     }
   }
   return { type, content, code };

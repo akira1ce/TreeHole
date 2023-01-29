@@ -19,7 +19,7 @@ const state = reactive({
 const getTreeList = () => {
   setTimeout(async () => {
     let res = await request.get(api.tree.getTreeList);
-    res = res.filter((item) => item.state == 0);
+    res = res.filter((item) => item.status == 0);
     state.treeList = res;
     state.skeletoning = false;
   }, 300);

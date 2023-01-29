@@ -138,8 +138,8 @@ onMounted(() => {
         <i class="iconfont icon-shoucang-active" v-show="state.isCollect" @click="handleCollect()"></i>
         <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="handleCollect()"></i>
         <!-- 联系卖家 -->
-        <el-button round @click="toSocket(loginUser._id, user._id, tree._id)" v-if="tree.state == 0">联系卖家</el-button>
-        <!-- <el-button round plain type="success" v-if="tree.state != 0">已出售</el-button> -->
+        <el-button round @click="toSocket(loginUser._id, user._id, tree._id)" v-if="tree.status == 0">联系卖家</el-button>
+        <!-- <el-button round plain type="success" v-if="tree.status != 0">已出售</el-button> -->
       </div>
     </div>
   </el-card>
