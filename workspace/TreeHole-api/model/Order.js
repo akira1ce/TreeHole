@@ -15,11 +15,22 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: Types.String,
-    required: true,
+    required: false,
+    default: "0",
   },
   time: {
     type: Types.String,
-    required: true,
+    required: false,
+    default: new Date().toLocaleString(),
+  },
+  payTime: {
+    type: Types.String,
+    required: false,
+    default: "",
+  },
+  completeTime: {
+    type: Types.String,
+    required: false,
     default: "",
   },
 });

@@ -9,10 +9,10 @@ const treeSchema = new mongoose.Schema({
     type: Types.String,
     required: true,
   },
-  state: {
+  status: {
     type: Types.String,
-    required: true,
-    default: "",
+    required: false,
+    default: "0",
   },
   title: {
     type: Types.String,
@@ -21,37 +21,37 @@ const treeSchema = new mongoose.Schema({
   },
   time: {
     type: Types.String,
-    required: true,
-    default: "",
+    required: false,
+    default: new Date().toLocaleString(),
   },
   height: {
     type: Types.String,
-    required: false,
+    required: true,
     default: "",
   },
   diameter: {
     type: Types.String,
-    required: false,
+    required: true,
     default: "",
   },
   branchPoint: {
     type: Types.String,
-    required: false,
+    required: true,
     default: "",
   },
   location: {
     type: Types.String,
-    required: false,
+    required: true,
     default: "",
   },
   describe: {
     type: Types.String,
-    required: false,
+    required: true,
     default: "",
   },
   price: {
     type: Types.String,
-    required: false,
+    required: true,
     default: "",
   },
   imgs: {
