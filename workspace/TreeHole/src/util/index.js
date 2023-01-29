@@ -112,4 +112,14 @@ const recordHandle = {
   },
 };
 
-export { local, defaultState, recordHandle };
+const tools = {
+  timeFormat: (time) => {
+    const timeArr = time.split(" ");
+    const timeArr_0 = timeArr[0].split("-").join("/");
+    let timeArr_1 = timeArr[1];
+
+    return `${timeArr_0} ${timeArr_1}`;
+  },
+};
+
+export { local, defaultState, recordHandle, tools };
