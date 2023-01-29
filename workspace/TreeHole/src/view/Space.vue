@@ -149,7 +149,7 @@ const updateTreeInfo = async () => {
   if (state.form_tree._id == "") {
     // 发布
     delete state.form_tree._id;
-    state.form_tree.time = new Date().toLocaleString();
+    delete state.form_tree.time;
     const tree = await request.post(api.tree.addTree, state.form_tree);
     tree.owner = state.user;
     state.dialog_tree = false;
