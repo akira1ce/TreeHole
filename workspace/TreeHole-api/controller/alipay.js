@@ -40,7 +40,7 @@ const refund = async (req, res, next) => {
 
     const url = await alipaySdk.exec("alipay.trade.refund", {}, { formData });
     let refundRes = await axios.get(url);
-    refundRes = refundRes.data.alipay_trade_query_response;
+    refundRes = refundRes.data.alipay_trade_refund_response;
 
     if (refundRes.code == "10000") {
       // 接口调用成功
