@@ -28,10 +28,5 @@ const orderSchema = new mongoose.Schema({
     required: false,
     default: "",
   },
-  completeTime: {
-    type: Types.String,
-    required: false,
-    default: "",
-  },
 });
 module.exports = orderSchema;
