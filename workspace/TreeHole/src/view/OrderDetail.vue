@@ -15,22 +15,6 @@ const state = reactive({
 
 // [methods]
 /**
- * 取消订单
- * @param {string} orderID
- */
-const cancelOrder = async (order) => {
-  await request.post(api.order.removeById, { _id: order._id });
-  await request.post(api.tree.modifyById, { _id: order.treeID, status: 0 });
-  if (state.order.status == 1) {
-    const refundRes = await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
-    ElMessage.success("已取消订单并退款成功");
-  }
-  ElMessage.success("已取消订单");
-  history.state.order = null;
-  toSpace(seller, tree.value._id);
-};
-
-/**
  * 跳转个人空间
  * - 若 treeID 存在，滚动条跳转至对应位置
  * @param {object} spaceUser
@@ -53,6 +37,22 @@ const toSpace = (spaceUser, treeID) => {
 const toSocket = async (userID1, userID2, treeID) => {
   await request.post(api.socket.addSocket, { userID1, userID2, treeID });
   router.push({ name: "Socket", state: { userID: userID2, treeID } });
+};
+
+/**
+ * 取消订单
+ * @param {string} orderID
+ */
+const cancelOrder = async (order) => {
+  if (state.order.status == 1) {
+    const refundRes = await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
+    ElMessage.success("已取消订单并退款成功");
+  }
+  await request.post(api.order.removeById, { _id: order._id });
+  await request.post(api.tree.modifyById, { _id: order.treeID, status: 0 });
+  ElMessage.success("已取消订单");
+  history.state.order = null;
+  toSpace(seller, tree.value._id);
 };
 
 /**
