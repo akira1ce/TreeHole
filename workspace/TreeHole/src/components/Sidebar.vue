@@ -1,6 +1,8 @@
 <script setup>
-import { onMounted, ref } from "vue-demi";
+import { onMounted, ref, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
+import api from "../api";
+import request from "../api/request";
 import { local } from "../util";
 
 const route = useRoute();
@@ -15,13 +17,22 @@ const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket"];
 // avator loading errorHandler
 const errorHandler = () => true;
 
-const toSpace = () => {
-  if (route.name == "Space") {
-    history.state.spaceUser = null;
-    router.go(0);
+const toSpace = async (spaceUser, treeID) => {
+  if (spaceUser == undefined) {
+    if (route.name == "Space") {
+      history.state.spaceUser = null;
+      router.go(0);
+      return;
+    }
+    router.push({ name: "Space" });
     return;
   }
-  router.push({ name: "Space" });
+  spaceUser = toRaw(spaceUser);
+  if (treeID) {
+    const userID = local.getItem("user")._id;
+    await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
+    router.push({ name: "Space", state: { spaceUser, treeID } });
+  } else router.push({ name: "Space", state: { spaceUser } });
 };
 
 /**
@@ -75,7 +86,7 @@ const navigate = (el) => {
     <div class="sidebar-bottom">
       <!-- 个人空间 -->
       <div class="avator">
-        <img :src="user.avator" data-id="3" @click="toSpace" />
+        <img :src="user.avator" data-id="3" @click="toSpace()" />
       </div>
       <!-- 聊天 -->
       <div class="socket" :id="route.path.startsWith('Socket') && 'active'" data-id="4">

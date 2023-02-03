@@ -3,13 +3,15 @@ import api from "../api";
 import request from "../api/request";
 import service from "../api/interceptor";
 import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { local, defaultState } from "../util";
 import Card from "../components/Card.vue";
 import OrderCard from "../components/OrderCard.vue";
 import { ElMessage } from "element-plus";
 
 const router = useRouter();
+const route = useRoute();
+
 const sliderRef = ref();
 
 // [state]
@@ -24,8 +26,22 @@ const state = reactive({
 
 // [methods]
 // 跳转个人空间
-const toSpace = () => {
-  router.push({ name: "Space" });
+const toSpace = async (spaceUser, treeID) => {
+  if (spaceUser == undefined) {
+    if (route.name == "Space") {
+      history.state.spaceUser = null;
+      router.go(0);
+      return;
+    }
+    router.push({ name: "Space" });
+    return;
+  }
+  spaceUser = toRaw(spaceUser);
+  if (treeID) {
+    const userID = local.getItem("user")._id;
+    await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
+    router.push({ name: "Space", state: { spaceUser, treeID } });
+  } else router.push({ name: "Space", state: { spaceUser } });
 };
 
 // 跳转记录 - 关注 - 粉丝
@@ -144,7 +160,7 @@ const record = computed(() => {
         </div>
         <!-- 订单 -->
         <div class="content__orders" v-else>
-          <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index"/>
+          <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" />
         </div>
       </div>
     </div>

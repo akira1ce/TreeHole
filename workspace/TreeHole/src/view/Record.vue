@@ -1,13 +1,15 @@
 <script setup>
 import { ElMessage } from "element-plus";
 import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import api from "../api";
 import request from "../api/request";
 import { local, defaultState } from "../util";
 
-const loginUser = local.getItem("user");
 const router = useRouter();
+const route = useRoute();
+
+const loginUser = local.getItem("user");
 
 // [state]
 const state = reactive({
@@ -20,10 +22,24 @@ const activeName = ref("1");
  * 跳转个人中心
  * @param {object} spaceUser
  */
-const toSpace = (spaceUser) => {
+const toSpace = async (spaceUser, treeID) => {
+  if (spaceUser == undefined) {
+    if (route.name == "Space") {
+      history.state.spaceUser = null;
+      router.go(0);
+      return;
+    }
+    router.push({ name: "Space" });
+    return;
+  }
   spaceUser = toRaw(spaceUser);
-  router.push({ name: "Space", state: { spaceUser } });
+  if (treeID) {
+    const userID = local.getItem("user")._id;
+    await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
+    router.push({ name: "Space", state: { spaceUser, treeID } });
+  } else router.push({ name: "Space", state: { spaceUser } });
 };
+
 // 关注/取消关注
 const followHandle = async (item) => {
   const userID1 = loginUser._id;

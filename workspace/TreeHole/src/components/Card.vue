@@ -1,8 +1,13 @@
 <script setup>
 import { defineProps, toRaw } from "vue-demi";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import api from "../api";
+import request from "../api/request";
+import { local } from "../util";
 
 const router = useRouter();
+const route = useRoute();
+
 const props = defineProps(["tree"]);
 
 // [state]
@@ -15,9 +20,22 @@ const tree = props.tree;
  * @param {object} spaceUser
  * @param {string} treeID
  */
-const toSpace = (spaceUser, treeID) => {
+const toSpace = async (spaceUser, treeID) => {
+  if (spaceUser == undefined) {
+    if (route.name == "Space") {
+      history.state.spaceUser = null;
+      router.go(0);
+      return;
+    }
+    router.push({ name: "Space" });
+    return;
+  }
   spaceUser = toRaw(spaceUser);
-  router.push({ name: "Space", state: { spaceUser, treeID } });
+  if (treeID) {
+    const userID = local.getItem("user")._id;
+    await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
+    router.push({ name: "Space", state: { spaceUser, treeID } });
+  } else router.push({ name: "Space", state: { spaceUser } });
 };
 </script>
 

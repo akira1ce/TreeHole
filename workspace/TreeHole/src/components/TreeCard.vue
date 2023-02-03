@@ -1,7 +1,7 @@
 <script setup>
 import useClipboard from "vue-clipboard3";
 import { defineProps, onMounted, reactive, toRaw } from "vue-demi";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Position } from "@element-plus/icons-vue";
 import { local } from "../util";
@@ -9,6 +9,8 @@ import request from "../api/request";
 import api from "../api";
 
 const router = useRouter();
+const route = useRoute();
+
 const { toClipboard } = useClipboard();
 const props = defineProps(["tree", "collectHandle", "record"]);
 
@@ -42,17 +44,6 @@ const toSocket = async (userID1, userID2, treeID) => {
 };
 
 /**
- * 跳转个人空间
- * - 若 treeID 存在，滚动条跳转至对应位置
- * @param {object} spaceUser
- * @param {string} treeID
- */
-const toSpace = (spaceUser) => {
-  spaceUser = toRaw(spaceUser);
-  router.push({ name: "Space", state: { spaceUser } });
-};
-
-/**
  * 复制地址
  * @param {string} location
  */
@@ -79,9 +70,9 @@ onMounted(() => {
       <!-- 树-头左 -->
       <div class="header__left">
         <!-- 用户信息 -->
-        <img class="header__avator" :src="user.avator" @click="toSpace(user)" />
+        <img class="header__avator" :src="user.avator" />
         <div class="header__info">
-          <span class="info__name" @click="toSpace(user)">{{ user.name }}</span>
+          <span class="info__name">{{ user.name }}</span>
           <span class="info__time">{{ tree.time.split(",")[0] }}</span>
         </div>
       </div>
