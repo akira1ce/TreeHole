@@ -20,7 +20,25 @@ const sliderLeft = ["22px", "125px", "228px"];
 const user = local.getItem("user");
 const state = reactive({
   current: 0,
-  currentList: [],
+  treeList: [],
+  historyList: {
+    pageNo: 1,
+    limit: 12,
+    infiniteScroll: false,
+    content: [],
+  },
+  collectList: {
+    pageNo: 1,
+    limit: 12,
+    infiniteScroll: false,
+    content: [],
+  },
+  orderList: {
+    pageNo: 1,
+    limit: 6,
+    infiniteScroll: false,
+    content: [],
+  },
   record: defaultState.record,
 });
 
@@ -56,17 +74,17 @@ const toRecord = () => {
 const switchNav = (index) => {
   state.current = index;
   sliderRef.value.style.left = sliderLeft[index];
-  const record = state.record;
-  if (index == 0) state.currentList = record.historyList;
-  else if (index == 1) state.currentList = record.collectList;
-  else state.currentList = record.orderList;
+  if (index == 0) state.treeList = state.historyList;
+  else if (index == 1) state.treeList = state.collectList;
+  else state.treeList = state.orderList;
+  if (state.treeList.content.length == 0) getTreeList();
 };
 
 // 清楚历史记录
 const clearBrowsing = async () => {
   state.record.browsingHistory = [];
   state.record.historyList = [];
-  state.currentList = [];
+  state.treeList = [];
   return;
   // prod
   const params = {
@@ -92,10 +110,32 @@ const deleteOrder = async (orderID, index) => {
   state.record.orderList.splice(index, 1);
 };
 
+const getTreeList = async () => {
+  const { current, historyList, collectList, orderList } = state;
+  let data = null;
+  if (current == 0) {
+    data = await request.post(api.tree.getTreeListByID, { trees: state.record.browsingHistory, pageNo: historyList.pageNo, limit: historyList.limit });
+    if (data.length < historyList.limit) state.historyList.infiniteScroll = true;
+    state.historyList.content.push(...data);
+    state.historyList.pageNo++;
+  } else if (current == 1) {
+    data = await request.post(api.tree.getTreeListByID, { trees: state.record.collect, pageNo: collectList.pageNo, limit: collectList.limit });
+    if (data.length < collectList.limit) state.collectList.infiniteScroll = true;
+    state.collectList.content.push(...data);
+    state.collectList.pageNo++;
+  } else {
+    data = await request.post(api.order.getOrderListByID, { orders: state.record.order, pageNo: orderList.pageNo, limit: orderList.limit });
+    if (data.length < orderList.limit) state.orderList.infiniteScroll = true;
+    state.orderList.content.push(...data);
+    state.orderList.pageNo++;
+  }
+};
+
 onMounted(async () => {
   let params = { userID: user._id };
   state.record = await request.post(api.record.getRecordByUserID, params);
-  state.currentList = state.record.historyList;
+  // state.historyList = await request.post(api.tree.getTreeListByID, { trees: state.record.browsingHistory, pageNo: historyList.pageNo });
+  switchNav(0);
 });
 
 // [computed]
@@ -105,7 +145,7 @@ const record = computed(() => {
 </script>
 
 <template>
-  <div class="container scroll">
+  <div class="container scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.treeList.infiniteScroll">
     <!-- 用户栏 -->
     <div class="container__userInfo">
       <!-- 用户基本信息 -->
@@ -122,10 +162,6 @@ const record = computed(() => {
       </div>
       <!-- 记录-动态关注粉丝 -->
       <div class="userInfo__record">
-        <div class="record__item" @click="toSpace">
-          <span class="item__count">{{ record.treeList?.length || "-" }}</span>
-          <span class="item__type">动态</span>
-        </div>
         <div class="record__item" @click="toRecord()">
           <span class="item__count">{{ record.following?.length || "-" }}</span>
           <span class="item__type">关注</span>
@@ -156,11 +192,11 @@ const record = computed(() => {
       <div class="main__content">
         <!-- 树 -->
         <div class="content__trees" v-if="state.current < 2">
-          <Card v-for="(item, index) in state.currentList" :key="item._id" :tree="item" />
+          <Card v-for="(item, index) in state.treeList.content" :key="item._id" :tree="item" />
         </div>
         <!-- 订单 -->
         <div class="content__orders" v-else>
-          <OrderCard v-for="(item, index) in state.currentList" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" />
+          <OrderCard v-for="(item, index) in state.treeList.content" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" />
         </div>
       </div>
     </div>
@@ -298,7 +334,7 @@ const record = computed(() => {
       width: 100%;
       .content__trees {
         display: grid;
-        justify-content: flex-start;
+        justify-content: space-between;
         grid-template-columns: repeat(auto-fill, 36vmin);
       }
     }

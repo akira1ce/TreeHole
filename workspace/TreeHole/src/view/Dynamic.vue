@@ -10,10 +10,12 @@ import { ElMessage } from "element-plus";
 const state = reactive({
   current: 0,
   record: defaultState.record,
-  following: [],
-  followTree: [],
+  followList: [],
+  treeList: [],
   user: local.getItem("user"),
-  a: 1,
+  pageNo: 1,
+  limit: 2,
+  infiniteScroll: false,
 });
 
 // [methods]
@@ -31,20 +33,28 @@ const errorHandler = () => true;
  * 选择关注列表中的用户
  * @param {vnode} e
  */
-const selectUser = async (e) => {
+const selectUser = (e) => {
   const id = e.target.dataset?.id || e.target.parentNode.dataset?.id;
   if (state.current == id || id == undefined) return;
   state.current = id;
-  await getTreeList(state.current);
+  state.treeList = [];
+  state.pageNo = 1;
+  state.infiniteScroll = false;
+  getTreeList();
 };
 
 /**
  * 获取树列表
  */
-const getTreeList = async (index) => {
-  state.followTree = await request.post(api.tree.getTreeListByUserID, {
-    userID: state.record.followList[index]?._id,
-  });
+const getTreeList = async () => {
+  const { pageNo, limit, current } = state;
+  const userID = state.followList[current]?._id;
+  if (userID) {
+    const trees = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit });
+    if (trees.length < state.limit) state.infiniteScroll = true;
+    state.treeList.push(...trees);
+    state.pageNo++;
+  }
 };
 
 /**
@@ -52,12 +62,12 @@ const getTreeList = async (index) => {
  */
 const followHandle = async () => {
   const { current, record, user } = state;
-  const follow_current = record.followList[current];
+  const follow_current = state.followList[current];
 
   const userID1 = user._id;
   const userID2 = follow_current._id;
   await request.post(api.record.modifyRecordUser, { userID1, userID2 });
-  
+
   // 更新缓存
   follow_current.isFollow = !follow_current.isFollow;
   if (follow_current.isFollow) ElMessage.success("关注成功");
@@ -67,20 +77,21 @@ const followHandle = async () => {
 // [computed]
 // 当前用户
 const currentUser = computed(() => {
-  return state.record.followList[state.current];
+  return state.followList[state.current];
 });
 
 // 当前关注用户树列表
-const followTree = computed(() => {
-  return state.followTree;
+const treeList = computed(() => {
+  return state.treeList;
 });
 
 onMounted(async () => {
   const userID = state.user._id;
   state.record = await request.post(api.record.getRecordByUserID, { userID });
-  state.record.followList.forEach((item) => (item.isFollow = true));
+  state.followList = await request.post(api.user.getUserListByID, { users: state.record.following });
+  state.followList.forEach((item) => (item.isFollow = true));
   // getTreeList
-  getTreeList(0);
+  getTreeList();
 });
 </script>
 
@@ -88,15 +99,15 @@ onMounted(async () => {
   <div class="container">
     <!-- 关注列表 -->
     <div class="container__follow" @click="selectUser">
-      <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.record.followList">
+      <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.followList">
         <img :src="item.avator" />
         <span>{{ item.name }}</span>
       </div>
     </div>
     <!-- 树列表 -->
-    <div class="container__content scroll">
+    <div class="container__content scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
       <div class="content__treeList">
-        <TreeCard v-for="(item, index) in state.followTree" :key="item._id" :tree="item" :record="state.record" :collectHandle="collectHandle">
+        <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.record" :collectHandle="collectHandle">
           <div class="unFollow" @click="followHandle">
             {{ currentUser.isFollow ? "取消关注" : "关注" }}
           </div>

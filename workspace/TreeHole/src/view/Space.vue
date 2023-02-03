@@ -70,6 +70,11 @@ const state = reactive({
   user: history.state.spaceUser || loginUser,
   record: defaultState.record,
   loginRecord: defaultState.record,
+  infiniteScroll: false,
+  treeList: [],
+  // 分页
+  pageNo: 1,
+  limit: 4,
   isFollow: false,
   // 弹出层
   dialog_user: false,
@@ -77,6 +82,7 @@ const state = reactive({
   dialog_previewImg: false,
   form_user: { ...loginUser },
   form_tree: { ...defaultState.tree },
+  updateTreeIndex: undefined,
   previewImgUrl: "",
 });
 
@@ -154,7 +160,7 @@ const updateTreeInfo = async () => {
     tree.owner = state.user;
     state.dialog_tree = false;
     // 更新缓存
-    state.record.treeList.push(tree);
+    state.treeList.unshift(tree);
     // 数据重置
     state.form_tree = defaultState.tree;
     ElMessage.success("发布成功");
@@ -223,15 +229,15 @@ const previewImg = (imgUrl) => {
  * @param {object} command
  */
 const handleCommand = async (command) => {
-  const tree = state.record.treeList[command.index];
+  const tree = state.treeList[command.index];
   if (command.mode == 0) {
     // 编辑
     state.dialog_tree = true;
-    state.form_tree = { ...tree };
+    state.form_tree = tree;
   } else {
     // 删除
     await request.post(api.tree.removeById, { _id: tree._id });
-    state.record.treeList.splice(command.index, 1);
+    state.treeList.splice(command.index, 1);
     ElMessage.success("删除成功");
   }
 };
@@ -293,8 +299,8 @@ const toSocket = async () => {
  * 关注/取消关注
  */
 const followHandle = async () => {
-  const { fans, fansList } = state.record;
-
+  const { fans } = state.record;
+  const { fansList } = state;
   const userID1 = loginUser._id;
   const userID2 = state.user._id;
   await request.post(api.record.modifyRecordUser, { userID1, userID2 });
@@ -304,12 +310,24 @@ const followHandle = async () => {
   const index = fans.indexOf(loginUser._id);
   if (index == -1) {
     fans.push(loginUser._id);
-    fansList.push(loginUser);
     ElMessage.success("关注成功");
   } else {
     fans.splice(index, 1);
-    fansList.splice(index, 1);
     ElMessage.success("取消关注成功");
+  }
+};
+
+/**
+ * 获取树列表
+ */
+const getTreeList = async () => {
+  const { pageNo, limit } = state;
+  const userID = state.user._id;
+  if (userID) {
+    const trees = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit });
+    if (trees.length < limit) state.infiniteScroll = true;
+    state.treeList.push(...trees);
+    state.pageNo++;
   }
 };
 
@@ -325,23 +343,23 @@ onMounted(async () => {
   if (loginUser._id != state.user._id) state.loginRecord = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
   state.record = await request.post(api.record.getRecordByUserID, { userID: state.user._id });
   if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
-
+  getTreeList();
   // 滚动条行为
-  if (treeID != "") {
-    nextTick(() => {
-      const mainRef = document.getElementsByClassName("el-card");
-      let targetTree = 0;
-      state.record.treeList.forEach((item, index) => {
-        if (item._id == treeID) targetTree = index;
-      });
-      mainRef[targetTree].scrollIntoView({ block: "center" });
-    });
-  }
+  // if (treeID != "") {
+  //   nextTick(() => {
+  //     const mainRef = document.getElementsByClassName("el-card");
+  //     let targetTree = 0;
+  //     state.record.treeList.forEach((item, index) => {
+  //       if (item._id == treeID) targetTree = index;
+  //     });
+  //     mainRef[targetTree].scrollIntoView({ block: "center" });
+  //   });
+  // }
 });
 </script>
 
 <template>
-  <div class="container scroll">
+  <div class="container scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
     <el-dialog v-model="state.dialog_previewImg">
       <img w-full :src="state.previewImgUrl" alt="Preview Image" />
     </el-dialog>
@@ -478,9 +496,9 @@ onMounted(async () => {
     <div class="container__main">
       <!-- 发布 -->
       <div class="release" v-if="isCurrentUser" @click="release">发布🙌</div>
-      <el-empty description="description" v-if="record.treeList.length == 0" />
+      <el-empty description="description" v-if="state.treeList.length == 0" />
       <!-- 苗木卡片 -->
-      <TreeCard v-for="(item, index) in record.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
+      <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
         <el-dropdown trigger="click" @command="handleCommand" v-if="isCurrentUser">
           <span class="el-dropdown-link"><i class="iconfont icon-gengduo"></i></span>
           <template #dropdown>

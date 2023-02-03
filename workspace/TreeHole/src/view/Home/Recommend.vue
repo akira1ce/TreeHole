@@ -9,20 +9,24 @@ import Card from "../../components/Card.vue";
 const user = local.getItem("user");
 const state = reactive({
   treeList: [],
-  skeletoning: true,
+  pageNo: 1,
+  limit: 16,
+  infiniteScroll: false,
 });
 
 // [methods]
 /**
  * 获取树列表
  */
-const getTreeList = () => {
-  setTimeout(async () => {
-    let res = await request.get(api.tree.getTreeList);
-    res = res.filter((item) => item.status == 0);
-    state.treeList = res;
-    state.skeletoning = false;
-  }, 300);
+const getTreeList = async () => {
+  const { pageNo, limit } = state;
+  let trees = await request.post(api.tree.getTreeList, { pageNo, limit });
+  if (trees.length < state.limit) {
+    state.infiniteScroll = true;
+  }
+  // res = res.filter((item) => item.status == 0);
+  state.treeList.push(...trees);
+  state.pageNo++;
 };
 
 onMounted(() => {
@@ -31,9 +35,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container scroll">
+  <div class="container scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
     <el-empty class="empty" v-show="state.treeList.length == 0 && !state.skeletoning"></el-empty>
-    <el-skeleton class="skeleton" :rows="15" animated v-show="state.skeletoning" />
     <Card v-for="(tree, index) in state.treeList" :key="tree._id" :tree="tree" />
   </div>
 </template>

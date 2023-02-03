@@ -13,7 +13,9 @@ const loginUser = local.getItem("user");
 
 // [state]
 const state = reactive({
-  record: defaultState,
+  record: defaultState.record,
+  followList: [],
+  fansList: [],
 });
 const activeName = ref("1");
 
@@ -46,7 +48,8 @@ const followHandle = async (item) => {
   const userID2 = item._id;
   await request.post(api.record.modifyRecordUser, { userID1, userID2 });
   // 更新缓存
-  const { fans, fansList, following, followList } = state.record;
+  const { fans, following } = state.record;
+  const { fansList, followList } = state;
   const isFollow = item.isFollow;
 
   const index_follow = following.indexOf(userID2);
@@ -61,7 +64,11 @@ const followHandle = async (item) => {
 onMounted(async () => {
   const params = { userID: loginUser._id };
   state.record = await request.post(api.record.getRecordByUserID, params);
-  const { followList, fansList, following } = state.record;
+  state.followList = await request.post(api.user.getUserListByID, { users: state.record.following });
+  state.fansList = await request.post(api.user.getUserListByID, { users: state.record.fans });
+
+  const { following } = state.record;
+  const { followList, fansList } = state;
   followList.forEach((item) => (item.isFollow = true));
   fansList.forEach((item) => {
     if (following.indexOf(item._id) != -1) item.isFollow = true;
@@ -76,7 +83,7 @@ onMounted(async () => {
       <!-- 关注列表 -->
       <el-collapse-item title="关注列表 👀" name="1">
         <div class="list">
-          <div class="list__item" v-for="(item, index) in state.record.followList">
+          <div class="list__item" v-for="(item, index) in state.followList">
             <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
             <div class="item__info">
               <span class="info__name">{{ item.name }}</span>
@@ -88,7 +95,7 @@ onMounted(async () => {
       <!-- 粉丝列表 -->
       <el-collapse-item title="粉丝列表 😍" name="2">
         <div class="list">
-          <div class="list__item" v-for="(item, index) in state.record.fansList">
+          <div class="list__item" v-for="(item, index) in state.fansList">
             <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
             <div class="item__info">
               <span class="info__name">{{ item.name }}</span>

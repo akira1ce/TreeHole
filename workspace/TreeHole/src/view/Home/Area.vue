@@ -19,7 +19,7 @@ const state = reactive({
 const getTreeList = () => {
   const location = user.location;
   setTimeout(async () => {
-    let res = await request.get(api.tree.getTreeList);
+    let res = await request.post(api.tree.getTreeList);
     // filter current location
     res = res.filter((item) => item.location.indexOf(location?.split("-")[1]) != -1 && item.status == 0);
     state.treeList = res;
