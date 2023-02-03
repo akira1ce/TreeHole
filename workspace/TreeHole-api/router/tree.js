@@ -10,9 +10,10 @@ router.post("/removeById", treeCtrl.removeById);
 // 修改
 router.post("/modifyById", treeCtrl.modifyById);
 // 获取树列表
-router.get("/getTreeList", treeCtrl.getTreeList);
+router.post("/getTreeList", treeCtrl.getTreeList);
+router.post("/getTreeListByUserID", treeCtrl.getTreeListByUserID);
+router.post("/getTreeListByID", treeCtrl.getTreeListByID);
 // 获取树
 router.post("/getTreeById", treeCtrl.getTreeById);
-// 获取所有者的树列表
-router.post("/getTreeListByUserID", treeCtrl.getTreeListByUserID);
+
 module.exports = router;

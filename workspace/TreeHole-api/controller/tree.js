@@ -47,7 +47,10 @@ const modifyById = async (req, res, next) => {
 // getTreeList
 const getTreeList = async (req, res, next) => {
   try {
-    const data = await Tree.find();
+    const { pageNo, limit } = req.body;
+    const data = await Tree.find()
+      .skip((pageNo - 1) * limit)
+      .limit(limit);
     const trees = await mergeTrees(data);
     res.send(result(200, trees, "ok"));
   } catch (e) {
@@ -73,14 +76,29 @@ const getTreeById = async (req, res, next) => {
 // getTreeListByUserID
 const getTreeListByUserID = async (req, res, next) => {
   try {
-    const { userID } = req.body;
-    const data = await Tree.find({ ownerID: userID });
-    if (!data) {
+    const { userID, pageNo, limit } = req.body;
+    const trees = await Tree.find({ ownerID: userID })
+      .skip((pageNo - 1) * limit)
+      .limit(limit);
+    if (!trees) {
       next(err("The userID does not has trees", 403, ""));
       return;
     }
-    const trees = await mergeTrees(data);
-    res.send(result(200, trees, "ok"));
+    const treeList = await mergeTrees(trees);
+    res.send(result(200, treeList, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
+// getTreeListByID
+const getTreeListByID = async (req, res, next) => {
+  try {
+    let { trees, pageNo, limit } = req.body;
+    trees = trees.slice((pageNo - 1) * limit, pageNo * limit);
+    const data = await Tree.find({ _id: { $in: trees } });
+    const treeList = await mergeTrees(data);
+    res.send(result(200, treeList, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -90,7 +108,8 @@ module.exports = {
   addTree,
   removeById,
   modifyById,
-  getTreeList,
   getTreeById,
+  getTreeList,
   getTreeListByUserID,
+  getTreeListByID,
 };

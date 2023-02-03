@@ -1,6 +1,7 @@
 export default {
   user: {
     getUserList: "/user/getUserList",
+    getUserListByID: "/user/getUserListByID",
     register: "/user/register",
     login: "/user/login",
     removeById: "/user/removeById",
@@ -8,9 +9,10 @@ export default {
     getUserById: "/user/getUserById",
   },
   tree: {
-    getTreeList: "/tree/getTreeList",
     getTreeById: "/tree/getTreeById",
+    getTreeList: "/tree/getTreeList",
     getTreeListByUserID: "/tree/getTreeListByUserID",
+    getTreeListByID: "/tree/getTreeListByID",
     addTree: "/tree/addTree",
     removeById: "/tree/removeById",
     modifyById: "/tree/modifyById",
@@ -27,6 +29,7 @@ export default {
   },
   order: {
     getOrderList: "/order/getOrderList",
+    getOrderListByID: "/order/getOrderListByID",
     addOrder: "/order/addOrder",
     removeById: "/order/removeById",
     modifyById: "/order/modifyById",

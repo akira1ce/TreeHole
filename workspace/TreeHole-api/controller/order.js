@@ -44,6 +44,18 @@ const getOrderListByUserID = async (req, res, next) => {
   }
 };
 
+// getOrderListByID
+const getOrderListByID = async (req, res, next) => {
+  try {
+    let { orders, pageNo, limit } = req.body;
+    orders = orders.slice((pageNo - 1) * limit, pageNo * limit);
+    const data = await mergeOrders(await Order.find({ _id: { $in: orders } }));
+    res.send(result(200, data, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
 const getOrderByTreeID = async (req, res, next) => {
   try {
     const { treeID } = req.body;
@@ -127,6 +139,7 @@ const modifyByTreeID = async (req, res, next) => {
 module.exports = {
   getOrderList,
   getOrderListByUserID,
+  getOrderListByID,
   getOrderByTreeID,
   addOrder,
   removeById,

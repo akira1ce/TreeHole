@@ -2,10 +2,21 @@ const { User, Record } = require("../model");
 const { result, err, config } = require("../util");
 const jwt = require("jsonwebtoken");
 
-// userList
+// getUserList
 const getUserList = async (req, res, next) => {
   try {
     const data = await User.find();
+    res.send(result(200, data, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
+// getUserListByID
+const getUserListByID = async (req, res, next) => {
+  try {
+    const { users } = req.body;
+    const data = await User.find({ _id: { $in: users } }, { password: 0 });
     res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
@@ -111,6 +122,7 @@ const modifyById = async (req, res, next) => {
 };
 module.exports = {
   getUserList,
+  getUserListByID,
   getUserById,
   register,
   login,

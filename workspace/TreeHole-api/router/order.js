@@ -12,7 +12,7 @@ router.post("/modifyById", orderCtrl.modifyById);
 router.post("/modifyByTreeID", orderCtrl.modifyByTreeID);
 // 查
 router.get("/getOrderList", orderCtrl.getOrderList);
-
+router.post("/getOrderListByID", orderCtrl.getOrderListByID);
 // 订单列表[用户]
 router.post("/getOrderListByUserID", orderCtrl.getOrderListByUserID);
 // 获取订单[苗木]

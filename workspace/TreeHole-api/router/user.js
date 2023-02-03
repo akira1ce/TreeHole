@@ -13,6 +13,7 @@ router.post("/removeById", userCtrl.removeById);
 router.post("/modifyById", userCtrl.modifyById);
 // 获取用户列表
 router.get("/getUserList", userCtrl.getUserList);
+router.post("/getUserListByID", userCtrl.getUserListByID);
 // 获取用户
 router.post("/getUserById", userCtrl.getUserById);
 
