@@ -69,7 +69,7 @@ const toSpace = async (spaceUser, treeID) => {
 }
 .card {
   .flex__column();
-  margin: 15px 10px;
+  margin: 12px;
   position: relative;
   font-family: @defaultFont;
   .card__cover {
