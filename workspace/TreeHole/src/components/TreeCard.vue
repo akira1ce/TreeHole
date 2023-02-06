@@ -1,6 +1,6 @@
 <script setup>
 import useClipboard from "vue-clipboard3";
-import { defineProps, onMounted, reactive, toRaw } from "vue-demi";
+import { defineProps, onMounted, reactive, toRaw, watchEffect } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Position } from "@element-plus/icons-vue";
@@ -10,14 +10,15 @@ import api from "../api";
 
 const router = useRouter();
 const route = useRoute();
-
 const { toClipboard } = useClipboard();
+
 const props = defineProps(["tree", "collectHandle", "record"]);
 
 // [state]
-const { tree, collectHandle, record } = props;
+const { tree, collectHandle } = props;
 const user = tree.owner;
 const loginUser = local.getItem("user");
+
 const state = reactive({
   isCollect: false,
 });
@@ -57,8 +58,9 @@ const copyLocation = async (location) => {
   }
 };
 
-onMounted(() => {
-  state.isCollect = record?.collect.indexOf(tree._id) != -1;
+watchEffect(() => {
+  console.log(`watchEffect`, props.record);
+  state.isCollect = props.record?.collect.indexOf(tree._id) != -1;
 });
 </script>
 
@@ -130,7 +132,7 @@ onMounted(() => {
         <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="handleCollect()"></i>
         <!-- 联系卖家 -->
         <el-button round @click="toSocket(loginUser._id, user._id, tree._id)" v-if="tree.status == 0">联系卖家</el-button>
-        <!-- <el-button round plain type="success" v-if="tree.status != 0">已出售</el-button> -->
+        <el-button round type="info" disabled="" v-if="tree.status != 0">已出售</el-button>
       </div>
     </div>
   </el-card>
@@ -158,6 +160,7 @@ onMounted(() => {
   border-radius: 5px;
   margin: 5px 0;
   position: relative;
+  min-width: 600px;
   .treeCard__header {
     .flex__row();
     justify-content: space-between;
