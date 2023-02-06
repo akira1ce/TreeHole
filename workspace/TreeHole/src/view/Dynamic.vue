@@ -90,7 +90,6 @@ onMounted(async () => {
   state.record = await request.post(api.record.getRecordByUserID, { userID });
   state.followList = await request.post(api.user.getUserListByID, { users: state.record.following });
   state.followList.forEach((item) => (item.isFollow = true));
-  // getTreeList
   getTreeList();
 });
 </script>

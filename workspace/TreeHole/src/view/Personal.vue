@@ -82,17 +82,18 @@ const switchNav = (index) => {
 
 // 清楚历史记录
 const clearBrowsing = async () => {
-  state.record.browsingHistory = [];
-  state.record.historyList = [];
-  state.treeList = [];
-  return;
-  // prod
   const params = {
     userID: user._id,
     mode: 0,
     clearAll: 1,
   };
   await request.post(api.record.modifyRecordTree, params);
+  // 更新缓存
+  state.record.browsingHistory = [];
+  state.historyList.content = [];
+  state.historyList.infiniteScroll = [];
+  state.treeList = [];
+  ElMessage.success("浏览记录已清空");
 };
 
 /**

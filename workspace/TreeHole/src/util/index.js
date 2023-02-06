@@ -17,13 +17,12 @@ const local = {
 const defaultState = {
   record: {
     _id: "",
-    current: 0,
+    userID: "",
     browsingHistory: [],
     collect: [],
     fans: [],
     following: [],
     order: [],
-    userID: "",
   },
   tree: {
     _id: "",
@@ -96,11 +95,9 @@ const recordHandle = {
     await request.post(api.record.modifyRecordTree, params);
     if (index == -1) {
       record.collect.push(treeID);
-      record.collectList.push(tree);
       ElMessage.warning("收藏成功");
     } else {
       record.collect.splice(index, 1);
-      record.collectList.splice(index, 1);
       ElMessage.warning("取消收藏成功");
     }
   },
