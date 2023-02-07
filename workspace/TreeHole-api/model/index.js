@@ -27,4 +27,5 @@ module.exports = {
   Record: mongoose.model("Record", require("./Record"), "Record"),
   Order: mongoose.model("Order", require("./Order"), "Order"),
   Socket: mongoose.model("Socket", require("./Socket"), "Socket"),
+  Comment: mongoose.model("Comment", require("./Comment"), "Comment"),
 };

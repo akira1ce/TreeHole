@@ -48,4 +48,9 @@ export default {
     refund: "/alipay/refund",
     query: "/alipay/query",
   },
+  comment: {
+    getCommentByTreeID: "/comment/getCommentByTreeID",
+    removeById: "/comment/removeById",
+    addComment: "/comment/addComment",
+  },
 };

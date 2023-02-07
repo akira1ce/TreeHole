@@ -1,6 +1,18 @@
 const { Tree, User, Record, Order, Socket } = require("../model");
 
 // mergexxx
+const mergeComments = async (data) => {
+  const comments = [];
+  for (let i = 0; i < data.length; i++) {
+    const comment = {};
+    const item = data[i];
+    Object.assign(comment, item._doc);
+    comment.sender = await User.findOne({ _id: item.senderID }, { password: 0 });
+    comments.push(comment);
+  }
+  return comments;
+};
+
 const mergeTrees = async (data) => {
   const trees = [];
   for (let i = 0; i < data.length; i++) {
@@ -52,4 +64,5 @@ module.exports = {
   mergeRecord,
   mergeOrders,
   mergeSockets,
+  mergeComments,
 };
