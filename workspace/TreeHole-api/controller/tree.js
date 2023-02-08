@@ -1,4 +1,4 @@
-const { Tree, User } = require("../model");
+const { Tree, User, Comment } = require("../model");
 const { result, err } = require("../util");
 
 const { mergeTrees } = require("../util/merge");
@@ -23,6 +23,7 @@ const removeById = async (req, res, next) => {
       next(err("The tree does not exist", 403, ""));
       return;
     }
+    await Comment.deleteMany({ treeID: _id });
     res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
