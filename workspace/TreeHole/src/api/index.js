@@ -26,6 +26,7 @@ export default {
     modifyRecordUser: "/record/modifyRecordUser",
     modifyRecordTree: "/record/modifyRecordTree",
     modifyRecordOrder: "/record/modifyRecordOrder",
+    modifyByID: "/record/modifyByID",
   },
   order: {
     getOrderList: "/order/getOrderList",

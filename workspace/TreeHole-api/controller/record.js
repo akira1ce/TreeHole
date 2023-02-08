@@ -120,9 +120,24 @@ const modifyRecordOrder = async (req, res, next) => {
   }
 };
 
+const modifyByID = async (req, res, next) => {
+  try {
+    const { _id } = req.body;
+    const data = await Record.findByIdAndUpdate(_id, req.body);
+    if (!data) {
+      next(err("The record does not exist", 403, ""));
+      return;
+    }
+    res.send(result(200, data, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
 module.exports = {
   getRecordByUserID,
   modifyRecordUser,
   modifyRecordTree,
   modifyRecordOrder,
+  modifyByID
 };
