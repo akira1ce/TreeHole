@@ -15,8 +15,12 @@ const route = useRoute();
 const sliderRef = ref();
 
 // [state]
+// 导航
 const navMenu = ["历史记录", "我的收藏", "我的交易"];
 const sliderLeft = ["22px", "125px", "228px"];
+// 索引集合
+const list = ["historyList", "collectList", "orderList"];
+const list_re = ["browsingHistory", "collect", "order"];
 const user = local.getItem("user");
 const state = reactive({
   current: 0,
@@ -77,7 +81,7 @@ const switchNav = (index) => {
   if (index == 0) state.treeList = state.historyList;
   else if (index == 1) state.treeList = state.collectList;
   else state.treeList = state.orderList;
-  if (state.treeList.content.length == 0) getTreeList();
+  if (state.treeList.content.length == 0) getCurrentList();
 };
 
 // 清楚历史记录
@@ -108,27 +112,32 @@ const deleteOrder = async (orderID, index) => {
   };
   await request.post(api.record.modifyRecordOrder, params);
   state.record.order.splice(index, 1);
-  state.record.orderList.splice(index, 1);
 };
 
-const getTreeList = async () => {
-  const { current, historyList, collectList, orderList } = state;
+// 分页加载导航数据 treeList or orderList
+const getCurrentList = async () => {
+  const { current } = state;
+
+  // 定位当前集合
+  const currentList = state[list[current]];
+  const currentList_re = state.record[list_re[current]];
+
   let data = null;
-  if (current == 0) {
-    data = await request.post(api.tree.getTreeListByID, { trees: state.record.browsingHistory, pageNo: historyList.pageNo, limit: historyList.limit });
-    if (data.length < historyList.limit) state.historyList.infiniteScroll = true;
-    state.historyList.content.push(...data);
-    state.historyList.pageNo++;
-  } else if (current == 1) {
-    data = await request.post(api.tree.getTreeListByID, { trees: state.record.collect, pageNo: collectList.pageNo, limit: collectList.limit });
-    if (data.length < collectList.limit) state.collectList.infiniteScroll = true;
-    state.collectList.content.push(...data);
-    state.collectList.pageNo++;
-  } else {
-    data = await request.post(api.order.getOrderListByID, { orders: state.record.order, pageNo: orderList.pageNo, limit: orderList.limit });
-    if (data.length < orderList.limit) state.orderList.infiniteScroll = true;
-    state.orderList.content.push(...data);
-    state.orderList.pageNo++;
+  // order 和 tree 唯一区分
+  if (current == 2) data = await request.post(api.order.getOrderListByID, { orders: currentList_re, pageNo: currentList.pageNo, limit: currentList.limit });
+  else data = await request.post(api.tree.getTreeListByID, { trees: currentList_re, pageNo: currentList.pageNo, limit: currentList.limit });
+
+  // 更新缓存
+  currentList.content.push(...data);
+  currentList.pageNo++;
+
+  // 在所有数据加载完毕之后，判断是否存在失效数据，存在 -> 更新记录
+  if (data.length < currentList.limit) {
+    currentList.infiniteScroll = true;
+    if (currentList.content.length != currentList_re.length) {
+      state.record[list_re[current]] = currentList.content.map((item) => item._id);
+      await request.post(api.record.modifyByID, state.record);
+    }
   }
 };
 
@@ -146,7 +155,7 @@ const record = computed(() => {
 </script>
 
 <template>
-  <div class="container scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.treeList.infiniteScroll">
+  <div class="container scroll" v-infinite-scroll="getCurrentList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.treeList.infiniteScroll">
     <!-- 用户栏 -->
     <div class="container__userInfo">
       <!-- 用户基本信息 -->
