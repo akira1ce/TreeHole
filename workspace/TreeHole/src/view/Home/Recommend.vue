@@ -12,6 +12,7 @@ const state = reactive({
   pageNo: 1,
   limit: 16,
   infiniteScroll: false,
+  skeletoning: true,
 });
 
 // [methods]
@@ -30,12 +31,16 @@ const getTreeList = async () => {
 };
 
 onMounted(() => {
-  getTreeList();
+  setTimeout(() => {
+    getTreeList();
+    state.skeletoning = false;
+  }, 200);
 });
 </script>
 
 <template>
   <div class="container scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
+    <el-skeleton class="skeleton" :rows="15" animated v-show="state.skeletoning" />
     <el-empty class="empty" v-show="state.treeList.length == 0 && !state.skeletoning"></el-empty>
     <Card v-for="(tree, index) in state.treeList" :key="tree._id" :tree="tree" />
   </div>

@@ -21,7 +21,7 @@ const rules = reactive({
       message: "Please input Activity account",
       trigger: "blur",
     },
-    { min: 3, max: 10, message: "Length should be 3 to 10", trigger: "blur" },
+    { min: 3, max: 11, message: "Length should be 3 to 11", trigger: "blur" },
   ],
   password: [
     {
