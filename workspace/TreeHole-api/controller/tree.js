@@ -63,12 +63,9 @@ const getTreeList = async (req, res, next) => {
 const getTreeById = async (req, res, next) => {
   try {
     const { _id } = req.body;
-    const data = await Tree.findOne({ _id });
-    if (!data) {
-      next(err("The tree does not exist", 403, ""));
-      return;
-    }
-    res.send(result(200, data, "ok"));
+    const data = await Tree.find({ _id });
+    const trees = await mergeTrees(data);
+    res.send(result(200, trees[0], "ok"));
   } catch (e) {
     next(err(e));
   }

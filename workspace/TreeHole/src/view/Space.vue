@@ -64,10 +64,10 @@ const form_tree_Rules = {
 };
 
 const loginUser = local.getItem("user");
-const treeID = history.state.treeID || "";
+const spaceUser = history.state.spaceUser;
 
 const state = reactive({
-  user: history.state.spaceUser || loginUser,
+  user: spaceUser || loginUser,
   record: defaultState.record,
   loginRecord: defaultState.record,
   infiniteScroll: false,
@@ -274,7 +274,7 @@ const submitForm = async (formRef, mode) => {
  * @param {string} treeID
  */
 const collectHandle = (tree) => {
-  recordHandle.collect(state.record, loginUser, tree);
+  recordHandle.collect(state.record, loginUser._id, tree._id);
 };
 
 /**
@@ -298,23 +298,16 @@ const toSocket = async () => {
 /**
  * 关注/取消关注
  */
-const followHandle = async () => {
-  const { fans } = state.record;
-  const { fansList } = state;
-  const userID1 = loginUser._id;
-  const userID2 = state.user._id;
-  await request.post(api.record.modifyRecordUser, { userID1, userID2 });
+const followHandle = async (userID1, userID2) => {
+  recordHandle.follow(state.loginRecord, userID1, userID2);
 
   // 更新缓存
-  state.isFollow = !state.isFollow;
+  const { fans } = state.record;
   const index = fans.indexOf(loginUser._id);
-  if (index == -1) {
-    fans.push(loginUser._id);
-    ElMessage.success("关注成功");
-  } else {
-    fans.splice(index, 1);
-    ElMessage.success("取消关注成功");
-  }
+  
+  if (index == -1) fans.push(loginUser._id);
+  else fans.splice(index, 1);
+  state.isFollow = !state.isFollow;
 };
 
 /**
@@ -344,17 +337,6 @@ onMounted(async () => {
   state.record = await request.post(api.record.getRecordByUserID, { userID: state.user._id });
   if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
   getTreeList();
-  // 滚动条行为
-  // if (treeID != "") {
-  //   nextTick(() => {
-  //     const mainRef = document.getElementsByClassName("el-card");
-  //     let targetTree = 0;
-  //     state.record.treeList.forEach((item, index) => {
-  //       if (item._id == treeID) targetTree = index;
-  //     });
-  //     mainRef[targetTree].scrollIntoView({ block: "center" });
-  //   });
-  // }
 });
 </script>
 
@@ -472,7 +454,7 @@ onMounted(async () => {
           <span class="user__name">{{ state.user.name }}</span>
           <div class="btnOption">
             <el-button class="editUserInfo" v-if="isCurrentUser" @click="editUserInfo">编辑个人资料</el-button>
-            <div class="unFollow btn" @click="followHandle" v-if="!isCurrentUser">{{ state.isFollow ? "取消关注" : "关注" }}</div>
+            <div class="unFollow btn" @click="followHandle(loginUser._id, spaceUser._id)" v-if="!isCurrentUser">{{ state.isFollow ? "取消关注" : "关注" }}</div>
           </div>
         </div>
         <!-- 个人记录 关注 粉丝 -->
