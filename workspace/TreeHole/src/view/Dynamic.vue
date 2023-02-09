@@ -24,7 +24,7 @@ const state = reactive({
  * @param {string} treeID
  */
 const collectHandle = (tree) => {
-  recordHandle.collect(state.record, state.user, tree);
+  recordHandle.collect(state.record, state.user._id, tree._id);
 };
 
 const errorHandler = () => true;
