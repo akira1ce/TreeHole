@@ -1,12 +1,26 @@
 <script setup>
 import { computed } from "vue-demi";
+import { useRoute, useRouter } from "vue-router";
 import { local } from "../util";
+
+const router = useRouter();
+const route = useRoute();
 
 // props
 const props = defineProps(["tree", "loginUser", "otherSide", "toSpace", "orderOp"]);
 
 // [state]
 const { tree, loginUser, otherSide, toSpace, orderOp } = props;
+
+// [methods]
+/**
+ * 跳转苗木详情
+ * @param {string} treeID
+ */
+const toTreeDetail = async (treeID) => {
+  if (route.name == "TreeDetail") return;
+  router.push({ name: "TreeDetail", state: { treeID } });
+};
 
 // [computed]
 /**
@@ -46,21 +60,12 @@ const orderBtn = computed(() => {
   <div class="card">
     <div class="card__tree">
       <!-- 树-封面 -->
-      <div class="tree__cover">
+      <div class="tree__cover" @click="toTreeDetail(tree._id)">
         <img :src="tree.imgs[0]" />
       </div>
       <!-- 树-信息 -->
       <div class="tree__info">
-        <span
-          class="info__title"
-          @click="
-            () => {
-              if (tree.ownerID == loginUser._id) toSpace(loginUser, tree._id);
-              else toSpace(otherSide, tree._id);
-            }
-          "
-          >{{ tree.title }}</span
-        >
+        <span class="info__title">{{ tree.title }}</span>
         <span class="info__describe">{{ tree.describe }}</span>
       </div>
       <!-- 树-操作 -->
@@ -103,12 +108,10 @@ const orderBtn = computed(() => {
     .tree__cover {
       img {
         width: 180px;
+        cursor: pointer;
       }
     }
     .tree__info {
-      .info__title {
-        cursor: pointer;
-      }
       .flex__column();
       flex: 1;
       gap: 10px;
