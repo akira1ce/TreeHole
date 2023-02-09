@@ -47,11 +47,7 @@ const Submit = async (formEl, mode) => {
         formEl.resetFields();
       } else if (mode == 1) {
         const { account, password } = user;
-        let params = {
-          account,
-          password,
-        };
-        const res = await request.post(api.user.login, params);
+        const res = await request.post(api.user.login, { account, password });
         local.setItem("token", res.token);
         local.setItem("user", res.user);
         router.push({
