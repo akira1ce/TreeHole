@@ -45,6 +45,19 @@ const toSocket = async (userID1, userID2, treeID) => {
 };
 
 /**
+ * 跳转个人空间
+ * @param {proxy} user
+ */
+const toSpace = (user) => {
+  if (history.state.spaceUser?._id == user._id) return;
+  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
+  else {
+    history.state.spaceUser = toRaw(user);
+    router.go(0);
+  }
+};
+
+/**
  * 复制地址
  * @param {string} location
  */
@@ -72,7 +85,7 @@ watchEffect(() => {
       <!-- 树-头左 -->
       <div class="header__left">
         <!-- 用户信息 -->
-        <img class="header__avator" :src="user.avator" />
+        <img class="header__avator" :src="user.avator" @click="toSpace(user)" />
         <div class="header__info">
           <span class="info__name">{{ user.name }}</span>
           <span class="info__time">{{ tree.time.split(",")[0] }}</span>

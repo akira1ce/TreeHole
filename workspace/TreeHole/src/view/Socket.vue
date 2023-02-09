@@ -25,9 +25,8 @@ socket.on("sendMessage", async function (msg) {
   if (msg.senderID == loginUser._id) {
     state.socketList[state.current].context.push(msg);
     const _id = currentSocket.value._id;
-    const params = { _id, msg };
     // 更新数据
-    await request.post(api.socket.modifyById, params);
+    await request.post(api.socket.modifyById, { _id, msg });
   }
   downScroll();
 });
@@ -105,22 +104,17 @@ const init = async () => {
 };
 
 // 跳转用户空间
-const toSpace = async (spaceUser, treeID) => {
-  if (spaceUser == undefined) {
-    if (route.name == "Space") {
-      history.state.spaceUser = null;
-      router.go(0);
-      return;
-    }
-    router.push({ name: "Space" });
-    return;
+/**
+ * 跳转个人空间
+ * @param {proxy} user
+ */
+const toSpace = (user) => {
+  if (history.state.spaceUser?._id == user._id) return;
+  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
+  else {
+    history.state.spaceUser = toRaw(user);
+    router.go(0);
   }
-  spaceUser = toRaw(spaceUser);
-  if (treeID) {
-    const userID = local.getItem("user")._id;
-    await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
-    router.push({ name: "Space", state: { spaceUser, treeID } });
-  } else router.push({ name: "Space", state: { spaceUser } });
 };
 
 // 切换用户
@@ -189,7 +183,7 @@ onMounted(async () => {
     <!-- 对话框 -->
     <div class="container__dialog" v-show="state.current != -1">
       <!-- 标题 -->
-      <div class="dialog__title" @click="toSpace(currentSocket?.otherSide, '')">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
+      <div class="dialog__title" @click="toSpace(currentSocket?.otherSide)">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
       <!-- 信息列表 -->
       <div class="dialog__msgList scroll" ref="dialogRef">
         <!-- 树卡片 -->

@@ -32,31 +32,25 @@ const toSocket = async (userID1, userID2, treeID) => {
 
 /**
  * 跳转个人空间
- * - 若 treeID 存在，滚动条跳转至对应位置
- * @param {object} spaceUser
- * @param {string} treeID
+ * @param {proxy} user
  */
-const toSpace = async (spaceUser, treeID) => {
-  if (spaceUser == undefined) {
-    if (route.name == "Space") {
-      history.state.spaceUser = null;
-      router.go(0);
-      return;
-    }
-    router.push({ name: "Space" });
-    return;
-  }
-  spaceUser = toRaw(spaceUser);
-  if (treeID) {
-    const userID = local.getItem("user")._id;
-    await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
-    router.push({ name: "Space", state: { spaceUser, treeID } });
-  } else router.push({ name: "Space", state: { spaceUser } });
+ const toSpace = (user) => {
+  if (route.name == "Space" && history.spaceUser._id != user._id) return;
+  router.push({ path: "/space", state: { spaceUser: toRaw(user) } });
 };
 
 const spaceLink = () => {
-  if (otherSide.value._id == order.tree.ownerID) toSpace(otherSide.value, order.tree._id);
-  else toSpace(user, order.tree._id);
+  if (otherSide.value._id == order.tree.ownerID) toSpace(otherSide.value);
+  else toSpace(user);
+};
+
+/**
+ * 跳转苗木详情页
+ * @param {proxy} tree
+ */
+const toTreeDetail = (treeID) => {
+  if (route.name == "TreeDetail") return;
+  router.push({ name: "TreeDetail", state: { treeID } });
 };
 
 /**
@@ -85,12 +79,12 @@ const tag = computed(() => {
   <!-- 个人中心 订单卡片 -->
   <div class="order">
     <!-- 订单-对方 -->
-    <div class="order__otherSide" @click="toSpace(otherSide, '')">
+    <div class="order__otherSide" @click="toSpace(otherSide)">
       <img class="otherSide__avator" :src="otherSide.avator" alt="" />
       <span class="otherSide_name">{{ otherSide.name }}</span>
     </div>
     <!-- 订单-树 -->
-    <div class="order__tree" @click="spaceLink">
+    <div class="order__tree" @click="toTreeDetail(order.tree._id)">
       <img class="tree__cover" :src="order.tree.imgs[0]" alt="" />
       <span class="tree__title">{{ order.tree.title }}</span>
     </div>

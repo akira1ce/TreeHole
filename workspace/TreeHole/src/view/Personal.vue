@@ -48,22 +48,17 @@ const state = reactive({
 
 // [methods]
 // 跳转个人空间
-const toSpace = async (spaceUser, treeID) => {
-  if (spaceUser == undefined) {
-    if (route.name == "Space") {
-      history.state.spaceUser = null;
-      router.go(0);
-      return;
-    }
-    router.push({ name: "Space" });
-    return;
+/**
+ * 跳转个人空间
+ * @param {proxy} user
+ */
+const toSpace = (user) => {
+  if (history.state.spaceUser?._id == user._id) return;
+  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
+  else {
+    history.state.spaceUser = toRaw(user);
+    router.go(0);
   }
-  spaceUser = toRaw(spaceUser);
-  if (treeID) {
-    const userID = local.getItem("user")._id;
-    await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
-    router.push({ name: "Space", state: { spaceUser, treeID } });
-  } else router.push({ name: "Space", state: { spaceUser } });
 };
 
 // 跳转记录 - 关注 - 粉丝
@@ -76,22 +71,24 @@ const toRecord = () => {
  * @param {number} index
  */
 const switchNav = (index) => {
+  // 缓存
   state.current = index;
+  local.setItem("current_personal", index);
+
+  // css
   sliderRef.value.style.left = sliderLeft[index];
+
   if (index == 0) state.treeList = state.historyList;
   else if (index == 1) state.treeList = state.collectList;
   else state.treeList = state.orderList;
+
+  // 首次特判
   if (state.treeList.content.length == 0) getCurrentList();
 };
 
 // 清楚历史记录
 const clearBrowsing = async () => {
-  const params = {
-    userID: user._id,
-    mode: 0,
-    clearAll: 1,
-  };
-  await request.post(api.record.modifyRecordTree, params);
+  await request.post(api.record.modifyRecordTree, { userID: user._id, mode: 0, clearAll: 1 });
   // 更新缓存
   state.record.browsingHistory = [];
   state.historyList.content = [];
@@ -106,11 +103,7 @@ const clearBrowsing = async () => {
  * @param {number} index
  */
 const deleteOrder = async (orderID, index) => {
-  const params = {
-    userID: user._id,
-    orderID,
-  };
-  await request.post(api.record.modifyRecordOrder, params);
+  await request.post(api.record.modifyRecordOrder, { userID: user._id, orderID });
   state.record.order.splice(index, 1);
 };
 
@@ -142,10 +135,9 @@ const getCurrentList = async () => {
 };
 
 onMounted(async () => {
-  let params = { userID: user._id };
-  state.record = await request.post(api.record.getRecordByUserID, params);
-  // state.historyList = await request.post(api.tree.getTreeListByID, { trees: state.record.browsingHistory, pageNo: historyList.pageNo });
-  switchNav(0);
+  state.record = await request.post(api.record.getRecordByUserID, { userID: user._id });
+  state.current = local.getItem("current_personal") || 0;
+  switchNav(state.current);
 });
 
 // [computed]
@@ -160,7 +152,7 @@ const record = computed(() => {
     <div class="container__userInfo">
       <!-- 用户基本信息 -->
       <div class="userInfo__base">
-        <div class="base__avator" @click="toSpace">
+        <div class="base__avator" @click="toSpace(user)">
           <img class="avator" :src="user.avator" alt="" />
         </div>
         <div class="base__info">

@@ -21,25 +21,16 @@ const activeName = ref("1");
 
 // [methods]
 /**
- * 跳转个人中心
- * @param {object} spaceUser
+ * 跳转个人空间
+ * @param {proxy} user
  */
-const toSpace = async (spaceUser, treeID) => {
-  if (spaceUser == undefined) {
-    if (route.name == "Space") {
-      history.state.spaceUser = null;
-      router.go(0);
-      return;
-    }
-    router.push({ name: "Space" });
-    return;
+const toSpace = (user) => {
+  if (history.state.spaceUser?._id == user._id) return;
+  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
+  else {
+    history.state.spaceUser = toRaw(user);
+    router.go(0);
   }
-  spaceUser = toRaw(spaceUser);
-  if (treeID) {
-    const userID = local.getItem("user")._id;
-    await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
-    router.push({ name: "Space", state: { spaceUser, treeID } });
-  } else router.push({ name: "Space", state: { spaceUser } });
 };
 
 // 关注/取消关注
@@ -62,8 +53,7 @@ const followHandle = async (item) => {
 };
 
 onMounted(async () => {
-  const params = { userID: loginUser._id };
-  state.record = await request.post(api.record.getRecordByUserID, params);
+  state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
   state.followList = await request.post(api.user.getUserListByID, { users: state.record.following });
   state.fansList = await request.post(api.user.getUserListByID, { users: state.record.fans });
 

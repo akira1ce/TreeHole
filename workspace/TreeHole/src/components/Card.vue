@@ -16,28 +16,24 @@ const tree = props.tree;
 // [methods]
 /**
  * 跳转个人空间
- * - 若 treeID 存在，滚动条跳转至对应位置
- * @param {object} spaceUser
- * @param {string} treeID
+ * @param {proxy} user
  */
-const toSpace = async (tree) => {
-  tree = toRaw(tree);
-  router.push({ name: "TreeDetail", state: { tree } });
-  // if (spaceUser == undefined) {
-  //   if (route.name == "Space") {
-  //     history.state.spaceUser = null;
-  //     router.go(0);
-  //     return;
-  //   }
-  //   router.push({ name: "Space" });
-  //   return;
-  // }
-  // spaceUser = toRaw(spaceUser);
-  // if (treeID) {
-  //   const userID = local.getItem("user")._id;
-  //   await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
-  //   router.push({ name: "Space", state: { spaceUser, treeID } });
-  // } else router.push({ name: "Space", state: { spaceUser } });
+ const toSpace = (user) => {
+  if (history.state.spaceUser?._id == user._id) return;
+  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
+  else {
+    history.state.spaceUser = toRaw(user);
+    router.go(0);
+  }
+};
+
+/**
+ * 跳转苗木详情
+ * @param {string} treeID 
+ */
+const toTreeDetail = async (treeID) => {
+  if (route.name == "TreeDetail") return;
+  router.push({ name: "TreeDetail", state: { treeID } });
 };
 </script>
 
@@ -45,7 +41,7 @@ const toSpace = async (tree) => {
   <!-- 首页树卡片 -->
   <div class="card">
     <!-- 树-封面 -->
-    <img class="card__cover" :src="tree.imgs[0]" @click="toSpace(tree)" />
+    <img class="card__cover" :src="tree.imgs[0]" @click="toTreeDetail(tree._id)" />
     <!-- 树-标题 -->
     <div class="card__title">{{ tree.title }}</div>
     <!-- 树-拥有者 -->

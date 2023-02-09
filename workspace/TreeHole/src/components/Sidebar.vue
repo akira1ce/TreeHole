@@ -17,22 +17,17 @@ const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket"];
 // avator loading errorHandler
 const errorHandler = () => true;
 
-const toSpace = async (spaceUser, treeID) => {
-  if (spaceUser == undefined) {
-    if (route.name == "Space") {
-      history.state.spaceUser = null;
-      router.go(0);
-      return;
-    }
-    router.push({ name: "Space" });
-    return;
+/**
+ * 跳转个人空间
+ * @param {proxy} user
+ */
+const toSpace = (user) => {
+  if (history.state.spaceUser?._id == user._id) return;
+  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
+  else {
+    history.state.spaceUser = toRaw(user);
+    router.go(0);
   }
-  spaceUser = toRaw(spaceUser);
-  if (treeID) {
-    const userID = local.getItem("user")._id;
-    await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
-    router.push({ name: "Space", state: { spaceUser, treeID } });
-  } else router.push({ name: "Space", state: { spaceUser } });
 };
 
 /**
@@ -86,7 +81,7 @@ const navigate = (el) => {
     <div class="sidebar-bottom">
       <!-- 个人空间 -->
       <div class="avator">
-        <img :src="user.avator" data-id="3" @click="toSpace()" />
+        <img :src="user.avator" data-id="3" @click="toSpace(user)" />
       </div>
       <!-- 聊天 -->
       <div class="socket" :id="route.path.startsWith('Socket') && 'active'" data-id="4">

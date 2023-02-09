@@ -16,27 +16,12 @@ const state = reactive({
 
 // [methods]
 /**
- * 跳转个人空间
- * - 若 treeID 存在，滚动条跳转至对应位置
- * @param {object} spaceUser
+ * 跳转苗木详情
  * @param {string} treeID
  */
-const toSpace = async (spaceUser, treeID) => {
-  if (spaceUser == undefined) {
-    if (route.name == "Space") {
-      history.state.spaceUser = null;
-      router.go(0);
-      return;
-    }
-    router.push({ name: "Space" });
-    return;
-  }
-  spaceUser = toRaw(spaceUser);
-  if (treeID) {
-    const userID = local.getItem("user")._id;
-    await request.post(api.record.modifyRecordTree, { userID, treeID, mode: 0, clearAll: 0 });
-    router.push({ name: "Space", state: { spaceUser, treeID } });
-  } else router.push({ name: "Space", state: { spaceUser } });
+const toTreeDetail = async (treeID) => {
+  if (route.name == "TreeDetail") return;
+  router.push({ name: "TreeDetail", state: { treeID } });
 };
 
 /**
@@ -65,8 +50,9 @@ const cancelOrder = async (order) => {
   await request.post(api.order.removeById, { _id: order._id });
   await request.post(api.tree.modifyById, { _id: order.treeID, status: 0 });
   ElMessage.success("已取消订单");
+  // --------
   history.state.order = null;
-  toSpace(seller, tree.value._id);
+  toSpace(seller);
 };
 
 /**
@@ -164,7 +150,7 @@ onMounted(async () => {
         </div>
       </div>
       <!-- 苗木信息 -->
-      <div class="order__tree" @click="toSpace(seller, tree._id)">
+      <div class="order__tree" @click="toTreeDetail(tree._id)">
         <!-- 封面 -->
         <img class="tree__cover" :src="tree.imgs[0]" />
         <!-- 详细信息 -->
