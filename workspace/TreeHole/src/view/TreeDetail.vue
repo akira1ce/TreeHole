@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive } from "vue-demi";
+import { computed, onMounted, reactive, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import api from "../api";
 import request from "../api/request";
@@ -80,6 +80,19 @@ const getCommentList = async () => {
   state.pageNo++;
 };
 
+/**
+ * 跳转个人空间
+ * @param {proxy} user
+ */
+const toSpace = (user) => {
+  if (history.state.spaceUser?._id == user._id) return;
+  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
+  else {
+    history.state.spaceUser = toRaw(user);
+    router.go(0);
+  }
+};
+
 // [computed]
 // 是否关注
 const isFollow = computed(() => {
@@ -120,7 +133,7 @@ onMounted(async () => {
         <span v-show="state.comments.length == 0">暂无评论哦~</span>
         <!-- 评论列表 -->
         <div class="comments__item" v-for="(item, index) in state.comments">
-          <img :src="item.sender.avator" class="avator" />
+          <img :src="item.sender.avator" class="avator" @click="toSpace(item.sender)" />
           <div class="item__main">
             <div class="main__senderInfo">
               <span class="senderInfo__name">{{ item.sender.name }}</span>
@@ -160,7 +173,7 @@ onMounted(async () => {
   background-color: @defaultColor;
   .container__content {
     .flex__column();
-    padding-bottom: 5px;
+    padding: 10px 260px;
     width: 60%;
     height: fit-content;
     .content__comments {
@@ -177,6 +190,7 @@ onMounted(async () => {
         width: 36px;
         height: 100%;
         border-radius: 36px;
+        cursor: pointer;
       }
       .comments__item {
         &:hover {
