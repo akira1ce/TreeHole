@@ -31,8 +31,8 @@ const getTreeList = async () => {
 };
 
 onMounted(() => {
-  setTimeout(() => {
-    getTreeList();
+  setTimeout(async () => {
+    await getTreeList();
     state.skeletoning = false;
   }, 200);
 });
