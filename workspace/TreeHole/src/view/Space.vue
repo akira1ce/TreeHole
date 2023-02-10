@@ -304,7 +304,7 @@ const followHandle = async (userID1, userID2) => {
   // 更新缓存
   const { fans } = state.record;
   const index = fans.indexOf(loginUser._id);
-  
+
   if (index == -1) fans.push(loginUser._id);
   else fans.splice(index, 1);
   state.isFollow = !state.isFollow;
@@ -346,68 +346,70 @@ onMounted(async () => {
       <img w-full :src="state.previewImgUrl" alt="Preview Image" />
     </el-dialog>
     <!-- 苗木 对话框 -->
-    <el-dialog title="苗木信息" v-model="state.dialog_tree" align-center>
-      <!-- 苗木表单 -->
-      <el-form :model="state.form_tree" label-width="auto" ref="form_tree_Ref" :rules="form_tree_Rules">
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="state.form_tree.title" />
-        </el-form-item>
-        <el-form-item label="描述" prop="describe">
-          <el-input v-model="state.form_tree.describe" :rows="2" type="textarea" />
-        </el-form-item>
-        <el-form-item label="地区" prop="location">
-          <el-input v-model="state.form_tree.location" />
-        </el-form-item>
-        <el-form-item label="价格(元)" prop="price">
-          <el-input v-model="state.form_tree.price" />
-        </el-form-item>
-        <el-form-item label="基本信息">
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="苗木种类" prop="type">
-                <el-input v-model="state.form_tree.type" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="高度(cm)" prop="height">
-                <el-input v-model="state.form_tree.height" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="分支点(cm)" prop="branchPoint">
-                <el-input v-model="state.form_tree.branchPoint" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="直径(cm)" prop="diameter">
-                <el-input v-model="state.form_tree.diameter" />
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form-item>
-        <el-form-item label="图片" prop="imgs">
-          <div class="form_item_imgs">
-            <div class="imgList">
-              <div class="imgList_item" v-for="(item, index) in state.form_tree.imgs" :key="item">
-                <img class="item_img" :src="item" />
-                <div class="item_options">
-                  <div class="options_previewImg" @click="previewImg(item)"><i class="iconfont icon-fangda"></i></div>
-                  <div class="options_removeImg" @click="removeImg(index)"><i class="iconfont icon-lajitong"></i></div>
+    <el-dialog class="treeDialog" title="苗木信息" v-model="state.dialog_tree" align-center>
+      <el-scrollbar height="65vh">
+        <!-- 苗木表单 -->
+        <el-form class="treeForm" :model="state.form_tree" label-width="auto" ref="form_tree_Ref" :rules="form_tree_Rules">
+          <el-form-item label="标题" prop="title">
+            <el-input v-model="state.form_tree.title" />
+          </el-form-item>
+          <el-form-item label="描述" prop="describe">
+            <el-input v-model="state.form_tree.describe" :rows="2" type="textarea" />
+          </el-form-item>
+          <el-form-item label="地区" prop="location">
+            <el-input v-model="state.form_tree.location" />
+          </el-form-item>
+          <el-form-item label="价格(元)" prop="price">
+            <el-input v-model="state.form_tree.price" />
+          </el-form-item>
+          <el-form-item label="基本信息">
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="苗木种类" prop="type">
+                  <el-input v-model="state.form_tree.type" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="高度(cm)" prop="height">
+                  <el-input v-model="state.form_tree.height" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="分支点(cm)" prop="branchPoint">
+                  <el-input v-model="state.form_tree.branchPoint" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="直径(cm)" prop="diameter">
+                  <el-input v-model="state.form_tree.diameter" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form-item>
+          <el-form-item label="图片" prop="imgs">
+            <div class="form_item_imgs">
+              <div class="imgList">
+                <div class="imgList_item" v-for="(item, index) in state.form_tree.imgs" :key="item">
+                  <img class="item_img" :src="item" />
+                  <div class="item_options">
+                    <div class="options_previewImg" @click="previewImg(item)"><i class="iconfont icon-fangda"></i></div>
+                    <div class="options_removeImg" @click="removeImg(index)"><i class="iconfont icon-lajitong"></i></div>
+                  </div>
                 </div>
               </div>
+              <el-upload ref="imgUploadRef" class="imgUpload" action="/api/uploadCenter/upload" :before-upload="beforeImageUpload" :on-success="handleImageSuccess" :auto-upload="false">
+                <template #trigger>
+                  <el-button type="primary">select file</el-button>
+                </template>
+                <el-button style="margin-left: 10px" type="success" @click="submitImageUpload"> upload to server </el-button>
+                <template #tip>
+                  <div class="el-upload__tip">jpg/png files with a size less than 5M</div>
+                </template>
+              </el-upload>
             </div>
-            <el-upload ref="imgUploadRef" class="imgUpload" action="/api/uploadCenter/upload" :before-upload="beforeImageUpload" :on-success="handleImageSuccess" :auto-upload="false">
-              <template #trigger>
-                <el-button type="primary">select file</el-button>
-              </template>
-              <el-button style="margin-left: 10px" type="success" @click="submitImageUpload"> upload to server </el-button>
-              <template #tip>
-                <div class="el-upload__tip">jpg/png files with a size less than 5M</div>
-              </template>
-            </el-upload>
-          </div>
-        </el-form-item>
-      </el-form>
+          </el-form-item>
+        </el-form>
+      </el-scrollbar>
       <!-- 底部操作按钮 -->
       <template #footer>
         <span class="dialog-footer">
@@ -526,10 +528,14 @@ onMounted(async () => {
   overflow-y: auto;
   position: relative;
   :deep(.el-dialog) {
+    border-radius: 18px;
     .el-dialog__body {
       img {
         width: 100%;
       }
+    }
+    .treeForm {
+      margin-right: 20px;
     }
     .el-col {
       margin-bottom: 20px;
