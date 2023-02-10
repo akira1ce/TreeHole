@@ -58,6 +58,15 @@ const toSpace = (user) => {
 };
 
 /**
+ * 跳转苗木详情
+ * @param {string} treeID
+ */
+const toTreeDetail = async (treeID) => {
+  if (route.name == "TreeDetail") return;
+  router.push({ name: "TreeDetail", state: { treeID } });
+};
+
+/**
  * 复制地址
  * @param {string} location
  */
@@ -147,6 +156,7 @@ watchEffect(() => {
         <el-button round @click="toSocket(loginUser._id, user._id, tree._id)" v-if="tree.status == 0">联系卖家</el-button>
         <el-button round type="info" disabled="" v-if="tree.status != 0">已出售</el-button>
       </div>
+      <i class="iconfont icon-youjiantou1" v-if="route.name != 'TreeDetail'" @click="toTreeDetail(tree._id)"></i>
     </div>
   </el-card>
 </template>
@@ -265,6 +275,20 @@ watchEffect(() => {
       .icon-shoucang-active {
         color: #efb336;
       }
+    }
+    .icon-youjiantou1 {
+      position: absolute;
+      top: 45%;
+      right: 600px;
+      font-size: 50px;
+      color: rgba(94, 161, 97, 0.6);
+      transition: all 0.5s;
+      cursor: pointer;
+    }
+  }
+  &:hover {
+    .icon-youjiantou1 {
+      right: 20px;
     }
   }
 }
