@@ -10,7 +10,7 @@ const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
-  order: history.state.order || defaultState.order,
+  order: { ...history.state.order } || defaultState.order,
   loginUser: local.getItem("user") || {},
 });
 
@@ -47,12 +47,14 @@ const cancelOrder = async (order) => {
     const refundRes = await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
     ElMessage.success("已取消订单并退款成功");
   }
+  
   await request.post(api.order.removeById, { _id: order._id });
   await request.post(api.tree.modifyById, { _id: order.treeID, status: 0 });
-  ElMessage.success("已取消订单");
-  // --------
+
+  // 更新缓存
   history.state.order = null;
-  toSpace(seller);
+  state.order._id = "";
+  ElMessage.success("已取消订单");
 };
 
 /**
