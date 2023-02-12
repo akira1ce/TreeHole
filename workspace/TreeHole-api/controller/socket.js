@@ -11,7 +11,7 @@ const addSocket = async (req, res, next) => {
       $or: [{ $and: [{ userID1 }, { userID2 }, { treeID }] }, { $and: [{ userID1: userID2 }, { userID2: userID1 }, { treeID }] }],
     });
     if (socket) {
-      next(err("ok", 200, ""));
+      next(err("会话已存在", 200, ""));
       return;
     }
     socket = new Socket(req.body);

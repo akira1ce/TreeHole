@@ -35,7 +35,7 @@ const orderBtn = computed(() => {
     if (tree.status == 0) {
       type = "warning";
       content = "等待购买";
-    } else if (tree.status == 1) {
+    } else {
       type = "warning";
       content = "查看订单";
       code = 2;
@@ -45,7 +45,7 @@ const orderBtn = computed(() => {
       type = "warning";
       content = "立即购买";
       code = 0;
-    } else if (tree.status == 1) {
+    } else {
       type = "warning";
       content = "查看订单";
       code = 1;

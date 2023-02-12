@@ -10,7 +10,8 @@ const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
-  order: { ...history.state.order } || defaultState.order,
+  treeID: history.state.treeID || "",
+  order: defaultState.order,
   loginUser: local.getItem("user") || {},
 });
 
@@ -47,7 +48,7 @@ const cancelOrder = async (order) => {
     const refundRes = await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
     ElMessage.success("已取消订单并退款成功");
   }
-  
+
   await request.post(api.order.removeById, { _id: order._id });
   await request.post(api.tree.modifyById, { _id: order.treeID, status: 0 });
 
@@ -74,6 +75,7 @@ const toPay = async (order) => {
  */
 const completeOrder = async (order) => {
   await request.post(api.order.modifyById, { _id: order._id, status: "2" });
+  await request.post(api.tree.modifyById, { _id: order.treeID, status: "2" });
   state.order.status = "2";
   ElMessage.success("确认收货完成");
   ElMessage.success("交易完成");
@@ -94,8 +96,9 @@ const isCurrent = computed(() => {
 });
 
 onMounted(async () => {
-  const orderID = state.order._id;
-  if (!orderID) {
+  const treeID = state.treeID;
+  if (treeID) state.order = await request.post(api.order.getOrderByTreeID, { treeID });
+  if (!state.order._id) {
     ElMessage.error("订单不存在");
     return;
   }

@@ -59,7 +59,7 @@ const toTreeDetail = (treeID) => {
  */
 const checkOrder = (order) => {
   order = toRaw(order);
-  router.push({ name: "OrderDetail", state: { order } });
+  router.push({ name: "OrderDetail", state: { treeID: order.treeID }, });
 };
 
 // [computed]

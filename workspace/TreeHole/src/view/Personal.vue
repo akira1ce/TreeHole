@@ -174,7 +174,7 @@ const record = computed(() => {
         </div>
       </div>
       <!-- 个人空间 -->
-      <div class="space" @click="toSpace">空间 <i class="iconfont icon-youjiantou"></i></div>
+      <div class="space" @click="toSpace(user)">空间 <i class="iconfont icon-youjiantou"></i></div>
     </div>
     <div class="container__main">
       <el-affix :offset="76">

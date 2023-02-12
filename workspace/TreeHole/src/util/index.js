@@ -51,6 +51,7 @@ const defaultState = {
     sellerID: "",
     status: "",
     time: "",
+    payTime: "",
     buyer: {
       _id: "",
       account: "",

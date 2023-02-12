@@ -26,8 +26,7 @@ const socketSchema = new mongoose.Schema({
   },
   treeID: {
     type: Types.String,
-    required: false,
-    default: "",
+    required: true,
   },
 });
 module.exports = socketSchema;

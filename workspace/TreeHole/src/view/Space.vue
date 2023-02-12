@@ -232,10 +232,18 @@ const handleCommand = async (command) => {
   const tree = state.treeList[command.index];
   if (command.mode == 0) {
     // 编辑
+    if (tree.status == 1) {
+      ElMessage.error("苗木正在交易中，无法编辑");
+      return;
+    }
     state.dialog_tree = true;
     state.form_tree = tree;
   } else {
     // 删除
+    if (tree.status == 1) {
+      ElMessage.error("苗木正在交易中，无法删除");
+      return;
+    }
     await request.post(api.tree.removeById, { _id: tree._id });
     state.treeList.splice(command.index, 1);
     ElMessage.success("删除成功");

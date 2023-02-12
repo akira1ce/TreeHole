@@ -62,12 +62,7 @@ const orderOp = async (tree, code) => {
     ElMessage.success("购买成功");
     window.open(payUrl);
   } else if (code == 1) {
-    const order = await request.post(api.order.getOrderByTreeID, { treeID: tree._id });
-    console.log(`output->order`, order);
-    router.push({
-      name: "OrderDetail",
-      state: { order },
-    });
+    router.push({ name: "OrderDetail", state: { treeID: tree._id } });
   }
 };
 
@@ -186,8 +181,8 @@ onMounted(async () => {
       <div class="dialog__title" @click="toSpace(currentSocket?.otherSide)">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
       <!-- 信息列表 -->
       <div class="dialog__msgList scroll" ref="dialogRef">
-        <!-- 树卡片 -->
-        <DialogCard :key="currentSocket?.treeID" :tree="currentSocket?.tree" v-if="currentSocket?.treeID" :toSpace="toSpace" :loginUser="loginUser" :otherSide="currentSocket?.otherSide" :orderOp="orderOp" />
+        <!-- 对话框苗木卡片 -->
+        <DialogCard v-if="currentSocket?.treeID" :key="currentSocket?.treeID" :tree="currentSocket?.tree" :toSpace="toSpace" :loginUser="loginUser" :otherSide="currentSocket?.otherSide" :orderOp="orderOp" />
         <div class="msgList__item" :class="item.senderID == loginUser._id ? 'flexEnd' : 'flexStart'" v-for="item in currentSocket?.context">
           <img class="item__img" :src="item.senderID == loginUser._id ? loginUser.avator : currentSocket?.otherSide.avator" />
           <div class="item__content">{{ item.data.content }}</div>
