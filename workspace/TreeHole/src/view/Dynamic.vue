@@ -10,12 +10,15 @@ import { ElMessage } from "element-plus";
 const state = reactive({
   current: 0,
   record: defaultState.record,
-  followList: [],
+  userList: [],
   treeList: [],
   user: local.getItem("user"),
-  pageNo: 1,
-  limit: 2,
-  infiniteScroll: false,
+  pageNo_tree: 1,
+  pageNo_user: 1,
+  limit_tree: 2,
+  limit_user: 12,
+  infiniteScroll_tree: false,
+  infiniteScroll_user: false,
 });
 
 // [methods]
@@ -38,8 +41,8 @@ const selectUser = (e) => {
   if (state.current == id || id == undefined) return;
   state.current = id;
   state.treeList = [];
-  state.pageNo = 1;
-  state.infiniteScroll = false;
+  state.pageNo_tree = 1;
+  state.infiniteScroll_tree = false;
   getTreeList();
 };
 
@@ -47,14 +50,32 @@ const selectUser = (e) => {
  * 获取树列表
  */
 const getTreeList = async () => {
-  const { pageNo, limit, current } = state;
-  const userID = state.followList[current]?._id;
+  const { pageNo_tree, limit_tree, current } = state;
+  const pageNo = pageNo_tree;
+  const limit = limit_tree;
+  const userID = state.userList[current]?._id;
   if (userID) {
     const trees = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit });
-    if (trees.length < state.limit) state.infiniteScroll = true;
+    if (trees.length < state.limit_tree) state.infiniteScroll_tree = true;
     state.treeList.push(...trees);
-    state.pageNo++;
+    state.pageNo_tree++;
   }
+};
+
+/**
+ * 获取用户列表
+ */
+const getUserList = async () => {
+  const { pageNo_user, limit_user, record } = state;
+  const pageNo = pageNo_user;
+  const limit = limit_user;
+
+  const users = await request.post(api.user.getUserListByID, { users: record.following, pageNo, limit });
+  users.forEach((item) => (item.isFollow = true));
+
+  if (users.length < state.limit_user) state.infiniteScroll_user = true;
+  state.userList.push(...users);
+  state.pageNo_user++;
 };
 
 /**
@@ -62,7 +83,7 @@ const getTreeList = async () => {
  */
 const followHandle = async () => {
   const { current, record, user } = state;
-  const follow_current = state.followList[current];
+  const follow_current = state.userList[current];
 
   const userID1 = user._id;
   const userID2 = follow_current._id;
@@ -77,7 +98,7 @@ const followHandle = async () => {
 // [computed]
 // 当前用户
 const currentUser = computed(() => {
-  return state.followList[state.current];
+  return state.userList[state.current];
 });
 
 // 当前关注用户树列表
@@ -88,23 +109,22 @@ const treeList = computed(() => {
 onMounted(async () => {
   const userID = state.user._id;
   state.record = await request.post(api.record.getRecordByUserID, { userID });
-  state.followList = await request.post(api.user.getUserListByID, { users: state.record.following });
-  state.followList.forEach((item) => (item.isFollow = true));
-  getTreeList();
+  await getUserList();
+  await getTreeList();
 });
 </script>
 
 <template>
   <div class="container">
     <!-- 关注列表 -->
-    <div class="container__follow" @click="selectUser">
-      <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.followList">
+    <div class="container__follow scroll" v-infinite-scroll="getUserList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll_user"  @click="selectUser">
+      <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.userList">
         <img :src="item.avator" />
         <span>{{ item.name }}</span>
       </div>
     </div>
     <!-- 树列表 -->
-    <div class="container__content scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
+    <div class="container__content scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll_tree">
       <div class="content__treeList">
         <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.record" :collectHandle="collectHandle">
           <div class="unFollow" @click="followHandle">
@@ -143,6 +163,7 @@ onMounted(async () => {
     height: 100%;
     padding: 25px 15px;
     background-color: white;
+    overflow-y: auto;
     .follow__item {
       .flex__row();
       align-items: center;

@@ -15,8 +15,9 @@ const getUserList = async (req, res, next) => {
 // getUserListByID
 const getUserListByID = async (req, res, next) => {
   try {
-    const { users } = req.body;
-    const data = await User.find({ _id: { $in: users } }, { password: 0 });
+    let { users, pageNo, limit } = req.body;
+    users = users.slice((pageNo - 1) * limit, pageNo * limit);
+    const data = await User.find({ _id: { $in: users } });
     res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
