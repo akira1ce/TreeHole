@@ -288,8 +288,8 @@ const collectHandle = (tree) => {
 /**
  * 跳转记录
  */
-const toRecord = () => {
-  if (isCurrentUser.value) router.push({ name: "Record" });
+const toRecord = (mode) => {
+  if (isCurrentUser.value) router.push({ name: "Record", state: { mode } });
 };
 
 /**
@@ -468,12 +468,12 @@ onMounted(async () => {
           </div>
         </div>
         <!-- 个人记录 关注 粉丝 -->
-        <div class="user__record" @click="toRecord">
-          <div class="record__item">
+        <div class="user__record">
+          <div class="record__item" @click="toRecord(0)">
             <span class="item__count">{{ record.following?.length || "-" }}</span>
             <span class="item__type">关注</span>
           </div>
-          <div class="record__item">
+          <div class="record__item" @click="toRecord(1)">
             <span class="item__count">{{ record.fans?.length || "-" }}</span>
             <span class="item__type">粉丝</span>
           </div>

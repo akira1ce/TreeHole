@@ -14,8 +14,11 @@ const loginUser = local.getItem("user");
 // [state]
 const state = reactive({
   record: defaultState.record,
-  followList: [],
-  fansList: [],
+  userList: [],
+  mode: history.state.mode || 0,
+  pageNo: 1,
+  limit: 10,
+  infiniteScroll: false,
 });
 const activeName = ref("1");
 
@@ -38,67 +41,72 @@ const followHandle = async (item) => {
   const userID1 = loginUser._id;
   const userID2 = item._id;
   await request.post(api.record.modifyRecordUser, { userID1, userID2 });
-  // 更新缓存
-  const { fans, following } = state.record;
-  const { fansList, followList } = state;
-  const isFollow = item.isFollow;
 
-  const index_follow = following.indexOf(userID2);
-  const index_fans = fans.indexOf(userID2);
-  if (index_follow != -1) followList[index_follow].isFollow = !isFollow;
-  if (index_fans != -1) fansList[index_fans].isFollow = !isFollow;
+  item.isFollow = !item.isFollow;
 
-  if (!isFollow) ElMessage.success("关注成功");
+  if (item.isFollow) ElMessage.success("关注成功");
   else ElMessage.success("取消关注成功");
+};
+
+/**
+ * 获取用户列表
+ */
+const getUserList = async () => {
+  const { pageNo, limit, record, mode } = state;
+  let users = [];
+  if (mode == 0) {
+    users = await request.post(api.user.getUserListByID, { users: record.following, pageNo, limit });
+    users.forEach((item) => (item.isFollow = true));
+  } else {
+    users = await request.post(api.user.getUserListByID, { users: record.fans, pageNo, limit });
+    users.forEach((item) => {
+      if (record.following.indexOf(item._id) != -1) item.isFollow = true;
+      else item.isFollow = false;
+    });
+  }
+
+  if (users.length < state.limit) state.infiniteScroll = true;
+  state.userList.push(...users);
+  state.pageNo++;
 };
 
 onMounted(async () => {
   state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
-  state.followList = await request.post(api.user.getUserListByID, { users: state.record.following });
-  state.fansList = await request.post(api.user.getUserListByID, { users: state.record.fans });
-
-  const { following } = state.record;
-  const { followList, fansList } = state;
-  followList.forEach((item) => (item.isFollow = true));
-  fansList.forEach((item) => {
-    if (following.indexOf(item._id) != -1) item.isFollow = true;
-    else item.isFollow = false;
-  });
+  await getUserList();
 });
 </script>
 
 <template>
-  <div class="container">
-    <el-collapse v-model="activeName">
-      <!-- 关注列表 -->
-      <el-collapse-item title="关注列表 👀" name="1">
-        <div class="list">
-          <div class="list__item" v-for="(item, index) in state.followList">
-            <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
-            <div class="item__info">
-              <span class="info__name">{{ item.name }}</span>
-              <span class="info__follow" @click="followHandle(item)">{{ item.isFollow ? "取消关注" : "关注" }}</span>
-            </div>
-          </div>
+  <div class="container scroll" v-infinite-scroll="getUserList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
+    <h1 class="container__title">{{ state.mode == 0 ? "关注列表 👀" : "粉丝列表 😍" }}</h1>
+    <!-- 关注列表 -->
+    <div class="container__list" v-if="state.mode == 0">
+      <div class="list__item" v-for="(item, index) in state.userList">
+        <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
+        <div class="item__info">
+          <span class="info__name">{{ item.name }}</span>
+          <span class="info__follow" @click="followHandle(item)">{{ item.isFollow ? "取消关注" : "关注" }}</span>
         </div>
-      </el-collapse-item>
-      <!-- 粉丝列表 -->
-      <el-collapse-item title="粉丝列表 😍" name="2">
-        <div class="list">
-          <div class="list__item" v-for="(item, index) in state.fansList">
-            <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
-            <div class="item__info">
-              <span class="info__name">{{ item.name }}</span>
-              <span class="info__follow" @click="followHandle(item)">{{ item.isFollow ? "取消关注" : "关注" }}</span>
-            </div>
-          </div>
+      </div>
+    </div>
+    <!-- 粉丝列表 -->
+    <div class="container__list" v-else>
+      <div class="list__item" v-for="(item, index) in state.userList">
+        <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
+        <div class="item__info">
+          <span class="info__name">{{ item.name }}</span>
+          <span class="info__follow" @click="followHandle(item)">{{ item.isFollow ? "取消关注" : "关注" }}</span>
         </div>
-      </el-collapse-item>
-    </el-collapse>
+      </div>
+    </div>
   </div>
 </template>
 
 <style lang="less" scoped>
+// calc sidebar topbar
+@sidebar_width: 65px;
+@topbar_height: 75px;
+
 //color
 @defaultColor: rgb(241, 242, 243);
 @deepDefaultColor: rgb(227, 229, 231);
@@ -113,25 +121,20 @@ onMounted(async () => {
   flex-direction: row;
 }
 .container {
-  overflow: hidden;
-  padding: 30px 3.333vw;
-  .el-collapse {
-    border: none;
-    .el-collapse-item {
-      border: none;
-    }
-    :deep(.el-collapse-item__header) {
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-    }
+  height: calc(100vh - @topbar_height);
+  overflow-y: auto;
+  padding: 20px 3.333vw;
+  .container__title {
+    font-size: 18px;
+    padding: 10px 0;
   }
-  .list {
+  .container__list {
     .flex__row();
+    flex-wrap: wrap;
     position: relative;
     .list__item {
       .flex__row();
-      align-items: center;
+      padding: 10px 0;
       width: 50%;
       .item__avator {
         width: 80px;
@@ -141,17 +144,18 @@ onMounted(async () => {
       }
       .item__info {
         .flex__column();
+        justify-content: space-around;
         .info__name {
-          font-size: 16px;
+          font-size: 18px;
         }
         .info__follow {
           font-size: 14px;
-          padding: 5px 10px;
+          padding: 10px;
           color: @activeColor;
-          cursor: pointer;
           background-color: rgba(94, 161, 97, 0.11);
-          border-radius: 8px;
+          border-radius: 10px;
           transition: all 0.3s;
+          cursor: pointer;
           &:hover {
             color: white;
             background-color: @activeColor;

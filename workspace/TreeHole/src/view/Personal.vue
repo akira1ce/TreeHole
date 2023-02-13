@@ -62,8 +62,8 @@ const toSpace = (user) => {
 };
 
 // 跳转记录 - 关注 - 粉丝
-const toRecord = () => {
-  router.push({ name: "Record" });
+const toRecord = (mode) => {
+  router.push({ name: "Record", state: { mode } });
 };
 
 /**
@@ -164,11 +164,11 @@ const record = computed(() => {
       </div>
       <!-- 记录-动态关注粉丝 -->
       <div class="userInfo__record">
-        <div class="record__item" @click="toRecord()">
+        <div class="record__item" @click="toRecord(0)">
           <span class="item__count">{{ record.following?.length || "-" }}</span>
           <span class="item__type">关注</span>
         </div>
-        <div class="record__item" @click="toRecord()">
+        <div class="record__item" @click="toRecord(1)">
           <span class="item__count">{{ record.fans?.length || "-" }}</span>
           <span class="item__type">粉丝</span>
         </div>
