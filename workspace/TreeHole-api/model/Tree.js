@@ -34,7 +34,17 @@ const treeSchema = new mongoose.Schema({
     required: true,
     default: "",
   },
+  crownDiameter: {
+    type: Types.String,
+    required: true,
+    default: "",
+  },
   branchPoint: {
+    type: Types.String,
+    required: true,
+    default: "",
+  },
+  aspectRatio: {
     type: Types.String,
     required: true,
     default: "",

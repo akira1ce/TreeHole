@@ -130,6 +130,11 @@ watchEffect(() => {
         </div>
         <span class="item-split"></span>
         <div class="info__item">
+          <div class="item__key">冠径</div>
+          <div class="item__value">{{ tree.crownDiameter }}</div>
+        </div>
+        <span class="item-split"></span>
+        <div class="info__item">
           <div class="item__key">直径</div>
           <div class="item__value">{{ tree.diameter }}</div>
         </div>

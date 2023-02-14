@@ -61,6 +61,10 @@ const form_tree_Rules = {
     { required: true, message: "请输入苗木直径", trigger: "blur" },
     { min: 2, max: 4, message: "Length should be 2 to 4", trigger: "blur" },
   ],
+  crownDiameter: [
+    { required: true, message: "请输入苗木冠径", trigger: "blur" },
+    { min: 2, max: 4, message: "Length should be 2 to 4", trigger: "blur" },
+  ],
 };
 
 const loginUser = local.getItem("user");
@@ -141,6 +145,13 @@ const beforeAvatarUpload = (rawFile) => {
 };
 
 /**
+ * 苗木高阔比计算
+ */
+const updateAspectRatio = () => {
+  const { form_tree } = state;
+  form_tree.aspectRatio = (form_tree.height / form_tree.crownDiameter).toFixed(2).toString();
+};
+/**
  * 发布苗木
  */
 const release = () => {
@@ -156,6 +167,7 @@ const updateTreeInfo = async () => {
     // 发布
     delete state.form_tree._id;
     delete state.form_tree.time;
+    updateAspectRatio();
     const tree = await request.post(api.tree.addTree, state.form_tree);
     tree.owner = state.user;
     state.dialog_tree = false;
@@ -166,6 +178,7 @@ const updateTreeInfo = async () => {
     ElMessage.success("发布成功");
   } else {
     // 编辑
+    updateAspectRatio();
     await request.post(api.tree.modifyById, state.form_tree);
     state.dialog_tree = false;
     state.form_tree = defaultState.tree;
@@ -370,16 +383,19 @@ onMounted(async () => {
           <el-form-item label="价格(元)" prop="price">
             <el-input v-model="state.form_tree.price" />
           </el-form-item>
+          <el-form-item label="苗木种类" prop="type">
+            <el-input v-model="state.form_tree.type" />
+          </el-form-item>
           <el-form-item label="基本信息">
             <el-row>
               <el-col :span="12">
-                <el-form-item label="苗木种类" prop="type">
-                  <el-input v-model="state.form_tree.type" />
+                <el-form-item label="高度(cm)" prop="height">
+                  <el-input v-model="state.form_tree.height" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="高度(cm)" prop="height">
-                  <el-input v-model="state.form_tree.height" />
+                <el-form-item label="冠径(cm)" prop="crownDiameter">
+                  <el-input v-model="state.form_tree.crownDiameter" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
