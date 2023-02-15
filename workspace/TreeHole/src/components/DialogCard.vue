@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
+import api from "../api";
+import request from "../api/request";
 import { local } from "../util";
 
 const router = useRouter();
@@ -17,8 +19,9 @@ const { tree, loginUser, otherSide, toSpace, orderOp } = props;
  * 跳转苗木详情
  * @param {string} treeID
  */
-const toTreeDetail = async (treeID) => {
+ const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
+  await request.post(api.record.modifyRecordTree, { userID: loginUser._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
 };
 
@@ -38,7 +41,7 @@ const orderBtn = computed(() => {
     } else {
       type = "warning";
       content = "查看订单";
-      code = 2;
+      code = 1;
     }
   } else {
     if (tree.status == 0) {

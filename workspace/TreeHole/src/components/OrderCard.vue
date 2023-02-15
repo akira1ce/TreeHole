@@ -45,11 +45,12 @@ const spaceLink = () => {
 };
 
 /**
- * 跳转苗木详情页
- * @param {proxy} tree
+ * 跳转苗木详情
+ * @param {string} treeID
  */
-const toTreeDetail = (treeID) => {
+ const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
+  await request.post(api.record.modifyRecordTree, { userID: user._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
 };
 

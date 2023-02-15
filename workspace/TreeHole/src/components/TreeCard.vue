@@ -61,8 +61,9 @@ const toSpace = (user) => {
  * 跳转苗木详情
  * @param {string} treeID
  */
-const toTreeDetail = async (treeID) => {
+ const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
+  await request.post(api.record.modifyRecordTree, { userID: loginUser._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
 };
 

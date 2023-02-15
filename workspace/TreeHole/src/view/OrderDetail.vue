@@ -20,8 +20,9 @@ const state = reactive({
  * 跳转苗木详情
  * @param {string} treeID
  */
-const toTreeDetail = async (treeID) => {
+ const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
+  await request.post(api.record.modifyRecordTree, { userID: state.loginUser._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
 };
 
@@ -219,7 +220,7 @@ onMounted(async () => {
   .flex__column();
   align-items: center;
   height: calc(100vh - @topbar_height);
-  overflow-y: auto;
+  overflow-y: overlay;
   position: relative;
   padding: 0px 3.333vw;
   background-color: @defaultColor;

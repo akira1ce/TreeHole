@@ -18,7 +18,7 @@ const tree = props.tree;
  * 跳转个人空间
  * @param {proxy} user
  */
- const toSpace = (user) => {
+const toSpace = (user) => {
   if (history.state.spaceUser?._id == user._id) return;
   else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
   else {
@@ -29,10 +29,11 @@ const tree = props.tree;
 
 /**
  * 跳转苗木详情
- * @param {string} treeID 
+ * @param {string} treeID
  */
 const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
+  await request.post(api.record.modifyRecordTree, { userID: local.getItem("user")._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
 };
 </script>
@@ -71,7 +72,7 @@ const toTreeDetail = async (treeID) => {
   position: relative;
   font-family: @defaultFont;
   .card__cover {
-    width: 34vmin;
+    width: 100%;
     height: 100%;
     border-radius: 6px;
     transition: all 0.5s;
