@@ -17,13 +17,17 @@ const socket = io("ws://localhost:3000");
 
 // socket 信息中转
 socket.on("sendMessage", async function (msg) {
+  const { socketList, current } = state;
   // 接收方 数据缓存
-  if (currentSocket.value.otherSide._id == msg.senderID) {
-    state.socketList[state.current].context.push(msg);
+  if (currentSocket.value.otherSide._id == msg.senderID) socketList[current].context.push(msg);
+  else {
+    for (let i = 0; i < socketList.length; i++) {
+      if (socketList[i].otherSide._id == msg.senderID) socketList[i].context.push(msg);
+    }
   }
   // 发送方 数据缓存 + 存储
   if (msg.senderID == loginUser._id) {
-    state.socketList[state.current].context.push(msg);
+    socketList[current].context.push(msg);
     const _id = currentSocket.value._id;
     // 更新数据
     await request.post(api.socket.modifyById, { _id, msg });
@@ -51,6 +55,7 @@ const state = reactive({
  * @param {number} code
  */
 const orderOp = async (tree, code) => {
+  console.log(tree, code);
   tree = toRaw(tree);
   const { title, describe, price } = tree;
   if (code == -1) return;
@@ -61,7 +66,7 @@ const orderOp = async (tree, code) => {
     state.socketList[state.current].tree.status = 1;
     ElMessage.success("购买成功");
     window.open(payUrl);
-  } else if (code == 1) {
+  } else {
     router.push({ name: "OrderDetail", state: { treeID: tree._id } });
   }
 };
@@ -190,7 +195,7 @@ onMounted(async () => {
       </div>
       <!-- 输入框 -->
       <div class="dialog__sendBox">
-        <input class="sendBox-input" placeholder="发个信息聊聊呗~" type="text" name="text" v-model="state.text" @keydown.enter="sendMsg" />
+        <input class="sendBox-input" placeholder="发个信息聊聊呗~" autocomplete="off" type="text" name="text" v-model="state.text" @keydown.enter="sendMsg" />
         <button class="sendBox-send" @click="sendMsg">
           <div class="svg-wrapper-1">
             <div class="svg-wrapper">
