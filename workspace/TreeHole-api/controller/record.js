@@ -34,6 +34,9 @@ const modifyRecordUser = async (req, res, next) => {
       next(err("The record does not exist", 403, ""));
       return;
     }
+
+    if(records[0].userID != userID1) records.reverse();
+
     const index = records[0].following.indexOf(userID2);
     if (index == -1) {
       // not exist -> follow
@@ -76,11 +79,11 @@ const modifyRecordTree = async (req, res, next) => {
       const index = record.browsingHistory.indexOf(treeID);
       // 清空历史记录
       if (clearAll == 1) record.browsingHistory = [];
-      else if (index == -1) record.browsingHistory.push(treeID);
+      else if (index == -1) record.browsingHistory.unshift(treeID);
     } else {
       // collect
       const index = record.collect.indexOf(treeID);
-      if (index == -1) record.collect.push(treeID);
+      if (index == -1) record.collect.unshift(treeID);
       else record.collect.splice(index, 1);
     }
     const data = await Record.findByIdAndUpdate(record._id, record);
