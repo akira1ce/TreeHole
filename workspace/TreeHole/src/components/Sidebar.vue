@@ -41,13 +41,6 @@ const navigate = (el) => {
     router.go(-1);
     return;
   }
-  // Home
-  if (id == 0) {
-    const current = local.getItem("current") || 0;
-    const subRouting = ["Recommend", "Area"];
-    router.push({ name: subRouting[current] });
-    return;
-  }
   router.push({ name: whitelist[id] });
 };
 </script>

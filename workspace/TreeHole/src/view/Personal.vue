@@ -70,16 +70,16 @@ const toRecord = (mode) => {
  * 切换导航 -> 我的收藏 历史记录 我的订单
  * @param {number} index
  */
-const switchNav = (index) => {
+const switchNav = (target) => {
   // 缓存
-  state.current = index;
-  local.setItem("current_personal", index);
+  state.current = target;
+  local.setItem("current_personal", target);
 
   // css
-  sliderRef.value.style.left = sliderLeft[index];
+  sliderRef.value.style.left = sliderLeft[target];
 
-  if (index == 0) state.treeList = state.historyList;
-  else if (index == 1) state.treeList = state.collectList;
+  if (target == 0) state.treeList = state.historyList;
+  else if (target == 1) state.treeList = state.collectList;
   else state.treeList = state.orderList;
 
   // 首次特判
@@ -92,7 +92,7 @@ const clearBrowsing = async () => {
   // 更新缓存
   state.record.browsingHistory = [];
   state.historyList.content = [];
-  state.historyList.infiniteScroll = [];
+  state.historyList.infiniteScroll = false;
   state.treeList = [];
   ElMessage.success("浏览记录已清空");
 };
@@ -225,7 +225,7 @@ const record = computed(() => {
 .container {
   .flex__column();
   height: calc(100vh - @topbar_height);
-  overflow-y: auto;
+  overflow-y: overlay;
   position: relative;
   padding: 30px 3.333vw;
   .container__userInfo {

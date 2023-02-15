@@ -13,6 +13,18 @@ export default {
     getTreeList: "/tree/getTreeList",
     getTreeListByUserID: "/tree/getTreeListByUserID",
     getTreeListByID: "/tree/getTreeListByID",
+    /**
+     * @param trees 用户浏览记录
+     * @param pageNo 页码
+     * @param limit 页限
+     */
+    getRecommendTreeList: "/tree/getRecommendTreeList",
+    /**
+     * @param area 用户所属地区取市级
+     * @param pageNo 页码
+     * @param limit 页限
+     */
+    getAreaTreeList: "/tree/getAreaTreeList",
     addTree: "/tree/addTree",
     removeById: "/tree/removeById",
     modifyById: "/tree/modifyById",
@@ -22,7 +34,14 @@ export default {
     files: "/uploadCenter/files",
   },
   record: {
+    /**
+     * @param userID 
+     */
     getRecordByUserID: "/record/getRecordByUserID",
+    /**
+     * @param userID1 用户id
+     * @param userID2 被关注用户id
+     */
     modifyRecordUser: "/record/modifyRecordUser",
     modifyRecordTree: "/record/modifyRecordTree",
     modifyRecordOrder: "/record/modifyRecordOrder",
