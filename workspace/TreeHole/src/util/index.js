@@ -37,7 +37,7 @@ const defaultState = {
     diameter: "",
     crownDiameter: "",
     branchPoint: "",
-    aspectRatio: "",
+    hci: 0,
     location: "",
     describe: "",
     imgs: [],

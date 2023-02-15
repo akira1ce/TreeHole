@@ -44,8 +44,8 @@ const treeSchema = new mongoose.Schema({
     required: true,
     default: "",
   },
-  aspectRatio: {
-    type: Types.String,
+  hci: {
+    type: Number,
     required: true,
     default: "",
   },

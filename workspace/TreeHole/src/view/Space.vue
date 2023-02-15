@@ -147,9 +147,9 @@ const beforeAvatarUpload = (rawFile) => {
 /**
  * 苗木高阔比计算
  */
-const updateAspectRatio = () => {
+const updateHci = () => {
   const { form_tree } = state;
-  form_tree.aspectRatio = (form_tree.height / form_tree.crownDiameter).toFixed(2).toString();
+  form_tree.hci = (form_tree.height / form_tree.crownDiameter).toFixed(2);
 };
 /**
  * 发布苗木
@@ -167,7 +167,7 @@ const updateTreeInfo = async () => {
     // 发布
     delete state.form_tree._id;
     delete state.form_tree.time;
-    updateAspectRatio();
+    updateHci();
     const tree = await request.post(api.tree.addTree, state.form_tree);
     tree.owner = state.user;
     state.dialog_tree = false;
@@ -178,7 +178,7 @@ const updateTreeInfo = async () => {
     ElMessage.success("发布成功");
   } else {
     // 编辑
-    updateAspectRatio();
+    updateHci();
     await request.post(api.tree.modifyById, state.form_tree);
     state.dialog_tree = false;
     state.form_tree = defaultState.tree;
@@ -549,7 +549,7 @@ onMounted(async () => {
 
 .container {
   height: calc(100vh - @topbar_height);
-  overflow-y: auto;
+  overflow-y: overlay;
   position: relative;
   :deep(.el-dialog) {
     border-radius: 18px;
