@@ -13,6 +13,8 @@ router.post("/modifyById", treeCtrl.modifyById);
 router.post("/getTreeList", treeCtrl.getTreeList);
 router.post("/getTreeListByUserID", treeCtrl.getTreeListByUserID);
 router.post("/getTreeListByID", treeCtrl.getTreeListByID);
+router.post("/getRecommendTreeList", treeCtrl.getRecommendTreeList);
+router.post("/getAreaTreeList", treeCtrl.getAreaTreeList);
 // 获取树
 router.post("/getTreeById", treeCtrl.getTreeById);
 

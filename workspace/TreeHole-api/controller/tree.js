@@ -102,6 +102,55 @@ const getTreeListByID = async (req, res, next) => {
   }
 };
 
+// getRecommendTreeList
+const getRecommendTreeList = async (req, res, next) => {
+  try {
+    let { trees, pageNo, limit } = req.body;
+    let hci_gt = 0;
+    let hci_lt = 5;
+    if (trees.length != 0) {
+      // 用户浏览记录前十条
+      trees = trees.slice(0, 10);
+      let data = await Tree.find({ _id: { $in: trees } });
+      // 计算 hci
+      let hci = 0;
+      data.forEach((item) => {
+        hci += item.hci;
+      });
+      hci = hci / data.length;
+      // 上下浮动 hci
+      hci_gt = (hci - 0.5).toFixed(2);
+      hci_lt = (hci + 0.5).toFixed(2);
+      // 出界特判
+      if (hci_gt < 0) hci_gt = 0;
+    }
+
+    data = await Tree.find({ hci: { $gt: hci_gt, $lt: hci_lt } })
+      .sort({ _id: -1 })
+      .skip((pageNo - 1) * limit)
+      .limit(limit);
+    const treeList = await mergeTrees(data);
+    res.send(result(200, treeList, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
+// getAreaTreeList
+const getAreaTreeList = async (req, res, next) => {
+  try {
+    const { area, pageNo, limit } = req.body;
+    const re = new RegExp(`${area}`, "i");
+    const data = await Tree.find({ location: re })
+      .skip((pageNo - 1) * limit)
+      .limit(limit);
+    const trees = await mergeTrees(data);
+    res.send(result(200, trees, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
 module.exports = {
   addTree,
   removeById,
@@ -110,4 +159,6 @@ module.exports = {
   getTreeList,
   getTreeListByUserID,
   getTreeListByID,
+  getRecommendTreeList,
+  getAreaTreeList,
 };
