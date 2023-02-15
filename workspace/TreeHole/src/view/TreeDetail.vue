@@ -168,7 +168,7 @@ onMounted(async () => {
   .flex__row();
   justify-content: center;
   height: calc(100vh - 76px);
-  overflow-y: auto;
+  overflow-y: overlay;
   position: relative;
   background-color: @defaultColor;
   .container__content {

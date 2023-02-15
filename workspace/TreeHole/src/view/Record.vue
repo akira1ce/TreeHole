@@ -122,7 +122,7 @@ onMounted(async () => {
 }
 .container {
   height: calc(100vh - @topbar_height);
-  overflow-y: auto;
+  overflow-y: overlay;
   padding: 20px 3.333vw;
   .container__title {
     font-size: 18px;
