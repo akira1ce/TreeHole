@@ -15,10 +15,12 @@ const state = reactive({
   user: local.getItem("user"),
   pageNo_tree: 1,
   pageNo_user: 1,
-  limit_tree: 2,
+  limit_tree: 4,
   limit_user: 12,
   infiniteScroll_tree: false,
   infiniteScroll_user: false,
+  isEmpty_user: false,
+  isEmpty_tree: false,
 });
 
 // [methods]
@@ -111,13 +113,18 @@ onMounted(async () => {
   state.record = await request.post(api.record.getRecordByUserID, { userID });
   await getUserList();
   await getTreeList();
+  if (state.userList.length == 0) state.isEmpty_user = true;
+  if (state.treeList.length == 0) state.isEmpty_tree = true;
 });
 </script>
 
 <template>
   <div class="container">
     <!-- 关注列表 -->
-    <div class="container__follow scroll" v-infinite-scroll="getUserList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll_user"  @click="selectUser">
+    <div class="container__follow scroll" v-infinite-scroll="getUserList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll_user" @click="selectUser">
+      <div v-if="state.isEmpty_user">
+        <span>你还没有关注任何人!</span>
+      </div>
       <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.userList">
         <img :src="item.avator" />
         <span>{{ item.name }}</span>
@@ -126,6 +133,7 @@ onMounted(async () => {
     <!-- 树列表 -->
     <div class="container__content scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll_tree">
       <div class="content__treeList">
+        <el-empty class="empty" v-if="state.isEmpty_tree"></el-empty>
         <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.record" :collectHandle="collectHandle">
           <div class="unFollow" @click="followHandle">
             {{ currentUser.isFollow ? "取消关注" : "关注" }}
@@ -163,7 +171,7 @@ onMounted(async () => {
     height: 100%;
     padding: 25px 15px;
     background-color: white;
-    overflow-y: auto;
+    overflow-y: overlay;
     .follow__item {
       .flex__row();
       align-items: center;
@@ -187,12 +195,13 @@ onMounted(async () => {
   .container__content {
     .flex__row();
     justify-content: center;
-    overflow-y: auto;
+    overflow-y: overlay;
     flex: 1;
     .content__treeList {
       .flex__column();
       width: 68%;
       height: fit-content;
+      position: relative;
       .unFollow {
         font-size: 14px;
         padding: 10px;
@@ -205,6 +214,12 @@ onMounted(async () => {
           color: white;
           background-color: @activeColor;
         }
+      }
+      .empty {
+        position: absolute;
+        left: 50%;
+        margin-top: 25%;
+        transform: translateX(-50%);
       }
     }
   }
