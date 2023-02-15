@@ -1,6 +1,7 @@
 <script setup>
-import { onMounted, ref } from "vue-demi";
+import { onMounted, reactive, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
+import eventBus from "../lib/eventBus";
 import { local } from "../util";
 
 const route = useRoute();
@@ -9,35 +10,30 @@ const router = useRouter();
 // [state]
 const sliderRef = ref();
 const loginUser = local.getItem("user") || {};
-const current = local.getItem("current");
 const subRouting = ["Recommend", "Area"];
 
-// methods
+const state = reactive({
+  current: local.getItem("current_home") || 0,
+});
+
+// [methods]
+const sliderMove = () => {
+  if (state.current == 0) sliderRef.value.style.left = "30px";
+  else sliderRef.value.style.left = "100px";
+};
 /**
  * tab 切换
- * @param {vnode} target 
+ * @param {vnode} target
  */
 const tabHandler = (target) => {
   // Home -> recommend / area
-  if (target == "Recommend") {
-    local.setItem("current", 0);
-    sliderRef.value.style.left = "30px";
-  } else if (target == "Area") {
-    local.setItem("current", 1);
-    sliderRef.value.style.left = "100px";
-  }
-  router.push({
-    name: target,
-  });
+  state.current = target;
+  sliderMove();
+  eventBus.emit("switchNav", target);
 };
 
 onMounted(() => {
-  // recovery status
-  local.setItem("current", 0);
-  if (route.path.startsWith("/home")) {
-    console.log(`output->`, route.path.startsWith("/home"));
-    tabHandler(subRouting[current]);
-  }
+  sliderMove();
 });
 </script>
 
@@ -48,9 +44,9 @@ onMounted(() => {
     <i class="iconfont icon-Treehouse topbar__logo"></i>
     <div class="topbar__tab" v-show="route.path.startsWith('/home')">
       <!-- 推荐 -->
-      <div class="topbar__item" @click="tabHandler('Recommend')" :id="route.path.endsWith('/recommend') && 'active'">推荐</div>
+      <div class="topbar__item" @click="tabHandler(0)" :id="state.current == 0 && 'active'">推荐</div>
       <!-- 地区 -->
-      <div class="topbar__item" @click="tabHandler('Area')" :id="route.path.endsWith('/area') && 'active'">
+      <div class="topbar__item" @click="tabHandler(1)" :id="state.current == 1 && 'active'">
         {{ loginUser.location?.split("-")[1] }}
       </div>
       <!-- 滑块 -->
