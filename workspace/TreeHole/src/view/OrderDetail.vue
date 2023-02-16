@@ -13,6 +13,7 @@ const state = reactive({
   treeID: history.state.treeID || "",
   order: defaultState.order,
   loginUser: local.getItem("user") || {},
+  isEmpty: false,
 });
 
 // [methods]
@@ -20,7 +21,7 @@ const state = reactive({
  * 跳转苗木详情
  * @param {string} treeID
  */
- const toTreeDetail = async (treeID) => {
+const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
   await request.post(api.record.modifyRecordTree, { userID: state.loginUser._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
@@ -35,8 +36,9 @@ const state = reactive({
  * @param {string} userID2
  * @param {string} treeID
  */
-const toSocket = async (userID1, userID2, treeID) => {
-  await request.post(api.socket.addSocket, { userID1, userID2, treeID });
+const toSocket = async (userID1, userID2, tree) => {
+  const treeID = tree._id;
+  await request.post(api.socket.addSocket, { userID1, userID2, treeID, tree });
   router.push({ name: "Socket", state: { userID: userID2, treeID } });
 };
 
@@ -100,19 +102,22 @@ onMounted(async () => {
   const treeID = state.treeID;
   if (treeID) state.order = await request.post(api.order.getOrderByTreeID, { treeID });
   if (!state.order._id) {
+    state.isEmpty = true;
     ElMessage.error("订单不存在");
     return;
   }
+  const orderID = state.order._id;
   if (state.order.status == 0) {
     const queryRes = await request.post(api.alipay.query, { orderID });
+    // 已支付成功，更新订单状态
     if (queryRes.status == 2) {
+      // 时间格式化
       queryRes.send_pay_date = tools.timeFormat(queryRes.send_pay_date);
       await request.post(api.order.modifyById, { _id: orderID, status: "1", payTime: queryRes.send_pay_date });
       state.order.status = "1";
       state.order.payTime = queryRes.send_pay_date;
     }
     ElMessage.success(queryRes.massage);
-    console.log(`output->queryRes`, queryRes);
   }
 });
 </script>
@@ -120,7 +125,7 @@ onMounted(async () => {
 <template>
   <div class="container">
     <!-- 空状态 -->
-    <el-empty class="empty" v-if="state.order._id == ''"></el-empty>
+    <el-empty class="center" v-if="state.isEmpty" description="订单好像不存在~"></el-empty>
 
     <!-- 订单 -->
     <div class="container__order" v-else>
@@ -175,7 +180,7 @@ onMounted(async () => {
         <!-- 头部 -->
         <div class="info__header">
           <span class="header__title">订单信息</span>
-          <el-button round @click="toSocket(buyer._id, seller._id, tree._id)">{{ isCurrent ? "联系卖家" : "联系买家" }}</el-button>
+          <el-button round @click="toSocket(buyer._id, seller._id, tree)">{{ isCurrent ? "联系卖家" : "联系买家" }}</el-button>
         </div>
         <!-- 主体 -->
         <div class="info__main">
@@ -224,9 +229,6 @@ onMounted(async () => {
   position: relative;
   padding: 0px 3.333vw;
   background-color: @defaultColor;
-  .empty {
-    flex: 1;
-  }
   .container__order {
     .flex__column();
     gap: 20px;

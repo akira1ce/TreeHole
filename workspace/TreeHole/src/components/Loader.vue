@@ -24,7 +24,7 @@
 
 <style lang="less" scoped>
 .main {
-  height: 50vh;
+  height: fit-content;
   .myLoader {
     --path: #2f3545;
     --dot: #5628ee;

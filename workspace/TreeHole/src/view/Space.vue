@@ -88,6 +88,7 @@ const state = reactive({
   form_tree: { ...defaultState.tree },
   updateTreeIndex: undefined,
   previewImgUrl: "",
+  isEmpty: false,
 });
 
 // [methods]
@@ -238,15 +239,14 @@ const previewImg = (imgUrl) => {
 
 /**
  * 下拉菜单回调
- * - command: { mode:xx, index:xx }
- * @param {object} command
+ * @param {object} command { mode: xx, index: xx }
  */
 const handleCommand = async (command) => {
   const tree = state.treeList[command.index];
   if (command.mode == 0) {
     // 编辑
-    if (tree.status == 1) {
-      ElMessage.error("苗木正在交易中，无法编辑");
+    if (tree.status != 0) {
+      ElMessage.error("苗木正在交易或交易完成，无法编辑");
       return;
     }
     state.dialog_tree = true;
@@ -265,8 +265,9 @@ const handleCommand = async (command) => {
 
 /**
  * 下拉菜单回调传递参数
- * @param {number} mode
- * @param {object} index
+ * @param {number} mode 0：修改 1：删除
+ * @param {object} index 苗木索引值
+ * @returns { mode, index}
  */
 const beforeHandleCommand = (mode, index) => {
   return { mode, index };
@@ -303,17 +304,6 @@ const collectHandle = (tree) => {
  */
 const toRecord = (mode) => {
   if (isCurrentUser.value) router.push({ name: "Record", state: { mode } });
-};
-
-/**
- * 跳转聊天
- */
-const toSocket = async () => {
-  const userID1 = loginUser._id;
-  const userID2 = state.user._id;
-  const treeID = "";
-  await request.post(api.socket.addSocket, { userID1, userID2, treeID });
-  router.push({ name: "Socket", state: { userID: userID2 } });
 };
 
 /**
@@ -357,7 +347,8 @@ onMounted(async () => {
   if (loginUser._id != state.user._id) state.loginRecord = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
   state.record = await request.post(api.record.getRecordByUserID, { userID: state.user._id });
   if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
-  getTreeList();
+  await getTreeList();
+  if (state.treeList.length == 0) state.isEmpty = true;
 });
 </script>
 
@@ -504,18 +495,11 @@ onMounted(async () => {
     <div class="container__main">
       <!-- 发布 -->
       <div class="release" v-if="isCurrentUser" @click="release">发布🙌</div>
-      <el-empty description="description" v-if="state.treeList.length == 0" />
+      <el-empty description="他好像没有发布苗木~" v-if="state.isEmpty" />
       <!-- 苗木卡片 -->
       <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
-        <el-dropdown trigger="click" @command="handleCommand" v-if="isCurrentUser">
-          <span class="el-dropdown-link"><i class="iconfont icon-gengduo"></i></span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item :icon="Edit" :command="beforeHandleCommand(0, index)">编辑</el-dropdown-item>
-              <el-dropdown-item :icon="Delete" :command="beforeHandleCommand(1, index)">删除</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+        <el-button :icon="Edit" circle @click="handleCommand(beforeHandleCommand(0, index))"/>
+        <el-button :icon="Delete" circle @click="handleCommand(beforeHandleCommand(1, index))"/>
       </TreeCard>
     </div>
   </div>

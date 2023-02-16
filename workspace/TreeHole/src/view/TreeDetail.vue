@@ -21,6 +21,7 @@ const state = reactive({
   pageNo: 1,
   limit: 10,
   infiniteScroll: false,
+  isEmpty: false,
 });
 
 // [methods]
@@ -57,7 +58,7 @@ const sendComment = async () => {
   // 更新缓存
   state.comments.unshift(newComment);
   state.comment.context = "";
-  ElMessage.success("发布成功");
+  ElMessage.success("发表成功");
 };
 
 /**
@@ -107,23 +108,27 @@ onMounted(async () => {
   state.comment.treeID = treeID;
   state.comment.senderID = userID;
 
-  state.record = await request.post(api.record.getRecordByUserID, { userID });
   state.tree = await request.post(api.tree.getTreeById, { _id: treeID });
-  if (state.tree) getCommentList();
+  if (!state.tree) {
+    state.isEmpty = true;
+    return;
+  }
+  state.record = await request.post(api.record.getRecordByUserID, { userID });
+  getCommentList();
 });
 </script>
 
 <template>
   <div class="container scroll" v-infinite-scroll="getCommentList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
-    <div class="container__content">
+    <div class="container__content" v-if="state.tree != null">
       <!-- 苗木 -->
-      <TreeCard v-if="state.tree != null" :key="state.tree._id" :tree="state.tree" :collectHandle="collectHandle" :record="state.record">
+      <TreeCard :key="state.tree._id" :tree="state.tree" :collectHandle="collectHandle" :record="state.record">
         <div class="unFollow" @click="followHandle">
           {{ isFollow ? "取消关注" : "关注" }}
         </div>
       </TreeCard>
       <!-- 评论 -->
-      <el-card shadow="hover" class="content__comments" v-if="state.tree != null">
+      <el-card shadow="hover" class="content__comments">
         <!-- 评论框 -->
         <div class="comments__input">
           <img :src="state.user.avator" class="avator" />
@@ -146,6 +151,7 @@ onMounted(async () => {
         </div>
       </el-card>
     </div>
+    <el-empty class="center" description="该苗木已经不在了~" v-if="state.isEmpty"></el-empty>
   </div>
 </template>
 

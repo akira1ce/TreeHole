@@ -132,8 +132,8 @@ onMounted(async () => {
     </div>
     <!-- 树列表 -->
     <div class="container__content scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll_tree">
+      <el-empty class="center" v-if="state.isEmpty_tree" description="他好像没有发布苗木~"></el-empty>
       <div class="content__treeList">
-        <el-empty class="empty" v-if="state.isEmpty_tree"></el-empty>
         <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.record" :collectHandle="collectHandle">
           <div class="unFollow" @click="followHandle">
             {{ currentUser.isFollow ? "取消关注" : "关注" }}
@@ -194,9 +194,11 @@ onMounted(async () => {
   }
   .container__content {
     .flex__row();
+    flex: 1;
     justify-content: center;
     overflow-y: overlay;
-    flex: 1;
+    position: relative;
+    height: 100%;
     .content__treeList {
       .flex__column();
       width: 68%;
@@ -214,12 +216,6 @@ onMounted(async () => {
           color: white;
           background-color: @activeColor;
         }
-      }
-      .empty {
-        position: absolute;
-        left: 50%;
-        margin-top: 25%;
-        transform: translateX(-50%);
       }
     }
   }

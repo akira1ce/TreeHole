@@ -87,8 +87,8 @@ onMounted(async () => {
 
 <template>
   <div class="container scroll" v-infinite-scroll="getCurrentList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.currentList.infiniteScroll">
-    <el-empty class="empty" v-if="state.currentList.content.length == 0 && !state.isLoader"></el-empty>
-    <Loader class="loader" v-if="state.isLoader"></Loader>
+    <el-empty class="center" v-if="state.currentList.content.length == 0 && !state.isLoader" description="这里没有数据了~"></el-empty>
+    <Loader class="center" v-if="state.isLoader"></Loader>
     <Card v-for="(item, index) in state.currentList.content" :key="item._id" :tree="item" />
   </div>
 </template>
@@ -120,17 +120,6 @@ onMounted(async () => {
   justify-content: center;
   grid-template-columns: repeat(auto-fill, 37vmin);
   align-content: flex-start;
-  .loader {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%);
-  }
-  .empty {
-    position: absolute;
-    left: 50%;
-    top: 25%;
-    transform: translate(-50%);
-  }
+  position: relative;
 }
 </style>
