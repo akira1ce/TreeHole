@@ -50,6 +50,12 @@ export default {
   order: {
     getOrderList: "/order/getOrderList",
     getOrderListByID: "/order/getOrderListByID",
+    /**
+     * @param treeID 苗木id
+     * @param tree 苗木信息
+     * @param buyerID 买方id 登陆用户
+     * @param sellerID 卖方id 苗木所有者 
+     */
     addOrder: "/order/addOrder",
     removeById: "/order/removeById",
     modifyById: "/order/modifyById",

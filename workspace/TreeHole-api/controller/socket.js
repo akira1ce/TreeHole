@@ -46,12 +46,8 @@ const modifyById = async (req, res, next) => {
       next(err("The Socket does not exist", 403, ""));
       return;
     }
-    socket.context.push(msg);
+    if (msg) socket.context.push(msg);
     const data = await Socket.findByIdAndUpdate(_id, socket);
-    if (!data) {
-      next(err("update socket error", 403, ""));
-      return;
-    }
     res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));

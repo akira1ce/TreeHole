@@ -72,9 +72,14 @@ const getOrderByTreeID = async (req, res, next) => {
 const addOrder = async (req, res, next) => {
   try {
     const { treeID } = req.body;
+    let tree = await Tree.findOne({ _id: treeID });
+    if (!tree) {
+      next(err("该苗木已被删除", 403, ""));
+      return;
+    }
     let order = await Order.findOne({ treeID });
     if (order) {
-      next(err("The tree has been purchased", 403, ""));
+      next(err("该苗木已被购买", 403, ""));
       return;
     }
     order = new Order(req.body);

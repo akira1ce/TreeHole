@@ -65,7 +65,7 @@ const getTreeById = async (req, res, next) => {
     const { _id } = req.body;
     const data = await Tree.find({ _id });
     const trees = await mergeTrees(data);
-    res.send(result(200, trees[0], "ok"));
+    res.send(result(200, trees[0] || null, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -76,6 +76,7 @@ const getTreeListByUserID = async (req, res, next) => {
   try {
     const { userID, pageNo, limit } = req.body;
     const trees = await Tree.find({ ownerID: userID })
+      .sort({ _id: -1 })
       .skip((pageNo - 1) * limit)
       .limit(limit);
     if (!trees) {
