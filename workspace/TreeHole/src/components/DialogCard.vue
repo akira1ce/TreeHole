@@ -9,17 +9,17 @@ const router = useRouter();
 const route = useRoute();
 
 // props
-const props = defineProps(["tree", "loginUser", "otherSide", "toSpace", "orderOp"]);
+const props = defineProps(["tree", "loginUser", "orderOp"]);
 
 // [state]
-const { tree, loginUser, otherSide, toSpace, orderOp } = props;
+const { tree, loginUser, orderOp } = props;
 
 // [methods]
 /**
  * 跳转苗木详情
  * @param {string} treeID
  */
- const toTreeDetail = async (treeID) => {
+const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
   await request.post(api.record.modifyRecordTree, { userID: loginUser._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
@@ -35,24 +35,12 @@ const orderBtn = computed(() => {
   let content = "";
   let code = -1;
   if (tree.ownerID == loginUser._id) {
-    if (tree.status == 0) {
-      type = "warning";
-      content = "等待购买";
-    } else {
-      type = "warning";
-      content = "查看订单";
-      code = 1;
-    }
+    type = "warning";
+    content = "等待购买";
   } else {
-    if (tree.status == 0) {
-      type = "warning";
-      content = "立即购买";
-      code = 0;
-    } else {
-      type = "warning";
-      content = "查看订单";
-      code = 1;
-    }
+    type = "warning";
+    content = "立即购买";
+    code = 0;
   }
   return { type, content, code };
 });
