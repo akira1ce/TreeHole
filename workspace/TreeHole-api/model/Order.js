@@ -5,6 +5,10 @@ const orderSchema = new mongoose.Schema({
     type: Types.String,
     required: true,
   },
+  tree: {
+    type: Object,
+    require: true,
+  },
   buyerID: {
     type: Types.String,
     required: true,

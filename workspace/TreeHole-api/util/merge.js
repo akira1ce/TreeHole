@@ -39,7 +39,6 @@ const mergeOrders = async (data) => {
     Object.assign(order, item._doc);
     order.buyer = await User.findOne({ _id: item.buyerID }, { password: 0 });
     order.seller = await User.findOne({ _id: item.sellerID }, { password: 0 });
-    order.tree = await Tree.findOne({ _id: item.treeID });
     orders.push(order);
   }
   return orders;
@@ -53,7 +52,6 @@ const mergeSockets = async (data, userID) => {
     Object.assign(socket, item._doc);
     socket.user1 = await User.findOne({ _id: item.userID1 }, { password: 0 });
     socket.user2 = await User.findOne({ _id: item.userID2 }, { password: 0 });
-    socket.tree = await Tree.findOne({ _id: item.treeID });
     sockets.push(socket);
   }
   return sockets;
