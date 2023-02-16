@@ -50,25 +50,23 @@ const state = reactive({
 /**
  * 订单操作
  * - 立即购买 code 0
- * - 查看订单 code 1
+ * - 等待购买 code -1
  * @param {object} tree
  * @param {number} code
  */
 const orderOp = async (tree, code) => {
-  console.log(tree, code);
   tree = toRaw(tree);
+  const { socketList, current } = state;
   const { title, describe, price } = tree;
   if (code == -1) return;
   if (code == 0) {
-    const order = await request.post(api.order.addOrder, { treeID: tree._id, buyerID: loginUser._id, sellerID: tree.ownerID });
+    const order = await request.post(api.order.addOrder, { treeID: tree._id, tree, buyerID: loginUser._id, sellerID: tree.ownerID });
     await request.post(api.tree.modifyById, { _id: tree._id, status: "1" });
     const payUrl = await request.post(api.alipay.pagePay, { orderID: order._id, title, describe, price });
-    state.socketList[state.current].tree.status = 1;
+    socketList[current].tree.status = 1;
     ElMessage.success("购买成功");
     window.open(payUrl);
-  } else {
-    router.push({ name: "OrderDetail", state: { treeID: tree._id } });
-  }
+  } 
 };
 
 // 下放滚动条
@@ -179,7 +177,7 @@ onMounted(async () => {
         <i class="iconfont icon-lajitong" @click="removeSocket(item._id, index)"></i>
       </div>
     </div>
-    <el-empty class="container__dialog" description="nothing" v-show="state.current == -1" />
+    <el-empty class="container__dialog" description="去找树友聊天吧~" v-show="state.current == -1" />
     <!-- 对话框 -->
     <div class="container__dialog" v-show="state.current != -1">
       <!-- 标题 -->
@@ -187,7 +185,7 @@ onMounted(async () => {
       <!-- 信息列表 -->
       <div class="dialog__msgList scroll" ref="dialogRef">
         <!-- 对话框苗木卡片 -->
-        <DialogCard v-if="currentSocket?.treeID" :key="currentSocket?.treeID" :tree="currentSocket?.tree" :toSpace="toSpace" :loginUser="loginUser" :otherSide="currentSocket?.otherSide" :orderOp="orderOp" />
+        <DialogCard v-if="currentSocket?.tree" :key="currentSocket?.treeID" :tree="currentSocket?.tree" :loginUser="loginUser" :orderOp="orderOp" />
         <div class="msgList__item" :class="item.senderID == loginUser._id ? 'flexEnd' : 'flexStart'" v-for="item in currentSocket?.context">
           <img class="item__img" :src="item.senderID == loginUser._id ? loginUser.avator : currentSocket?.otherSide.avator" />
           <div class="item__content">{{ item.data.content }}</div>
