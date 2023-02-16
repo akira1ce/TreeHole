@@ -25,16 +25,17 @@ const user = local.getItem("user");
  * @param {string} userID2
  * @param {string} treeID
  */
-const toSocket = async (userID1, userID2, treeID) => {
-  await request.post(api.socket.addSocket, { userID1, userID2, treeID });
-  router.push({ name: "Socket", state: { userID: otherSide.value._id, treeID } });
+const toSocket = async (userID1, userID2, tree) => {
+  const treeID = tree._id;
+  await request.post(api.socket.addSocket, { userID1, userID2, treeID, tree });
+  router.push({ name: "Socket", state: { userID: userID2, treeID } });
 };
 
 /**
  * 跳转个人空间
  * @param {proxy} user
  */
- const toSpace = (user) => {
+const toSpace = (user) => {
   if (route.name == "Space" && history.spaceUser._id != user._id) return;
   router.push({ path: "/space", state: { spaceUser: toRaw(user) } });
 };
@@ -48,7 +49,7 @@ const spaceLink = () => {
  * 跳转苗木详情
  * @param {string} treeID
  */
- const toTreeDetail = async (treeID) => {
+const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
   await request.post(api.record.modifyRecordTree, { userID: user._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
@@ -60,7 +61,7 @@ const spaceLink = () => {
  */
 const checkOrder = (order) => {
   order = toRaw(order);
-  router.push({ name: "OrderDetail", state: { treeID: order.treeID }, });
+  router.push({ name: "OrderDetail", state: { treeID: order.treeID } });
 };
 
 // [computed]
@@ -96,9 +97,9 @@ const tag = computed(() => {
     </div>
     <!-- 订单-操作按钮 -->
     <div class="order-btns">
-      <el-button round @click="toSocket(order.sellerID, order.buyerID, order.treeID)">联系树友</el-button>
-      <el-button type="warning" round @click="checkOrder(order)" v-if="order.status != 2">查看订单</el-button>
-      <el-button type="danger" round @click="deleteOrder(order._id, index)" v-if="order.status == 2">删除订单</el-button>
+      <el-button round @click="toSocket(order.sellerID, order.buyerID, order.tree)">联系树友</el-button>
+      <el-button type="warning" round @click="checkOrder(order)">查看订单</el-button>
+      <i class="iconfont icon-lajitong order-delete" @click="deleteOrder(order._id, index)" v-if="order.status == 2"></i>
     </div>
   </div>
 </template>
@@ -129,7 +130,7 @@ const tag = computed(() => {
   }
   .order__otherSide {
     .flex__row();
-    flex: 0.6;
+    flex: 0.5;
     align-items: center;
     cursor: pointer;
     .otherSide__avator {
@@ -164,15 +165,25 @@ const tag = computed(() => {
     }
   }
   .order-btns {
-    flex: 0.6;
+    .flex__row();
+    align-items: center;
+    gap: 5px;
+    flex: 0.8;
     .order-delete {
-      visibility: hidden;
+      margin-left: 20px;
+      font-size: 25px;
+      opacity: 0;
+      cursor: pointer;
+      transition: all 0.3s;
+      &:hover {
+        color: red;
+      }
     }
   }
 
   &:hover {
     .order-delete {
-      visibility: visible;
+      opacity: 1;
     }
   }
 }

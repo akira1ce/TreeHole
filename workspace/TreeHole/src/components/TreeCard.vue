@@ -39,8 +39,9 @@ const handleCollect = async () => {
  * @param {string} userID2
  * @param {string} treeID
  */
-const toSocket = async (userID1, userID2, treeID) => {
-  await request.post(api.socket.addSocket, { userID1, userID2, treeID });
+const toSocket = async (userID1, userID2, tree) => {
+  const treeID = tree._id;
+  await request.post(api.socket.addSocket, { userID1, userID2, treeID, tree });
   router.push({ name: "Socket", state: { userID: userID2, treeID } });
 };
 
@@ -61,7 +62,7 @@ const toSpace = (user) => {
  * 跳转苗木详情
  * @param {string} treeID
  */
- const toTreeDetail = async (treeID) => {
+const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
   await request.post(api.record.modifyRecordTree, { userID: loginUser._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
@@ -159,7 +160,7 @@ watchEffect(() => {
         <i class="iconfont icon-shoucang-active" v-show="state.isCollect" @click="handleCollect()"></i>
         <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="handleCollect()"></i>
         <!-- 联系卖家 -->
-        <el-button round @click="toSocket(loginUser._id, user._id, tree._id)" v-if="tree.status == 0">联系卖家</el-button>
+        <el-button round @click="toSocket(loginUser._id, user._id, tree)" v-if="tree.status == 0">联系卖家</el-button>
         <el-button round type="info" disabled="" v-if="tree.status != 0">已出售</el-button>
       </div>
       <i class="iconfont icon-youjiantou1" v-if="route.name != 'TreeDetail'" @click="toTreeDetail(tree._id)"></i>
@@ -285,7 +286,7 @@ watchEffect(() => {
     .icon-youjiantou1 {
       position: absolute;
       top: 45%;
-      right: 600px;
+      right: -50px;
       font-size: 50px;
       color: rgba(94, 161, 97, 0.6);
       transition: all 0.5s;
