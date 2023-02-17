@@ -7,6 +7,6 @@ const router = createRouter({
   routes,
 });
 router.beforeEach((to, from) => {
-  if (!local.getItem("token") && to.name != "Login") return "/login";
+  if (!local.getItem("token") && to.name != "Login" && to.name != "Register") return "/login";
 });
 export default router;

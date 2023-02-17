@@ -50,9 +50,7 @@ const Submit = async (formEl, mode) => {
         const res = await request.post(api.user.login, { account, password });
         local.setItem("token", res.token);
         local.setItem("user", res.user);
-        router.push({
-          name: "Home",
-        });
+        router.push({ name: "Home" });
       }
     } else {
       console.log("error submit!", fields);
@@ -62,7 +60,7 @@ const Submit = async (formEl, mode) => {
 
 // register
 const toRegister = () => {
-  router.push("/register");
+  router.push({ name: "Register" });
 };
 
 onMounted(() => {
