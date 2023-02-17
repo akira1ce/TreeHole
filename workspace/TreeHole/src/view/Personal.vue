@@ -24,7 +24,12 @@ const list_re = ["browsingHistory", "collect", "order"];
 const user = local.getItem("user");
 const state = reactive({
   current: 0,
-  treeList: [],
+  treeList: {
+    pageNo: 1,
+    limit: 12,
+    infiniteScroll: false,
+    content: [],
+  },
   historyList: {
     pageNo: 1,
     limit: 12,
@@ -93,7 +98,7 @@ const clearBrowsing = async () => {
   state.record.browsingHistory = [];
   state.historyList.content = [];
   state.historyList.infiniteScroll = false;
-  state.treeList = [];
+  state.treeList = {};
   ElMessage.success("浏览记录已清空");
 };
 
@@ -105,6 +110,7 @@ const clearBrowsing = async () => {
 const deleteOrder = async (orderID, index) => {
   await request.post(api.record.modifyRecordOrder, { userID: user._id, orderID });
   state.record.order.splice(index, 1);
+  state.treeList.content.splice(index, 1);
 };
 
 // 分页加载导航数据 treeList or orderList

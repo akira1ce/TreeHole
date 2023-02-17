@@ -44,6 +44,11 @@ export default {
      */
     modifyRecordUser: "/record/modifyRecordUser",
     modifyRecordTree: "/record/modifyRecordTree",
+    /**
+     * 修改个人订单记录
+     * @param userID 用户id
+     * @param orderID 订单id
+     */
     modifyRecordOrder: "/record/modifyRecordOrder",
     modifyByID: "/record/modifyByID",
   },

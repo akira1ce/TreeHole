@@ -1,5 +1,5 @@
-const { Record, User, Tree } = require("../model");
-const { result, err, config } = require("../util");
+const { Record, Order } = require("../model");
+const { result, err } = require("../util");
 
 const { mergeRecord } = require("../util/merge");
 
@@ -35,7 +35,7 @@ const modifyRecordUser = async (req, res, next) => {
       return;
     }
 
-    if(records[0].userID != userID1) records.reverse();
+    if (records[0].userID != userID1) records.reverse();
 
     const index = records[0].following.indexOf(userID2);
     if (index == -1) {
@@ -103,21 +103,28 @@ const modifyRecordOrder = async (req, res, next) => {
   try {
     const { userID, orderID } = req.body;
     const record = await Record.findOne({ userID });
+
     if (!record) {
       next(err("The record does not exist", 403, ""));
       return;
     }
 
     const index = record.order.indexOf(orderID);
-    if (index != -1) record.order.splice(index, 1);
+    let data = null;
 
-    const data = await Record.findByIdAndUpdate(record._id, record);
-    if (!data) {
-      next(err("The _id does not exist", 403, ""));
-      return;
+    // 订单记录存在
+    if (index != -1) {
+      record.order.splice(index, 1);
+      // 更新记录
+      data = await Record.findByIdAndUpdate(record._id, record);
+      // 更新订单引用数
+      const order = await Order.findOne({ _id: orderID });
+      const refer = --order.refer;
+      if (refer != 0) await Order.findByIdAndUpdate(orderID, { refer });
+      else await Order.findByIdAndDelete(orderID);
     }
 
-    res.send(result(200, data, "Delete order success !"));
+    res.send(result(200, data, "订单删除成功"));
   } catch (e) {
     next(err(e));
   }
@@ -142,5 +149,5 @@ module.exports = {
   modifyRecordUser,
   modifyRecordTree,
   modifyRecordOrder,
-  modifyByID
+  modifyByID,
 };

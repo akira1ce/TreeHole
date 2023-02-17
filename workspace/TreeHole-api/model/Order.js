@@ -32,5 +32,10 @@ const orderSchema = new mongoose.Schema({
     required: false,
     default: "",
   },
+  refer: {
+    type: Types.Number,
+    require: false,
+    default: 2,
+  },
 });
 module.exports = orderSchema;
