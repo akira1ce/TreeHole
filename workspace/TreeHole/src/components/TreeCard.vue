@@ -161,8 +161,9 @@ watchEffect(() => {
         <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="handleCollect()"></i>
         <!-- 联系卖家 -->
         <el-button round @click="toSocket(loginUser._id, user._id, tree)" v-if="tree.status == 0">联系卖家</el-button>
-        <el-button round type="info" disabled="" v-if="tree.status != 0">已出售</el-button>
+        <el-button round type="info" disabled="" v-if="tree.status != 0">已售</el-button>
       </div>
+      <span class="sold" v-else-if="tree.status != 0">已售</span>
       <i class="iconfont icon-youjiantou1" v-if="route.name != 'TreeDetail'" @click="toTreeDetail(tree._id)"></i>
     </div>
   </el-card>
@@ -190,7 +191,7 @@ watchEffect(() => {
   border-radius: 5px;
   margin: 5px 0;
   position: relative;
-  min-width: 600px;
+  width: 600px;
   .treeCard__header {
     .flex__row();
     justify-content: space-between;
@@ -291,6 +292,20 @@ watchEffect(() => {
       color: rgba(94, 161, 97, 0.6);
       transition: all 0.5s;
       cursor: pointer;
+    }
+    .sold {
+      position: absolute;
+      color: white;
+      background-color: rgba(94, 161, 97);
+      text-align: center;
+      line-height: 30px;
+      width: 80px;
+      height: 80px;
+      bottom: -40px;
+      right: -40px;
+      font-size: 14px;
+      border-radius: 5px;
+      transform: rotateZ(-45deg);
     }
   }
   &:hover {
