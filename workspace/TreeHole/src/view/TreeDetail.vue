@@ -123,7 +123,7 @@ onMounted(async () => {
     <div class="container__content" v-if="state.tree != null">
       <!-- 苗木 -->
       <TreeCard :key="state.tree._id" :tree="state.tree" :collectHandle="collectHandle" :record="state.record">
-        <div class="unFollow" @click="followHandle">
+        <div class="unFollow" @click="followHandle" v-if="state.tree.ownerID != state.user._id">
           {{ isFollow ? "取消关注" : "关注" }}
         </div>
       </TreeCard>
@@ -179,10 +179,11 @@ onMounted(async () => {
   background-color: @defaultColor;
   .container__content {
     .flex__column();
-    padding: 10px 260px;
-    width: 60%;
+    align-items: center;
+    width: 55%;
     height: fit-content;
     .content__comments {
+      width: 600px;
       :deep(.el-card__body) {
         .flex__column();
         gap: 10px;

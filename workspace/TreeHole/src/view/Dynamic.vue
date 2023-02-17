@@ -201,6 +201,7 @@ onMounted(async () => {
     height: 100%;
     .content__treeList {
       .flex__column();
+      align-items: center;
       width: 68%;
       height: fit-content;
       position: relative;

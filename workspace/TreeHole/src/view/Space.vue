@@ -498,8 +498,8 @@ onMounted(async () => {
       <el-empty description="他好像没有发布苗木~" v-if="state.isEmpty" />
       <!-- 苗木卡片 -->
       <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
-        <el-button :icon="Edit" circle @click="handleCommand(beforeHandleCommand(0, index))"/>
-        <el-button :icon="Delete" circle @click="handleCommand(beforeHandleCommand(1, index))"/>
+        <el-button v-if="isCurrentUser" :icon="Edit" circle @click="handleCommand(beforeHandleCommand(0, index))" />
+        <el-button v-if="isCurrentUser" :icon="Delete" circle @click="handleCommand(beforeHandleCommand(1, index))" />
       </TreeCard>
     </div>
   </div>
@@ -690,8 +690,10 @@ onMounted(async () => {
     }
   }
   .container__main {
+    .flex__column();
+    align-items: center;
     background-color: rgb(241, 242, 243);
-    padding: 10px 265px;
+    padding: 0 265px;
     min-height: calc(100vh - 395px);
     position: relative;
     .el-dropdown-link {
