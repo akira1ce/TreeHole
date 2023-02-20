@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-12-06 21:00:11
+ * @LastEditTime: 2023-02-20 16:07:17
+-->
 <script setup>
 import { onMounted } from "vue-demi";
 import { useRoute } from "vue-router";

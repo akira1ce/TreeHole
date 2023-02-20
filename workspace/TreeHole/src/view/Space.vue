@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-11-16 16:41:23
+ * @LastEditTime: 2023-02-20 16:15:21
+-->
 <script setup>
 import api from "../api";
 import request from "../api/request";
@@ -11,8 +16,6 @@ import { Plus } from "@element-plus/icons-vue";
 
 const router = useRouter();
 
-// [state]
-// DOM
 const form_user_Ref = ref();
 const form_tree_Ref = ref();
 const imgUploadRef = ref();
@@ -168,6 +171,7 @@ const updateTreeInfo = async () => {
     // 发布
     delete state.form_tree._id;
     delete state.form_tree.time;
+    // 更新 hci
     updateHci();
     const tree = await request.post(api.tree.addTree, state.form_tree);
     tree.owner = state.user;

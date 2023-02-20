@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-11 09:34:42
+ * @LastEditTime: 2023-02-20 16:49:21
+ */
 const express = require("express");
 const recordCtrl = require("../controller/record");
 

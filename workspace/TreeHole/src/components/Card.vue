@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-11-18 17:01:04
+ * @LastEditTime: 2023-02-20 15:58:16
+-->
 <script setup>
 import { defineProps, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
@@ -10,13 +15,12 @@ const route = useRoute();
 
 const props = defineProps(["tree"]);
 
-// [state]
 const tree = props.tree;
 
 // [methods]
 /**
  * 跳转个人空间
- * @param {proxy} user
+ * @param {Object} user
  */
 const toSpace = (user) => {
   if (history.state.spaceUser?._id == user._id) return;

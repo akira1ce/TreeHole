@@ -1,17 +1,23 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-12 10:12:11
+ * @LastEditTime: 2023-02-20 16:49:13
+ */
 const express = require("express");
 const orderCtrl = require("../controller/order");
 
 const router = express.Router();
 
-// 增
+// 增加订单
 router.post("/addOrder", orderCtrl.addOrder);
-// 删
+// 删除订单
 router.post("/removeById", orderCtrl.removeById);
-// 改
+// 修改订单
 router.post("/modifyById", orderCtrl.modifyById);
 router.post("/modifyByTreeID", orderCtrl.modifyByTreeID);
-// 查
+// 查询订单列表
 router.get("/getOrderList", orderCtrl.getOrderList);
+// 查询订单集合列表
 router.post("/getOrderListByID", orderCtrl.getOrderListByID);
 // 订单列表[用户]
 router.post("/getOrderListByUserID", orderCtrl.getOrderListByUserID);

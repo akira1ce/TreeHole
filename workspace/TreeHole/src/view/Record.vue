@@ -1,6 +1,11 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-12-04 10:12:34
+ * @LastEditTime: 2023-02-20 16:13:11
+-->
 <script setup>
 import { ElMessage } from "element-plus";
-import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
+import { onMounted, reactive, ref, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import api from "../api";
 import request from "../api/request";
@@ -11,7 +16,6 @@ const route = useRoute();
 
 const loginUser = local.getItem("user");
 
-// [state]
 const state = reactive({
   record: defaultState.record,
   userList: [],
@@ -20,12 +24,11 @@ const state = reactive({
   limit: 10,
   infiniteScroll: false,
 });
-const activeName = ref("1");
 
 // [methods]
 /**
  * 跳转个人空间
- * @param {proxy} user
+ * @param {Object} user
  */
 const toSpace = (user) => {
   if (history.state.spaceUser?._id == user._id) return;
@@ -55,9 +58,11 @@ const getUserList = async () => {
   const { pageNo, limit, record, mode } = state;
   let users = [];
   if (mode == 0) {
+    // 关注列表
     users = await request.post(api.user.getUserListByID, { users: record.following, pageNo, limit });
     users.forEach((item) => (item.isFollow = true));
   } else {
+    // 粉丝列表
     users = await request.post(api.user.getUserListByID, { users: record.fans, pageNo, limit });
     users.forEach((item) => {
       if (record.following.indexOf(item._id) != -1) item.isFollow = true;

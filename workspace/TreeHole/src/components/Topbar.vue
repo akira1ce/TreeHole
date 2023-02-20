@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-11-15 15:41:39
+ * @LastEditTime: 2023-02-20 16:02:07
+-->
 <script setup>
 import { onMounted, reactive, ref } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
@@ -7,23 +12,23 @@ import { local } from "../util";
 const route = useRoute();
 const router = useRouter();
 
-// [state]
 const sliderRef = ref();
 const loginUser = local.getItem("user") || {};
-const subRouting = ["Recommend", "Area"];
 
 const state = reactive({
   current: local.getItem("current_home") || 0,
 });
 
 // [methods]
+// 滑块移动
 const sliderMove = () => {
   if (state.current == 0) sliderRef.value.style.left = "30px";
   else sliderRef.value.style.left = "100px";
 };
+
 /**
  * tab 切换
- * @param {vnode} target
+ * @param {object} target
  */
 const tabHandler = (target) => {
   // Home -> recommend / area

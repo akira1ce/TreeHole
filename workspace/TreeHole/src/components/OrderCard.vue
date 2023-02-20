@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-11-26 10:49:01
+ * @LastEditTime: 2023-02-20 16:00:30
+-->
 <script setup>
 import { Delete } from "@element-plus/icons-vue";
 import { computed, defineProps, toRaw } from "vue-demi";
@@ -70,6 +75,7 @@ const otherSide = computed(() => {
   return user._id == order.buyerID ? order.seller : order.buyer;
 });
 
+// 订单标签
 const tag = computed(() => {
   if (order.status == 0) return { status: "error", content: "待付款" };
   if (order.status == 1) return { status: "warning", content: "待收货" };

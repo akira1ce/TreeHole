@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-05 10:51:57
+ * @LastEditTime: 2023-02-20 16:50:58
+ */
 const express = require("express");
 const userCtrl = require("../controller/user");
 
@@ -7,14 +12,15 @@ const router = express.Router();
 router.post("/register", userCtrl.register);
 // 登陆
 router.post("/login", userCtrl.login);
-// 删除
+// 删除用户
 router.post("/removeById", userCtrl.removeById);
-// 修改
+// 修改用户
 router.post("/modifyById", userCtrl.modifyById);
-// 获取用户列表
+// 查询用户列表
 router.get("/getUserList", userCtrl.getUserList);
+// 查询用户集合列表
 router.post("/getUserListByID", userCtrl.getUserListByID);
-// 获取用户
+// 查询用户
 router.post("/getUserById", userCtrl.getUserById);
 
 module.exports = router;

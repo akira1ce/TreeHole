@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-11-14 09:08:28
+ * @LastEditTime: 2023-02-20 16:15:45
+-->
 <script setup>
 import Sidebar from "./components/Sidebar.vue";
 import Topbar from "./components/Topbar.vue";
@@ -5,7 +10,6 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-// static state
 const whitelist = ["Login", "Register"];
 </script>
 

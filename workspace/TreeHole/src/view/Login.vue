@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2023-02-15 19:23:37
+ * @LastEditTime: 2023-02-20 16:06:29
+-->
 <script setup>
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -8,11 +13,12 @@ import { local } from "../util";
 const router = useRouter();
 const formRef = ref();
 
-// [state]
 const user = reactive({
   account: "17756287961",
   password: "admin123",
 });
+
+// 表单规则
 const rules = reactive({
   account: [
     {

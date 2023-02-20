@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-11-16 16:36:37
+ * @LastEditTime: 2023-02-20 16:05:34
+-->
 <script setup>
 import api from "../api";
 import request from "../api/request";
@@ -6,7 +11,6 @@ import { local, defaultState, recordHandle } from "../util";
 import TreeCard from "../components/TreeCard.vue";
 import { ElMessage } from "element-plus";
 
-// [state]
 const state = reactive({
   current: 0,
   record: defaultState.record,

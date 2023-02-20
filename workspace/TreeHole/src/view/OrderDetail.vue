@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2023-01-08 15:54:04
+ * @LastEditTime: 2023-02-20 16:07:24
+-->
 <script setup>
 import { ElMessage } from "element-plus";
 import { computed, onMounted, reactive, toRaw } from "vue-demi";
@@ -101,18 +106,24 @@ const isCurrent = computed(() => {
 onMounted(async () => {
   const treeID = state.treeID;
   if (treeID) state.order = await request.post(api.order.getOrderByTreeID, { treeID });
+
+  // 订单不存在
   if (!state.order._id) {
     state.isEmpty = true;
     ElMessage.error("订单不存在");
     return;
   }
+
   const orderID = state.order._id;
+  // 订单未支付
   if (state.order.status == 0) {
+    // 查询订单状态
     const queryRes = await request.post(api.alipay.query, { orderID });
     // 已支付成功，更新订单状态
     if (queryRes.status == 2) {
       // 时间格式化
       queryRes.send_pay_date = tools.timeFormat(queryRes.send_pay_date);
+      // 更新订单
       await request.post(api.order.modifyById, { _id: orderID, status: "1", payTime: queryRes.send_pay_date });
       state.order.status = "1";
       state.order.payTime = queryRes.send_pay_date;

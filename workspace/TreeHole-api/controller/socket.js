@@ -1,14 +1,17 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-13 15:12:53
+ * @LastEditTime: 2023-02-20 16:35:02
+ */
 const { Socket, User, Record } = require("../model");
 const { result, err } = require("../util");
 
 const { mergeSockets } = require("../util/merge");
 
-/**
- * 伴随数据 添加 socket -> record
- * @param {Object} data  socketData
- */
+// 同步更新记录
 const companionSocket = async (data) => {
   const { userID1, userID2 } = data;
+
   // 此处不需要考虑顺序
   const records = await Record.find({ userID: { $in: [userID1, userID2] } });
 
@@ -46,7 +49,7 @@ const addSocket = async (req, res, next) => {
         // 更新记录
         await Record.findByIdAndUpdate(records[0]._id, records[0]);
         await Record.findByIdAndUpdate(records[1]._id, records[1]);
-        
+
         // 更新会话
         socket.refer = 2;
         await Socket.findByIdAndUpdate(socket._id, { refer: 2 });
@@ -56,6 +59,7 @@ const addSocket = async (req, res, next) => {
       // 会话不存在
       socket = new Socket(req.body);
       const data = await socket.save();
+
       // 级联新增记录
       await companionSocket(data);
       res.send(result(200, data, "ok"));
@@ -70,25 +74,31 @@ const removeById = async (req, res, next) => {
   try {
     const { _id } = req.body;
     let data = await Socket.findByIdAndRemove(_id);
+
+    // 会话不存在
     if (!data) {
-      next(err("The Socket does not exist", 403, ""));
+      next(err("该会话不存在", 403, ""));
       return;
     }
+
     res.send(result(200, data, "ok"));
   } catch (e) {
     next(err(e));
   }
 };
 
-// modifyById
+// 修改
 const modifyById = async (req, res, next) => {
   try {
     const { _id, msg } = req.body;
     const socket = await Socket.findOne({ _id });
+
+    // 会话不存在
     if (!socket) {
-      next(err("The Socket does not exist", 403, ""));
+      next(err("该会话不存在", 403, ""));
       return;
     }
+
     if (msg) socket.context.push(msg);
     const data = await Socket.findByIdAndUpdate(_id, socket);
     res.send(result(200, data, "ok"));
@@ -97,8 +107,8 @@ const modifyById = async (req, res, next) => {
   }
 };
 
-// getSocketByUserID
-const getSocketByUserID = async (req, res, next) => {
+// 查询用户会话列表
+const getSocketListByUserID = async (req, res, next) => {
   try {
     const { userID } = req.body;
     const data = await Socket.find({
@@ -111,7 +121,7 @@ const getSocketByUserID = async (req, res, next) => {
   }
 };
 
-// getSocketListByID
+// 查询会话集合列表
 const getSocketListByID = async (req, res, next) => {
   try {
     let { sockets, pageNo, limit } = req.body;
@@ -129,6 +139,6 @@ module.exports = {
   addSocket,
   removeById,
   modifyById,
-  getSocketByUserID,
+  getSocketListByUserID,
   getSocketListByID,
 };

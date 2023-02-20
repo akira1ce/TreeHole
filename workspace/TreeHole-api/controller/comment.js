@@ -1,22 +1,13 @@
+/*
+ * @Author: Akira
+ * @Date: 2023-02-07 12:22:04
+ * @LastEditTime: 2023-02-20 16:17:54
+ */
 const { Comment } = require("../model");
 const { result, err } = require("../util");
 const { mergeComments } = require("../util/merge");
 
-// getCommentByTreeID
-const getCommentByTreeID = async (req, res, next) => {
-  try {
-    const { treeID, pageNo, limit } = req.body;
-    const data = await Comment.find({ treeID })
-      .skip((pageNo - 1) * limit)
-      .limit(limit);
-    const comments = await mergeComments(data);
-    res.send(result(200, comments, "ok"));
-  } catch (e) {
-    next(err(e));
-  }
-};
-
-// addComment
+// 增加评论
 const addComment = async (req, res, next) => {
   try {
     const comment = new Comment(req.body);
@@ -27,16 +18,31 @@ const addComment = async (req, res, next) => {
   }
 };
 
-// removeById
+// 删除评论
 const removeById = async (req, res, next) => {
   try {
     const { _id } = req.body;
     let data = await Comment.findByIdAndRemove(_id);
+    // 评论不存在
     if (!data) {
-      next(err("The Comment does not exist", 403, ""));
+      next(err("该评论不存在", 403, ""));
       return;
     }
     res.send(result(200, data, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
+// 查询苗木评论
+const getCommentByTreeID = async (req, res, next) => {
+  try {
+    const { treeID, pageNo, limit } = req.body;
+    const data = await Comment.find({ treeID })
+      .skip((pageNo - 1) * limit)
+      .limit(limit);
+    const comments = await mergeComments(data);
+    res.send(result(200, comments, "ok"));
   } catch (e) {
     next(err(e));
   }

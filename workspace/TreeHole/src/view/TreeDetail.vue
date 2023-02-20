@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2023-02-06 14:40:24
+ * @LastEditTime: 2023-02-20 16:15:35
+-->
 <script setup>
 import { computed, onMounted, reactive, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
@@ -10,7 +15,6 @@ import { ElMessage } from "element-plus";
 const router = useRouter();
 const route = useRoute();
 
-// [state]
 const state = reactive({
   tree: null,
   treeID: history.state.treeID,

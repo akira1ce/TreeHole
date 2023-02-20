@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-12-10 16:48:50
+ * @LastEditTime: 2023-02-20 15:59:38
+-->
 <script setup>
 import { computed } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
@@ -8,10 +13,7 @@ import { local } from "../util";
 const router = useRouter();
 const route = useRoute();
 
-// props
 const props = defineProps(["tree", "loginUser", "orderOp"]);
-
-// [state]
 const { tree, loginUser, orderOp } = props;
 
 // [methods]

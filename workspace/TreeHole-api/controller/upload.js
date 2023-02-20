@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-10 09:40:09
+ * @LastEditTime: 2023-02-20 16:42:28
+ */
 const upload = require("../middleware/upload.js");
 const { config } = require("../util");
 
@@ -14,19 +19,25 @@ const mongoClient = new MongoClient(url);
 const uploadFiles = async (req, res) => {
   try {
     await upload(req, res);
+
+    // 文件为空
     if (req.file == undefined) {
       return res.status(400).send({ message: "请选择要上传的文件" });
     }
+
     return res.status(200).send({
       message: baseUrl + req.file.filename,
     });
   } catch (error) {
     console.log(error);
+
+    // 大小超限
     if (error.code == "LIMIT_FILE_SIZE") {
       return res.status(500).send({
         message: "文件大小不能超过 5MB",
       });
     }
+
     return res.status(500).send({
       message: `无法上传文件:, ${error}`,
     });
@@ -40,6 +51,8 @@ const getListFiles = async (req, res) => {
 
     const database = mongoClient.db(config.database);
     const files = database.collection(config.filesBucket + ".files");
+
+    // 文件数据信息
     let fileInfos = [];
 
     if ((await files.estimatedDocumentCount()) === 0) {

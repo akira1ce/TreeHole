@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2023-01-08 12:07:13
+ * @LastEditTime: 2023-02-20 16:51:28
+ */
 const AlipaySdk = require("alipay-sdk").default;
 const alipaySdk = new AlipaySdk({
   appId: "2021000122602650", // 应用id

@@ -66,7 +66,6 @@ const Submit = async (formEl, mode) => {
   });
 };
 
-// router to login
 const toLogin = () => {
   router.push("/login");
 };

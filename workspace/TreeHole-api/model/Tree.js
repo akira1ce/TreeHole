@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-09 10:39:02
+ * @LastEditTime: 2023-02-20 16:47:02
+ */
 const mongoose = require("mongoose");
 const Types = require("../util/schemaTypes");
 const treeSchema = new mongoose.Schema({

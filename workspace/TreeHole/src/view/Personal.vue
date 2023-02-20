@@ -1,7 +1,11 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-11-16 16:40:05
+ * @LastEditTime: 2023-02-20 16:08:34
+-->
 <script setup>
 import api from "../api";
 import request from "../api/request";
-import service from "../api/interceptor";
 import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { useRouter, useRoute } from "vue-router";
 import { local, defaultState } from "../util";
@@ -18,10 +22,13 @@ const sliderRef = ref();
 // 导航
 const navMenu = ["历史记录", "我的收藏", "我的交易"];
 const sliderLeft = ["22px", "125px", "228px"];
+
 // 索引集合
 const list = ["historyList", "collectList", "orderList"];
 const list_re = ["browsingHistory", "collect", "order"];
+
 const user = local.getItem("user");
+
 const state = reactive({
   current: 0,
   treeList: {
@@ -52,7 +59,6 @@ const state = reactive({
 });
 
 // [methods]
-// 跳转个人空间
 /**
  * 跳转个人空间
  * @param {proxy} user

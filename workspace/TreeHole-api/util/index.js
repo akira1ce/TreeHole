@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-05 11:06:01
+ * @LastEditTime: 2023-02-20 16:51:32
+ */
 function result(code, data, message) {
   return { code, data, message };
 }

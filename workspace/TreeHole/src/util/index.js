@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2023-02-03 11:07:40
+ * @LastEditTime: 2023-02-20 16:04:31
+ */
 import api from "../api";
 import request from "../api/request";
 import { ElMessage } from "element-plus";
@@ -14,6 +19,7 @@ const local = {
   },
 };
 
+//  静态数据
 const defaultState = {
   comment: {
     treeID: "",
@@ -91,9 +97,10 @@ const defaultState = {
   },
 };
 
+// 记录回调
 const recordHandle = {
   /**
-   *
+   * 收藏
    * @param {proxy} record
    * @param {string} userID
    * @param {string} treeID
@@ -111,7 +118,7 @@ const recordHandle = {
     }
   },
   /**
-   *
+   * 关注
    * @param {proxy} record
    * @param {string} userID1 主
    * @param {string} userID2 次
@@ -131,6 +138,7 @@ const recordHandle = {
 };
 
 const tools = {
+  // 时间格式化
   timeFormat: (time) => {
     const timeArr = time.split(" ");
     let timeArr_0 = timeArr[0].split("-");

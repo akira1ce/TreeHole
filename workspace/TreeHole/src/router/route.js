@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-14 09:56:23
+ * @LastEditTime: 2023-02-20 16:04:20
+ */
 const Login = () => import("../view/Login.vue");
 const Register = () => import("../view/Register.vue");
 const Home = () => import("../view/Home.vue");

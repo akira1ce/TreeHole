@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-11-14 18:57:18
+ * @LastEditTime: 2023-02-20 16:06:20
+-->
 <script setup>
 import api from "../api";
 import request from "../api/request";
@@ -7,7 +12,6 @@ import Card from "../components/Card.vue";
 import Loader from "../components/Loader.vue";
 import eventBus from "../lib/eventBus";
 
-// [state]
 const navMenu = ["recommend", "area"];
 const state = reactive({
   user: local.getItem("user") || {},

@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-10 10:00:01
+ * @LastEditTime: 2023-02-20 16:50:47
+ */
 const express = require("express");
 const uploadCtrl = require("../controller/upload");
 

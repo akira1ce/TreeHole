@@ -1,6 +1,7 @@
-/**
- * request.js
- * 通过promise对axios做二次封装，针对用户端参数，做灵活配置
+/*
+ * @Author: Akira
+ * @Date: 2022-11-14 17:06:45
+ * @LastEditTime: 2023-02-20 15:58:50
  */
 import instance from "./interceptor";
 

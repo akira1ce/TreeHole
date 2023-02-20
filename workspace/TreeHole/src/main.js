@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-14 09:08:28
+ * @LastEditTime: 2023-02-20 16:15:49
+ */
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";

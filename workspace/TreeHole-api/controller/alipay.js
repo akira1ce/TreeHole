@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2023-01-08 12:10:10
+ * @LastEditTime: 2023-02-20 16:18:04
+ */
 const { result, err } = require("../util");
 const AliPayForm = require("alipay-sdk/lib/form").default;
 const alipaySdk = require("../util/alipay");

@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-11-16 17:02:41
+ * @LastEditTime: 2023-02-20 16:14:06
+-->
 <script setup>
 import api from "../api";
 import { defaultState, local } from "../util";
@@ -35,11 +40,10 @@ socket.on("sendMessage", async function (msg) {
   downScroll();
 });
 
-// [state]
 const loginUser = local.getItem("user");
-// 联系卖家 id & 树 id
 const userID = history.state.userID;
 const treeID = history.state.treeID;
+
 const state = reactive({
   current: 0,
   text: "",

@@ -1,3 +1,8 @@
+<!--
+ * @Author: Akira
+ * @Date: 2022-11-15 15:41:20
+ * @LastEditTime: 2023-02-20 16:00:49
+-->
 <script setup>
 import { onMounted, ref, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
@@ -8,9 +13,7 @@ import { local } from "../util";
 const route = useRoute();
 const router = useRouter();
 
-// [state]
 const user = local.getItem("user") || {};
-// static state
 const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket"];
 
 // [methods]

@@ -1,6 +1,11 @@
+<!--
+ * @Author: Akira
+ * @Date: 2023-02-07 23:43:35
+ * @LastEditTime: 2023-02-20 16:03:48
+-->
 <script setup>
 import useClipboard from "vue-clipboard3";
-import { defineProps, onMounted, reactive, toRaw, watchEffect } from "vue-demi";
+import { defineProps, reactive, toRaw, watchEffect } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Position } from "@element-plus/icons-vue";
@@ -14,7 +19,6 @@ const { toClipboard } = useClipboard();
 
 const props = defineProps(["tree", "collectHandle", "record"]);
 
-// [state]
 const { tree, collectHandle } = props;
 const user = tree.owner;
 const loginUser = local.getItem("user");
@@ -82,8 +86,8 @@ const copyLocation = async (location) => {
   }
 };
 
+// 监听记录变化
 watchEffect(() => {
-  console.log(`watchEffect`, props.record);
   state.isCollect = props.record?.collect.indexOf(tree._id) != -1;
 });
 </script>

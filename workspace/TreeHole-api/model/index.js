@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2022-11-05 10:11:34
+ * @LastEditTime: 2023-02-20 16:46:50
+ */
 const mongoose = require("mongoose");
 const { config } = require("../util");
 const URL = config.url + config.dbName;
