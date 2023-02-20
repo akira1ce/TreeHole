@@ -35,7 +35,7 @@ export default {
   },
   record: {
     /**
-     * @param userID 
+     * @param userID 用户id
      */
     getRecordByUserID: "/record/getRecordByUserID",
     /**
@@ -50,6 +50,12 @@ export default {
      * @param orderID 订单id
      */
     modifyRecordOrder: "/record/modifyRecordOrder",
+    /**
+     * 修改个人会话记录
+     * @param userID 用户id
+     * @param socketID 会话id
+     */
+    modifyRecordSocket: "/record/modifyRecordSocket",
     modifyByID: "/record/modifyByID",
   },
   order: {
@@ -59,7 +65,7 @@ export default {
      * @param treeID 苗木id
      * @param tree 苗木信息
      * @param buyerID 买方id 登陆用户
-     * @param sellerID 卖方id 苗木所有者 
+     * @param sellerID 卖方id 苗木所有者
      */
     addOrder: "/order/addOrder",
     removeById: "/order/removeById",
@@ -73,6 +79,12 @@ export default {
     removeById: "/socket/removeById",
     modifyById: "/socket/modifyById",
     getSocketByUserID: "/socket/getSocketByUserID",
+    /**
+     * @param sockets 会话集合
+     * @param pageNo 页码
+     * @param limit 页限
+     */
+    getSocketListByID: "/socket/getSocketListByID",
   },
   alipay: {
     pagePay: "/alipay/pagePay",

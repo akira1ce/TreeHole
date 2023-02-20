@@ -44,7 +44,7 @@ const mergeOrders = async (data) => {
   return orders;
 };
 
-const mergeSockets = async (data, userID) => {
+const mergeSockets = async (data) => {
   const sockets = [];
   for (let i = 0; i < data.length; i++) {
     const item = data[i];

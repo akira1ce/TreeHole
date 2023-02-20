@@ -1,4 +1,4 @@
-const { Record, Order } = require("../model");
+const { Record, Order, Socket } = require("../model");
 const { result, err } = require("../util");
 
 const { mergeRecord } = require("../util/merge");
@@ -130,6 +130,39 @@ const modifyRecordOrder = async (req, res, next) => {
   }
 };
 
+// modifyRecordSocket
+const modifyRecordSocket = async (req, res, next) => {
+  try {
+    const { userID, socketID } = req.body;
+    const record = await Record.findOne({ userID });
+
+    if (!record) {
+      next(err("The record does not exist", 403, ""));
+      return;
+    }
+
+    const index = record.socket.indexOf(socketID);
+    let data = null;
+
+    // 会话记录存在
+    if (index != -1) {
+      // 更新记录
+      record.socket.splice(index, 1);
+      data = await Record.findByIdAndUpdate(record._id, record);
+
+      // 更新订单引用数
+      const socket = await Socket.findOne({ _id: socketID });
+      const refer = --socket.refer;
+      if (refer != 0) await Socket.findByIdAndUpdate(socketID, { refer });
+      else await Socket.findByIdAndDelete(socketID);
+    }
+
+    res.send(result(200, data, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
 const modifyByID = async (req, res, next) => {
   try {
     const { _id } = req.body;
@@ -149,5 +182,6 @@ module.exports = {
   modifyRecordUser,
   modifyRecordTree,
   modifyRecordOrder,
+  modifyRecordSocket,
   modifyByID,
 };

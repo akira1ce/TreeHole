@@ -32,5 +32,10 @@ const socketSchema = new mongoose.Schema({
     type: Object,
     required: true,
   },
+  refer: {
+    type: Types.Number,
+    require: false,
+    default: 2,
+  },
 });
 module.exports = socketSchema;

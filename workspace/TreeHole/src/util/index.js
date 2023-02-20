@@ -28,6 +28,7 @@ const defaultState = {
     fans: [],
     following: [],
     order: [],
+    socket: [],
   },
   tree: {
     _id: "",

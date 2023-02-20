@@ -30,5 +30,10 @@ const recordSchema = new mongoose.Schema({
     require: false,
     default: [],
   },
+  socket: {
+    type: Types.Array,
+    require: false,
+    default: [],
+  },
 });
 module.exports = recordSchema;

@@ -9,6 +9,7 @@ router.post("/getRecordByUserID", recordCtrl.getRecordByUserID);
 router.post("/modifyRecordUser", recordCtrl.modifyRecordUser);
 router.post("/modifyRecordTree", recordCtrl.modifyRecordTree);
 router.post("/modifyRecordOrder", recordCtrl.modifyRecordOrder);
+router.post("/modifyRecordSocket", recordCtrl.modifyRecordSocket);
 router.post("/modifyByID", recordCtrl.modifyByID);
 
 module.exports = router;

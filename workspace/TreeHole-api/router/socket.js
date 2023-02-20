@@ -11,5 +11,6 @@ router.post("/removeById", socketCtrl.removeById);
 router.post("/modifyById", socketCtrl.modifyById);
 // 获取聊天列表
 router.post("/getSocketByUserID", socketCtrl.getSocketByUserID);
+router.post("/getSocketListByID", socketCtrl.getSocketListByID);
 
 module.exports = router;

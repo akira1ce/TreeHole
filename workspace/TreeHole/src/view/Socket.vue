@@ -1,6 +1,6 @@
 <script setup>
 import api from "../api";
-import { local } from "../util";
+import { defaultState, local } from "../util";
 import request from "../api/request";
 import { io } from "socket.io-client";
 import { ElMessage } from "element-plus";
@@ -38,12 +38,16 @@ socket.on("sendMessage", async function (msg) {
 // [state]
 const loginUser = local.getItem("user");
 // 联系卖家 id & 树 id
-const userID = history.state.userID || "";
-const treeID = history.state.treeID || "";
+const userID = history.state.userID;
+const treeID = history.state.treeID;
 const state = reactive({
   current: 0,
   text: "",
   socketList: [],
+  record: defaultState.record,
+  pageNo: 1,
+  limit: 12,
+  infiniteScroll: false,
 });
 
 // [methods]
@@ -66,7 +70,7 @@ const orderOp = async (tree, code) => {
     socketList[current].tree.status = 1;
     ElMessage.success("购买成功");
     window.open(payUrl);
-  } 
+  }
 };
 
 // 下放滚动条
@@ -81,24 +85,12 @@ const downScroll = () => {
  * @param {string} _id
  * @param {number} index
  */
-const removeSocket = async (_id, index) => {
-  await request.post(api.socket.removeById, { _id });
+const removeSocket = async (userID, socketID, index) => {
+  await request.post(api.record.modifyRecordSocket, { userID, socketID });
   state.socketList.splice(index, 1);
   state.current = -1;
-};
-
-// 初始化
-// 1. 用户自行进入聊天界面
-// 2. 用户对用户发起聊天
-const init = async () => {
-  if (userID != "") {
-    state.socketList.some((item, index) => {
-      if ((item.userID1 == userID || item.userID2 == userID) && item.treeID == treeID) {
-        state.current = index;
-        return true;
-      }
-    });
-  }
+  history.state.userID = null;
+  history.state.treeID = null;
 };
 
 // 跳转用户空间
@@ -120,6 +112,7 @@ const selectOtherSide = (e) => {
   const id = e.target.dataset?.id || e.target.parentNode.dataset?.id || e.target.parentNode.parentNode.dataset?.id;
   if (state.current == id || id == undefined) return;
   state.current = id;
+  downScroll();
 };
 
 // 发送信息
@@ -148,6 +141,21 @@ const sendMsg = async () => {
   state.text = "";
 };
 
+// 获取会话列表
+const getSocketList = async () => {
+  const { pageNo, limit, record } = state;
+
+  const sockets = await request.post(api.socket.getSocketListByID, { sockets: record.socket, pageNo, limit });
+  sockets.forEach((item) => {
+    if (loginUser._id == item.userID1) item.otherSide = item.user2;
+    else item.otherSide = item.user1;
+  });
+
+  if (sockets.length < state.limit) state.infiniteScroll = true;
+  state.socketList.push(...sockets);
+  state.pageNo++;
+};
+
 // [computed]
 // 当前聊天内容
 const currentSocket = computed(() => {
@@ -155,12 +163,22 @@ const currentSocket = computed(() => {
 });
 
 onMounted(async () => {
-  state.socketList = await request.post(api.socket.getSocketByUserID, { userID: loginUser._id });
-  state.socketList.forEach((item) => {
-    if (loginUser._id == item.userID1) item.otherSide = item.user2;
-    else item.otherSide = item.user1;
-  });
-  init();
+  state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
+
+  // 获取会话列表
+  await getSocketList();
+
+  // 存在指定用户
+  if (userID) {
+    state.socketList.some((item, index) => {
+      if ((item.userID1 == userID || item.userID2 == userID) && item.treeID == treeID) {
+        state.current = index;
+        return true;
+      }
+    });
+  }
+
+  // 下放滚动条
   downScroll();
 });
 </script>
@@ -168,13 +186,13 @@ onMounted(async () => {
 <template>
   <div class="container">
     <!-- 聊天列表 -->
-    <div class="container__userList" @click="selectOtherSide">
+    <div class="container__userList scroll" @click="selectOtherSide" v-infinite-scroll="getSocketList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
       <div class="userList__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.socketList">
         <div class="item__left">
           <img :src="item.otherSide.avator" />
           <span>{{ item.otherSide.name }}</span>
         </div>
-        <i class="iconfont icon-lajitong" @click="removeSocket(item._id, index)"></i>
+        <i class="iconfont icon-lajitong" @click="removeSocket(loginUser._id, item._id, index)"></i>
       </div>
     </div>
     <el-empty class="container__dialog" description="去找树友聊天吧~" v-show="state.current == -1" />
@@ -234,8 +252,8 @@ onMounted(async () => {
   .container__userList {
     .flex__column();
     width: 230px;
-    height: 100%;
-    padding: 25px 15px;
+    overflow-y: overlay;
+    padding: 15px;
     background-color: white;
     border-right: 1px solid rgb(241, 242, 243);
     .userList__item {
@@ -244,7 +262,6 @@ onMounted(async () => {
       justify-content: space-between;
       padding: 10px 15px;
       border-radius: 12px;
-      overflow: hidden;
       transition: all 0.5s;
       img {
         width: 36px;
