@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-02-20 16:15:21
+ * @LastEditTime: 2023-02-21 11:41:39
 -->
 <script setup>
 import api from "../api";
@@ -441,10 +441,10 @@ onMounted(async () => {
     <el-dialog title="用户信息" v-model="state.dialog_user" align-center>
       <!-- 用户表单 -->
       <el-form :model="state.form_user" label-width="auto" ref="form_user_Ref" :rules="form_user_Rules">
-        <el-form-item label="用户名" prop="account">
+        <el-form-item label="账号" prop="account">
           <el-input v-model="state.form_user.account" autocomplete="off" disabled />
         </el-form-item>
-        <el-form-item label="姓名" prop="name">
+        <el-form-item label="用户名" prop="name">
           <el-input v-model="state.form_user.name" />
         </el-form-item>
         <el-form-item label="地区" prop="location">

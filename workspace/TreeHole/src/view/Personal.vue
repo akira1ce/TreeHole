@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-02-20 16:08:34
+ * @LastEditTime: 2023-02-21 10:57:55
 -->
 <script setup>
 import api from "../api";
@@ -31,7 +31,7 @@ const user = local.getItem("user");
 
 const state = reactive({
   current: 0,
-  treeList: {
+  currentList: {
     pageNo: 1,
     limit: 12,
     infiniteScroll: false,
@@ -89,12 +89,12 @@ const switchNav = (target) => {
   // css
   sliderRef.value.style.left = sliderLeft[target];
 
-  if (target == 0) state.treeList = state.historyList;
-  else if (target == 1) state.treeList = state.collectList;
-  else state.treeList = state.orderList;
+  if (target == 0) state.currentList = state.historyList;
+  else if (target == 1) state.currentList = state.collectList;
+  else state.currentList = state.orderList;
 
   // 首次特判
-  if (state.treeList.content.length == 0) getCurrentList();
+  if (state.currentList.content.length == 0) getCurrentList();
 };
 
 // 清楚历史记录
@@ -104,7 +104,7 @@ const clearBrowsing = async () => {
   state.record.browsingHistory = [];
   state.historyList.content = [];
   state.historyList.infiniteScroll = false;
-  state.treeList = {};
+  state.currentList = {};
   ElMessage.success("浏览记录已清空");
 };
 
@@ -116,7 +116,7 @@ const clearBrowsing = async () => {
 const deleteOrder = async (orderID, index) => {
   await request.post(api.record.modifyRecordOrder, { userID: user._id, orderID });
   state.record.order.splice(index, 1);
-  state.treeList.content.splice(index, 1);
+  state.currentList.content.splice(index, 1);
 };
 
 // 分页加载导航数据 treeList or orderList
@@ -159,7 +159,7 @@ const record = computed(() => {
 </script>
 
 <template>
-  <div class="container scroll" v-infinite-scroll="getCurrentList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.treeList.infiniteScroll">
+  <div class="container scroll" v-infinite-scroll="getCurrentList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.currentList.infiniteScroll">
     <!-- 用户栏 -->
     <div class="container__userInfo">
       <!-- 用户基本信息 -->
@@ -204,13 +204,14 @@ const record = computed(() => {
       </el-affix>
       <!-- 主体 -->
       <div class="main__content">
+        <el-empty class="center" v-if="state.currentList.content.length == 0" description="什么也没有喔~"></el-empty>
         <!-- 树 -->
         <div class="content__trees" v-if="state.current < 2">
-          <Card v-for="(item, index) in state.treeList.content" :key="item._id" :tree="item" />
+          <Card v-for="(item, index) in state.currentList.content" :key="item._id" :tree="item" />
         </div>
         <!-- 订单 -->
         <div class="content__orders" v-else>
-          <OrderCard v-for="(item, index) in state.treeList.content" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" />
+          <OrderCard v-for="(item, index) in state.currentList.content" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" />
         </div>
       </div>
     </div>
@@ -346,6 +347,9 @@ const record = computed(() => {
     }
     .main__content {
       width: 100%;
+      min-height: 415px;
+      padding-bottom: 5px;
+      position: relative;
       .content__trees {
         display: grid;
         justify-content: space-between;
