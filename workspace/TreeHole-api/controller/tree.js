@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-15 11:20:39
- * @LastEditTime: 2023-02-20 16:42:25
+ * @LastEditTime: 2023-02-23 17:10:48
  */
 const { Tree, User, Comment } = require("../model");
 const { result, err } = require("../util");
@@ -74,11 +74,14 @@ const getTreeById = async (req, res, next) => {
 const getTreeList = async (req, res, next) => {
   try {
     const { pageNo, limit } = req.body;
-    const data = await Tree.find()
-      .skip((pageNo - 1) * limit)
-      .limit(limit);
-    const trees = await mergeTrees(data);
-    res.send(result(200, trees, "ok"));
+    const data = await Promise.all([
+      Tree.count(),
+      Tree.find()
+        .skip((pageNo - 1) * limit)
+        .limit(limit),
+    ]);
+    data[1] = await mergeTrees(data[1]);
+    res.send(result(200, { count: data[0], list: data[1] }, "ok"));
   } catch (e) {
     next(err(e));
   }

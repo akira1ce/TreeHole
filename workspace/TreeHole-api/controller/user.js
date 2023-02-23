@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-05 10:53:00
- * @LastEditTime: 2023-02-20 16:46:29
+ * @LastEditTime: 2023-02-23 18:01:06
  */
 const { User, Record } = require("../model");
 const { result, err, config } = require("../util");
@@ -15,18 +15,18 @@ const register = async (req, res, next) => {
 
     // 用户名已被占用
     if (user) {
-      next(err("用户名已被占用", 403, ""));
+      next(err("用户名已被占用", 403, null));
       return;
     }
 
     user = new User(req.body);
-    const data = await user.save();
+    user = await user.save();
 
     // 同步生成记录
-    const record = new Record({ userID: data._id });
+    const record = new Record({ userID: user._id });
     await record.save();
 
-    res.send(result(200, data, "ok"));
+    res.send(result(200, { user }, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -40,25 +40,21 @@ const login = async (req, res, next) => {
 
     // 用户不存在
     if (!user) {
-      next(err("用户不存在", 403, ""));
+      next(err("用户不存在", 403, null));
       return;
     }
 
     // 密码错误
     if (password !== user.password) {
-      next(err("密码错误", 403, ""));
+      next(err("密码错误", 403, null));
       return;
     }
 
     // token
     const token = jwt.sign({ user }, config.secretKey, { expiresIn: "12h" });
     user.password = undefined;
-    const data = {
-      token,
-      user,
-    };
 
-    res.send(result(200, data, "ok"));
+    res.send(result(200, { token, user }, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -68,18 +64,18 @@ const login = async (req, res, next) => {
 const removeById = async (req, res, next) => {
   try {
     const { _id } = req.body;
-    let data = await User.findByIdAndRemove(_id);
+    let user = await User.findByIdAndDelete(_id, { select: { password: 0 } });
 
     // 用户不存在
-    if (!data) {
-      next(err("该用户不存在", 403, ""));
+    if (!user) {
+      next(err("该用户不存在", 403, null));
       return;
     }
 
     // 同步删除记录
-    await Record.findOneAndRemove({ userID: _id });
+    await Record.findOneAndDelete({ userID: _id });
 
-    res.send(result(200, data, "ok"));
+    res.send(result(200, { user }, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -89,15 +85,15 @@ const removeById = async (req, res, next) => {
 const modifyById = async (req, res, next) => {
   try {
     const { _id } = req.body;
-    const data = await User.findByIdAndUpdate(_id, req.body);
+    const user = await User.findByIdAndUpdate(_id, req.body, { select: { password: 0 } });
 
     // 用户不存在
-    if (!data) {
-      next(err("用户不存在", 403, ""));
+    if (!user) {
+      next(err("用户不存在", 403, null));
       return;
     }
 
-    res.send(result(200, data, "ok"));
+    res.send(result(200, { user }, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -106,8 +102,14 @@ const modifyById = async (req, res, next) => {
 // 查询用户列表
 const getUserList = async (req, res, next) => {
   try {
-    const data = await User.find();
-    res.send(result(200, data, "ok"));
+    let { pageNo, limit } = req.body;
+    const data = await Promise.all([
+      User.count(),
+      User.find()
+        .skip((pageNo - 1) * limit)
+        .limit(limit),
+    ]);
+    res.send(result(200, { count: data[0], list: data[1] }, "ok"));
   } catch (e) {
     next(err(e));
   }

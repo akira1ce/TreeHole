@@ -120,9 +120,15 @@ const modifyByTreeID = async (req, res, next) => {
 // 查询订单列表
 const getOrderList = async (req, res, next) => {
   try {
-    const data = await Order.find();
-    const orders = await mergeOrders(data);
-    res.send(result(200, orders, "ok"));
+    const { pageNo, limit } = req.body;
+    const data = await Promise.all([
+      Order.count(),
+      Order.find()
+        .skip((pageNo - 1) * limit)
+        .limit(limit),
+    ]);
+    data[1] = await mergeOrders(data[1]);
+    res.send(result(200, { count: data[0], list: data[1] }, "ok"));
   } catch (e) {
     next(err(e));
   }

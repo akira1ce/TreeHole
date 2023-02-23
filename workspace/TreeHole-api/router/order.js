@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-12 10:12:11
- * @LastEditTime: 2023-02-20 16:49:13
+ * @LastEditTime: 2023-02-23 17:22:37
  */
 const express = require("express");
 const orderCtrl = require("../controller/order");
@@ -16,7 +16,7 @@ router.post("/removeById", orderCtrl.removeById);
 router.post("/modifyById", orderCtrl.modifyById);
 router.post("/modifyByTreeID", orderCtrl.modifyByTreeID);
 // 查询订单列表
-router.get("/getOrderList", orderCtrl.getOrderList);
+router.post("/getOrderList", orderCtrl.getOrderList);
 // 查询订单集合列表
 router.post("/getOrderListByID", orderCtrl.getOrderListByID);
 // 订单列表[用户]

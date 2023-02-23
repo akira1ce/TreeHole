@@ -54,7 +54,7 @@ const Submit = async (formEl, mode) => {
           const res = await request.post(api.user.register, { account, password, role });
           router.push({
             name: "Login",
-            state: { user: res },
+            state: { user: res.user },
           });
         }
       } catch (e) {

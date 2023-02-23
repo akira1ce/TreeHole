@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-05 10:51:57
- * @LastEditTime: 2023-02-20 16:50:58
+ * @LastEditTime: 2023-02-23 17:22:20
  */
 const express = require("express");
 const userCtrl = require("../controller/user");
@@ -17,7 +17,7 @@ router.post("/removeById", userCtrl.removeById);
 // 修改用户
 router.post("/modifyById", userCtrl.modifyById);
 // 查询用户列表
-router.get("/getUserList", userCtrl.getUserList);
+router.post("/getUserList", userCtrl.getUserList);
 // 查询用户集合列表
 router.post("/getUserListByID", userCtrl.getUserListByID);
 // 查询用户
