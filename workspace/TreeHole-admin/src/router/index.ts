@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-22 19:02:48
- * @LastEditTime: 2023-02-22 20:43:59
+ * @LastEditTime: 2023-02-23 15:17:19
  */
 import { type RouteRecordRaw, createRouter, createWebHashHistory, createWebHistory } from "vue-router"
 
@@ -57,6 +57,66 @@ export const constantRoutes: RouteRecordRaw[] = [
           title: "首页",
           svgIcon: "dashboard",
           affix: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/personal",
+    component: Layout,
+    children: [
+      {
+        path: "index",
+        component: () => import("@/views/personal/index.vue"),
+        name: "personal",
+        meta: {
+          title: "个人中心"
+          // svgIcon: "dashboard",
+        }
+      }
+    ]
+  },
+  {
+    path: "/userManager",
+    component: Layout,
+    children: [
+      {
+        path: "index",
+        component: () => import("@/views/userManager/index.vue"),
+        name: "UserManager",
+        meta: {
+          title: "用户管理"
+          // svgIcon: "dashboard",
+        }
+      }
+    ]
+  },
+  {
+    path: "/treeManager",
+    component: Layout,
+    children: [
+      {
+        path: "index",
+        component: () => import("@/views/treeManager/index.vue"),
+        name: "treeManager",
+        meta: {
+          title: "苗木管理"
+          // svgIcon: "dashboard",
+        }
+      }
+    ]
+  },
+  {
+    path: "/orderManager",
+    component: Layout,
+    children: [
+      {
+        path: "index",
+        component: () => import("@/views/orderManager/index.vue"),
+        name: "orderManager",
+        meta: {
+          title: "订单管理"
+          // svgIcon: "dashboard",
         }
       }
     ]

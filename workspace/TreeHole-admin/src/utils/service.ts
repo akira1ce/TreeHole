@@ -22,6 +22,7 @@ function createService() {
     (response) => {
       // apiData 是 API 返回的数据
       const apiData = response.data as any
+      console.log(apiData)
       // 这个 Code 是和后端约定的业务 Code
       const code = apiData.code
       // 如果没有 Code, 代表这不是项目后端开发的 API

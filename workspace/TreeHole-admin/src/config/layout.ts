@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-22 13:55:42
- * @LastEditTime: 2023-02-22 20:50:40
+ * @LastEditTime: 2023-02-23 18:09:37
  */
 /** 布局配置 */
 interface ILayoutSettings {
@@ -28,7 +28,7 @@ interface ILayoutSettings {
 const layoutSettings: ILayoutSettings = {
   showSettings: true,
   showTagsView: true,
-  fixedHeader: true,
+  fixedHeader: false,
   showSidebarLogo: true,
   showNotify: false,
   showThemeSwitch: true,

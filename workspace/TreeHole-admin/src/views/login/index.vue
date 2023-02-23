@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-22 19:02:48
- * @LastEditTime: 2023-02-22 22:24:20
+ * @LastEditTime: 2023-02-23 14:40:48
 -->
 <script lang="ts" setup>
 import { reactive, ref } from "vue"
@@ -10,7 +10,7 @@ import { User, Lock } from "@element-plus/icons-vue"
 import ThemeSwitch from "@/components/ThemeSwitch/index.vue"
 import { type FormInstance, FormRules } from "element-plus"
 import { type ILoginRequestData } from "@/api/login/types/login"
-import { loginApi } from "@/api/login"
+import { loginApi } from "@/api/user"
 import { setToken } from "@/utils/cache/cookies"
 
 const router = useRouter()

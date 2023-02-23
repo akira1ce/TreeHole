@@ -4,6 +4,7 @@ export default {
      * 注册
      * @param account 用户名
      * @param password 密码
+     * @param role 角色
      */
     register: "/user/register",
     /**
