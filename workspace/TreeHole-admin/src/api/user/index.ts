@@ -17,7 +17,7 @@ export function loginApi(data: User.ILoginRequestData) {
 }
 
 /** 增 */
-export function AddUserApi(data: User.IAddUserRequestData) {
+export function AddUserApi(data: User.IUser) {
   return request<User.AddUserResponseData>({
     url: api.user.register,
     method: "post",
@@ -35,7 +35,7 @@ export function RemoveUserApi(data: User.IRemoveUserRequestData) {
 }
 
 /** 改 */
-export function ModifyUserApi(data: User.IModifyUserRequestData) {
+export function ModifyUserApi(data: User.IUser) {
   return request<User.ModifyUserResponseData>({
     url: api.user.modifyById,
     method: "post",
@@ -44,9 +44,10 @@ export function ModifyUserApi(data: User.IModifyUserRequestData) {
 }
 
 /** 查 */
-export function GetUserApi() {
+export function GetUserApi(data: User.IGetUserRequestData) {
   return request<User.GetUserResponseData>({
     url: api.user.getUserList,
-    method: "post"
+    method: "post",
+    data
   })
 }

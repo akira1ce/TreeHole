@@ -102,10 +102,12 @@ const modifyById = async (req, res, next) => {
 // 查询用户列表
 const getUserList = async (req, res, next) => {
   try {
-    let { pageNo, limit } = req.body;
+    let { pageNo, limit, account, name } = req.body;
+    const re_account = new RegExp(account, "i");
+    const re_name = new RegExp(name, "i");
     const data = await Promise.all([
       User.count(),
-      User.find()
+      User.find({ account: re_account, name: re_name })
         .skip((pageNo - 1) * limit)
         .limit(limit),
     ]);
