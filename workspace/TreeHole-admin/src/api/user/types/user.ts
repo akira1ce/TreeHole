@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-23 14:39:35
- * @LastEditTime: 2023-02-24 15:43:12
+ * @LastEditTime: 2023-02-25 15:16:59
  */
 export interface IUser {
   _id?: string
@@ -14,6 +14,8 @@ export interface IUser {
   location: string
   status: string
   __v?: number
+  /** 索引 */
+  [index: string]: any
 }
 
 /** 登陆 */
@@ -34,8 +36,8 @@ export interface IRemoveUserRequestData {
 export interface IGetUserRequestData {
   pageNo: number
   limit: number
-  account: string | undefined
-  name: string | undefined
+  account?: string | undefined
+  name?: string | undefined
 }
 
 export type LoginResponseData = IApiResponseData<{ token: string; user: IUser }>

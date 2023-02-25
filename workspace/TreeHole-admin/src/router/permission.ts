@@ -1,3 +1,8 @@
+/*
+ * @Author: Akira
+ * @Date: 2023-02-22 19:02:48
+ * @LastEditTime: 2023-02-25 11:09:48
+ */
 import router from "@/router"
 import { useUserStoreHook } from "@/store/modules/user"
 import { usePermissionStoreHook } from "@/store/modules/permission"

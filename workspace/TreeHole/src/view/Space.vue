@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-02-21 11:41:39
+ * @LastEditTime: 2023-02-25 19:34:57
 -->
 <script setup>
 import api from "../api";
@@ -153,7 +153,7 @@ const beforeAvatarUpload = (rawFile) => {
  */
 const updateHci = () => {
   const { form_tree } = state;
-  form_tree.hci = (form_tree.height / form_tree.crownDiameter).toFixed(2);
+  form_tree.hci = parseFloat((parseInt(form_tree.height) / parseInt(form_tree.crownDiameter)).toFixed(2))
 };
 /**
  * 发布苗木
@@ -173,7 +173,7 @@ const updateTreeInfo = async () => {
     delete state.form_tree.time;
     // 更新 hci
     updateHci();
-    const tree = await request.post(api.tree.addTree, state.form_tree);
+    const { tree } = await request.post(api.tree.addTree, state.form_tree);
     tree.owner = state.user;
     state.dialog_tree = false;
     // 更新缓存
@@ -249,7 +249,7 @@ const handleCommand = async (command) => {
   const tree = state.treeList[command.index];
   if (command.mode == 0) {
     // 编辑
-    if (tree.status != 0) {
+    if (tree.status > 0) {
       ElMessage.error("苗木正在交易或交易完成，无法编辑");
       return;
     }

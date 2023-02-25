@@ -77,7 +77,6 @@ const handleDelete = (row: any) => {
 const currentUpdateId = ref<undefined | string>(undefined)
 const handleUpdate = (row: any) => {
   currentUpdateId.value = row._id
-  // ignore
   Object.keys(formData).forEach((key) => (formData[key] = row[key]))
   dialogVisible.value = true
 }
@@ -142,10 +141,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
     </el-card>
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
-        <div>
-          <el-button type="primary" :icon="CirclePlus" @click="dialogVisible = true">新增用户</el-button>
-          <el-button type="danger" :icon="Delete">批量删除</el-button>
-        </div>
+        <el-button type="primary" :icon="CirclePlus" @click="dialogVisible = true">新增用户</el-button>
         <div>
           <el-tooltip content="刷新表格">
             <el-button type="primary" :icon="RefreshRight" circle @click="handleRefresh" />
@@ -210,7 +206,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
           <el-input v-model="formData.account" placeholder="请输入账号" />
         </el-form-item>
         <el-form-item prop="password" label="密码">
-          <el-input v-model="formData.password" placeholder="请输入密码" />
+          <el-input v-model="formData.password" placeholder="请输入密码" type="password"/>
         </el-form-item>
         <el-form-item prop="name" label="用户名">
           <el-input v-model="formData.name" placeholder="请输入用户名" />

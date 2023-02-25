@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-15 11:20:39
- * @LastEditTime: 2023-02-23 17:10:48
+ * @LastEditTime: 2023-02-25 19:02:32
  */
 const { Tree, User, Comment } = require("../model");
 const { result, err } = require("../util");
@@ -11,9 +11,9 @@ const { mergeTrees } = require("../util/merge");
 // 增加苗木
 const addTree = async (req, res, next) => {
   try {
-    const tree = new Tree(req.body);
-    const data = await tree.save();
-    res.send(result(200, data, "ok"));
+    let tree = new Tree(req.body);
+    tree = await tree.save();
+    res.send(result(200, { tree }, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -73,10 +73,12 @@ const getTreeById = async (req, res, next) => {
 // 查询苗木列表
 const getTreeList = async (req, res, next) => {
   try {
-    const { pageNo, limit } = req.body;
+    const { pageNo, limit, type, location } = req.body;
+    const re_type = new RegExp(type, "i");
+    const re_location = new RegExp(location, "i");
     const data = await Promise.all([
       Tree.count(),
-      Tree.find()
+      Tree.find({ type: re_type, location: re_location })
         .skip((pageNo - 1) * limit)
         .limit(limit),
     ]);

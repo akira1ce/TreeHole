@@ -1,14 +1,14 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-22 19:02:48
- * @LastEditTime: 2023-02-23 14:40:48
+ * @LastEditTime: 2023-02-25 12:20:06
 -->
 <script lang="ts" setup>
 import { reactive, ref } from "vue"
 import { useRouter } from "vue-router"
 import { User, Lock } from "@element-plus/icons-vue"
 import ThemeSwitch from "@/components/ThemeSwitch/index.vue"
-import { type FormInstance, FormRules } from "element-plus"
+import { type FormInstance, FormRules, ElMessage } from "element-plus"
 import { type ILoginRequestData } from "@/api/login/types/login"
 import { loginApi } from "@/api/user"
 import { setToken } from "@/utils/cache/cookies"
@@ -39,9 +39,18 @@ const handleLogin = () => {
   loginFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       loading.value = true
-      const res = await loginApi({ account: loginForm.account, password: loginForm.password })
-      setToken(res.data.token)
-      router.push("/")
+      loginApi({ account: loginForm.account, password: loginForm.password })
+        .then((res) => {
+          if (res.data.user.role != "2") ElMessage.error("当前用户非管理员用户")
+          else {
+            setToken(res.data.token)
+            localStorage.setItem("USERID", JSON.stringify(res.data.user._id))
+            router.push("/")
+          }
+        })
+        .finally(() => {
+          loading.value = false
+        })
     } else {
       return false
     }
@@ -58,7 +67,7 @@ const handleLogin = () => {
       </div>
       <div class="content">
         <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules" @keyup.enter="handleLogin">
-          <el-form-item prop="username">
+          <el-form-item prop="account">
             <el-input
               v-model.trim="loginForm.account"
               placeholder="用户名"

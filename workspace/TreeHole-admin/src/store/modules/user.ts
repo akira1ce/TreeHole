@@ -1,9 +1,9 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-22 19:02:48
- * @LastEditTime: 2023-02-22 21:18:28
+ * @LastEditTime: 2023-02-25 12:21:01
  */
-import { ref } from "vue"
+import { ref, reactive } from "vue"
 import store from "@/store"
 import { defineStore } from "pinia"
 import { usePermissionStore } from "./permission"
@@ -12,11 +12,23 @@ import router, { resetRouter } from "@/router"
 import { loginApi, getUserInfoApi } from "@/api/login"
 import { type ILoginRequestData } from "@/api/login/types/login"
 import { type RouteRecordRaw } from "vue-router"
+import { IUser } from "@/api/user/types/user"
 
 export const useUserStore = defineStore("user", () => {
   const token = ref<string>(getToken() || "")
   const roles = ref<string[]>([])
   const username = ref<string>("")
+  const user = reactive<IUser>({
+    account: "admin",
+    avator: "http://127.0.0.1:5000/uploadCenter/files/1672479218174-avator4.jpg",
+    location: "安徽-铜陵",
+    name: "Admin",
+    role: "2",
+    sex: "1",
+    status: "1",
+    __v: 0,
+    _id: "636616c07a179f73dd085492"
+  })
 
   /** 设置角色数组 */
   const setRoles = (value: string[]) => {
@@ -54,22 +66,11 @@ export const useUserStore = defineStore("user", () => {
         })
     })
   }
-  /** 切换角色 */
-  const changeRoles = async (role: string) => {
-    const newToken = "token-" + role
-    token.value = newToken
-    setToken(newToken)
-    await getInfo()
-    const permissionStore = usePermissionStore()
-    permissionStore.setRoutes(roles.value)
-    resetRouter()
-    permissionStore.dynamicRoutes.forEach((item: RouteRecordRaw) => {
-      router.addRoute(item)
-    })
-  }
+
   /** 登出 */
   const logout = () => {
     removeToken()
+    localStorage.removeItem('USERID')
     token.value = ""
     roles.value = []
     resetRouter()
@@ -81,7 +82,7 @@ export const useUserStore = defineStore("user", () => {
     roles.value = []
   }
 
-  return { token, roles, username, setRoles, login, getInfo, changeRoles, logout, resetToken }
+  return { token, roles, username, setRoles, login, getInfo, logout, resetToken }
 })
 
 /** 在 setup 外使用 */
