@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-02-25 19:34:57
+ * @LastEditTime: 2023-02-27 18:33:22
 -->
 <script setup>
 import api from "../api";
@@ -204,7 +204,7 @@ const submitImageUpload = async () => {
  * @param {file} uploadFile
  */
 const handleImageSuccess = async (response, uploadFile) => {
-  state.form_tree.imgs.push(response.message);
+  state.form_tree.imgs.push(response.data);
 };
 
 /**
@@ -409,9 +409,9 @@ onMounted(async () => {
             <div class="form_item_imgs">
               <div class="imgList">
                 <div class="imgList_item" v-for="(item, index) in state.form_tree.imgs" :key="item">
-                  <img class="item_img" :src="item" />
+                  <img class="item_img" :src="item?.url" />
                   <div class="item_options">
-                    <div class="options_previewImg" @click="previewImg(item)"><i class="iconfont icon-fangda"></i></div>
+                    <div class="options_previewImg" @click="previewImg(item?.url)"><i class="iconfont icon-fangda"></i></div>
                     <div class="options_removeImg" @click="removeImg(index)"><i class="iconfont icon-lajitong"></i></div>
                   </div>
                 </div>

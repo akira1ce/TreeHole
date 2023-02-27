@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-07 23:43:35
- * @LastEditTime: 2023-02-20 16:03:48
+ * @LastEditTime: 2023-02-27 18:32:08
 -->
 <script setup>
 import useClipboard from "vue-clipboard3";
@@ -153,8 +153,8 @@ watchEffect(() => {
       <!-- 树-图片 -->
       <div class="main__imgList">
         <photo-provider>
-          <photo-consumer v-for="src in tree.imgs" :intro="src" :key="src" :src="src">
-            <img :src="src" class="view-box" />
+          <photo-consumer v-for="src in tree.imgs" :intro="src.url" :key="src.url" :src="src.url">
+            <img :src="src.url" class="view-box" />
           </photo-consumer>
         </photo-provider>
       </div>

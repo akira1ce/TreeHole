@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 17:02:41
- * @LastEditTime: 2023-02-20 16:14:06
+ * @LastEditTime: 2023-02-27 18:39:23
 -->
 <script setup>
 import api from "../api";
@@ -45,7 +45,7 @@ const userID = history.state.userID;
 const treeID = history.state.treeID;
 
 const state = reactive({
-  current: 0,
+  current: -1,
   text: "",
   socketList: [],
   record: defaultState.record,

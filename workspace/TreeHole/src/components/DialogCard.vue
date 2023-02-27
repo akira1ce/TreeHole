@@ -54,7 +54,7 @@ const orderBtn = computed(() => {
     <div class="card__tree">
       <!-- 树-封面 -->
       <div class="tree__cover" @click="toTreeDetail(tree._id)">
-        <img :src="tree.imgs[0]" />
+        <img :src="tree.imgs[0]?.url" />
       </div>
       <!-- 树-信息 -->
       <div class="tree__info">

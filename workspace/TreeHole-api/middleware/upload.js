@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-10 09:49:00
- * @LastEditTime: 2023-02-20 16:46:43
+ * @LastEditTime: 2023-02-27 13:25:00
  */
 const util = require("util");
 const multer = require("multer");
@@ -17,6 +17,7 @@ var storage = new GridFsStorage({
       filename: `${Date.now()}-${file.originalname}`,
     };
   },
+  cache: true,
 });
 
 // 大小限制

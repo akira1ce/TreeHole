@@ -1,10 +1,15 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-25 12:50:41
- * @LastEditTime: 2023-02-25 18:22:12
+ * @LastEditTime: 2023-02-27 15:37:43
  */
 
 import { IUser } from "@/api/user/types/user"
+
+export interface img {
+  name: string
+  url: string
+}
 
 export interface ITree {
   _id?: string
@@ -17,7 +22,7 @@ export interface ITree {
   branchPoint: string
   location: string
   describe: string
-  imgs?: Array<string>
+  imgs: Array<img>
   price: string
   time?: string
   title: string
@@ -27,7 +32,6 @@ export interface ITree {
   /** 索引 */
   [index: string]: any
 }
-
 
 /** 删 */
 export interface IRemoveTreeRequestData {

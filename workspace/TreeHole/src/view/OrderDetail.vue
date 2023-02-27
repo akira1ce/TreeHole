@@ -174,7 +174,7 @@ onMounted(async () => {
       <!-- 苗木信息 -->
       <div class="order__tree" @click="toTreeDetail(tree._id)">
         <!-- 封面 -->
-        <img class="tree__cover" :src="tree.imgs[0]" />
+        <img class="tree__cover" :src="tree.imgs[0]?.url" />
         <!-- 详细信息 -->
         <div class="tree__info">
           <!-- 标题 -->

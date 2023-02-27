@@ -46,7 +46,7 @@ const toTreeDetail = async (treeID) => {
   <!-- 首页树卡片 -->
   <div class="card">
     <!-- 树-封面 -->
-    <img class="card__cover" :src="tree.imgs[0]" @click="toTreeDetail(tree._id)" />
+    <img class="card__cover" :src="tree.imgs[0]?.url" @click="toTreeDetail(tree._id)" />
     <!-- 树-标题 -->
     <div class="card__title">{{ tree.title }}</div>
     <!-- 树-拥有者 -->

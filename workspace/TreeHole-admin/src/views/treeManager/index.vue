@@ -1,18 +1,21 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-23 15:08:04
- * @LastEditTime: 2023-02-25 19:35:50
+ * @LastEditTime: 2023-02-27 18:28:13
 -->
 <script lang="ts" setup>
 import { reactive, ref, watch, onMounted } from "vue"
 import { createTableDataApi, deleteTableDataApi, updateTableDataApi, getTableDataApi } from "@/api/table"
-import { type FormInstance, type FormRules, ElMessage, ElMessageBox } from "element-plus"
+import { ElMessage, ElMessageBox } from "element-plus"
+import type { FormInstance, FormRules, UploadProps, UploadUserFile } from "element-plus"
 import { Search, Refresh, CirclePlus, Delete, Download, RefreshRight } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { GetTreeApi, ModifyTreeApi, AddTreeApi, RemoveTreeApi } from "@/api/tree"
-import { ITree } from "@/api/tree/types/tree"
+import { ITree, img } from "@/api/tree/types/tree"
 import { IUser } from "@/api/user/types/user"
 import { GetUserApi } from "@/api/user"
+import { RemoveFileApi } from "@/api/upload"
+import _ from "lodash"
 
 const loading = ref<boolean>(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
@@ -27,7 +30,7 @@ const tree: ITree = {
   branchPoint: "",
   location: "",
   describe: "",
-  imgs: undefined,
+  imgs: [],
   price: "",
   time: undefined,
   title: "",
@@ -44,6 +47,7 @@ const dialogVisible = ref<boolean>(false)
 const formRef = ref<FormInstance | null>(null)
 const formData = reactive<ITree>({ ...tree })
 const formRules: FormRules = reactive({
+  ownerID: [{ required: true, trigger: "blur", message: "请输入选择所有者" }],
   title: [{ required: true, trigger: "blur", message: "请输入苗木标题" }],
   type: [{ required: true, trigger: "blur", message: "请输入苗木类型" }],
   height: [{ required: true, trigger: "blur", message: "请输入苗木高度" }],
@@ -51,7 +55,8 @@ const formRules: FormRules = reactive({
   diameter: [{ required: true, trigger: "blur", message: "请输入苗木直径" }],
   branchPoint: [{ required: true, trigger: "blur", message: "请输入苗木分支点" }],
   location: [{ required: true, trigger: "blur", message: "请输入所在地区" }],
-  price: [{ required: true, trigger: "blur", message: "请输入价格" }]
+  price: [{ required: true, trigger: "blur", message: "请输入价格" }],
+  imgs: [{ required: true, trigger: "blur", message: "请至少上传一张图片" }]
 })
 const handleCreate = () => {
   formRef.value?.validate(async (valid: boolean) => {
@@ -76,6 +81,7 @@ const handleCreate = () => {
 }
 const resetForm = () => {
   currentUpdateId.value = undefined
+  fileList.value = []
   Object.keys(formData).forEach((key) => (formData[key] = tree[key]))
 }
 const getUserData = async () => {
@@ -102,6 +108,10 @@ const handleDelete = (row: any) => {
     type: "warning"
   }).then(async () => {
     await RemoveTreeApi({ _id: row._id })
+    const filename = row.imgs.map((item: any) => {
+      return item.name
+    })
+    await RemoveFileApi({ filename })
     ElMessage.success("删除成功")
     getTableData()
   })
@@ -110,10 +120,39 @@ const handleDelete = (row: any) => {
 
 //#region 改
 const currentUpdateId = ref<undefined | string>(undefined)
+/** 图片预览 */
+const dialogImageVisible = ref<boolean>(false)
+const dialogImageUrl = ref<undefined | string>(undefined)
+/** 照片墙 */
+const fileList = ref<UploadUserFile[]>([])
+
 const handleUpdate = (row: any) => {
   currentUpdateId.value = row._id
+  fileList.value.push(..._.cloneDeep(row.imgs))
   Object.keys(formData).forEach((key) => (formData[key] = row[key]))
   dialogVisible.value = true
+}
+
+const handleImagePreview: UploadProps["onPreview"] = (uploadFile) => {
+  dialogImageUrl.value = uploadFile.url!
+  dialogImageVisible.value = true
+}
+
+const handleRemove: UploadProps["onRemove"] = (uploadFile, uploadFiles) => {}
+
+const handleBeforeRemove: UploadProps["beforeRemove"] = async (uploadFile, uploadFiles) => {
+  const index = fileList.value.findIndex((item) => item.name == uploadFile.name)
+  if (index == -1) return false
+  const res: any = await RemoveFileApi({ filename: formData.imgs[index].name })
+  if (res.code == 200) {
+    formData.imgs.splice(index, 1)
+    return true
+  }
+  return false
+}
+
+const handleSuccess: UploadProps["onSuccess"] = (response: any, uploadFile, uploadFiles) => {
+  if (response.data) formData.imgs.push(response.data)
 }
 //#endregion
 
@@ -164,6 +203,7 @@ onMounted(async () => {
 
 <template>
   <div class="app-container">
+    <!-- 搜索 -->
     <el-card v-loading="loading" shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
         <el-form-item prop="type" label="苗木类型">
@@ -178,6 +218,7 @@ onMounted(async () => {
         </el-form-item>
       </el-form>
     </el-card>
+    <!-- 列表 -->
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <el-button type="primary" :icon="CirclePlus" @click="dialogVisible = true">新增苗木</el-button>
@@ -193,7 +234,7 @@ onMounted(async () => {
             <template #default="scope">
               <el-image
                 style="height: 65px"
-                :src="scope.row.imgs[0] || 'https://s2.loli.net/2023/02/25/Gdm9sxjTYKDg8t3.png'"
+                :src="scope.row.imgs[0]?.url || 'https://s2.loli.net/2023/02/25/Gdm9sxjTYKDg8t3.png'"
                 fit="cover"
               />
             </template>
@@ -287,6 +328,23 @@ onMounted(async () => {
         </el-form-item>
         <el-form-item prop="price" label="价格">
           <el-input v-model="formData.price" placeholder="请输入价格" />
+        </el-form-item>
+        <el-form-item prop="imgs" label="图片">
+          <el-upload
+            v-model:file-list="fileList"
+            action="/api/uploadCenter/upload"
+            list-type="picture-card"
+            :on-preview="handleImagePreview"
+            :on-remove="handleRemove"
+            :before-remove="handleBeforeRemove"
+            :on-success="handleSuccess"
+          >
+            <el-icon><Plus /></el-icon>
+          </el-upload>
+
+          <el-dialog v-model="dialogImageVisible">
+            <img w-full :src="dialogImageUrl" alt="Preview Image" />
+          </el-dialog>
         </el-form-item>
         <el-form-item prop="status" label="状态">
           <el-switch

@@ -93,7 +93,7 @@ const tag = computed(() => {
     </div>
     <!-- 订单-树 -->
     <div class="order__tree" @click="toTreeDetail(order.tree._id)">
-      <img class="tree__cover" :src="order.tree.imgs[0]" alt="" />
+      <img class="tree__cover" :src="order.tree.imgs[0]?.url" alt="" />
       <span class="tree__title">{{ order.tree.title }}</span>
     </div>
     <!-- 订单-基本信息 -->
