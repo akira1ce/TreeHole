@@ -114,6 +114,7 @@ export default {
   uploadCenter: {
     upload: "/uploadCenter/upload",
     files: "/uploadCenter/files",
+    remove: "/uploadCenter/remove",
   },
   record: {
     /**

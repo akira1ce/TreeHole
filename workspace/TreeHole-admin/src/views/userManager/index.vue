@@ -150,7 +150,6 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
       </div>
       <div class="table-wrapper">
         <el-table :data="tableData">
-          <el-table-column type="selection" width="50" align="center" />
           <el-table-column prop="account" label="账号" align="center" />
           <el-table-column prop="role" label="角色" align="center">
             <template #default="scope">

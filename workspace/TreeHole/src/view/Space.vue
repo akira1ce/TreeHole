@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-02-27 18:33:22
+ * @LastEditTime: 2023-02-28 13:45:33
 -->
 <script setup>
 import api from "../api";
@@ -13,6 +13,7 @@ import { Edit, Delete } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Plus } from "@element-plus/icons-vue";
+import _ from "lodash";
 
 const router = useRouter();
 
@@ -89,6 +90,9 @@ const state = reactive({
   dialog_previewImg: false,
   form_user: { ...loginUser },
   form_tree: { ...defaultState.tree },
+  fileList: [],
+  dialogImageUrl: "",
+  dialogImageVisible: false,
   updateTreeIndex: undefined,
   previewImgUrl: "",
   isEmpty: false,
@@ -153,7 +157,7 @@ const beforeAvatarUpload = (rawFile) => {
  */
 const updateHci = () => {
   const { form_tree } = state;
-  form_tree.hci = parseFloat((parseInt(form_tree.height) / parseInt(form_tree.crownDiameter)).toFixed(2))
+  form_tree.hci = parseFloat((parseInt(form_tree.height) / parseInt(form_tree.crownDiameter)).toFixed(2));
 };
 /**
  * 发布苗木
@@ -241,6 +245,25 @@ const previewImg = (imgUrl) => {
   state.previewImgUrl = imgUrl;
 };
 
+const handleImagePreview = (uploadFile) => {
+  state.dialogImageUrl = uploadFile.url;
+  state.dialogImageVisible = true;
+};
+
+const handleRemove = (uploadFile, uploadFiles) => {};
+
+const handleBeforeRemove = async (uploadFile, uploadFiles) => {
+  const index = state.fileList.findIndex((item) => item.name == uploadFile.name);
+  if (index == -1) return false;
+  await request.post(api.uploadCenter.remove, { filename: state.form_tree.imgs[index].name });
+  state.form_tree.imgs.splice(index, 1);
+  return true;
+};
+
+const handleSuccess = (response, uploadFile, uploadFiles) => {
+  if (response.data) state.form_tree.imgs.push(response.data);
+};
+
 /**
  * 下拉菜单回调
  * @param {object} command { mode: xx, index: xx }
@@ -255,6 +278,7 @@ const handleCommand = async (command) => {
     }
     state.dialog_tree = true;
     state.form_tree = tree;
+    state.fileList = _.cloneDeep(tree.imgs);
   } else {
     // 删除
     if (tree.status == 1) {
@@ -332,9 +356,9 @@ const getTreeList = async () => {
   const { pageNo, limit } = state;
   const userID = state.user._id;
   if (userID) {
-    const trees = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit });
-    if (trees.length < limit) state.infiniteScroll = true;
-    state.treeList.push(...trees);
+    const { list } = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit });
+    if (list.length < limit) state.infiniteScroll = true;
+    state.treeList.push(...list);
     state.pageNo++;
   }
 };
@@ -406,26 +430,13 @@ onMounted(async () => {
             </el-row>
           </el-form-item>
           <el-form-item label="图片" prop="imgs">
-            <div class="form_item_imgs">
-              <div class="imgList">
-                <div class="imgList_item" v-for="(item, index) in state.form_tree.imgs" :key="item">
-                  <img class="item_img" :src="item?.url" />
-                  <div class="item_options">
-                    <div class="options_previewImg" @click="previewImg(item?.url)"><i class="iconfont icon-fangda"></i></div>
-                    <div class="options_removeImg" @click="removeImg(index)"><i class="iconfont icon-lajitong"></i></div>
-                  </div>
-                </div>
-              </div>
-              <el-upload ref="imgUploadRef" class="imgUpload" action="/api/uploadCenter/upload" :before-upload="beforeImageUpload" :on-success="handleImageSuccess" :auto-upload="false">
-                <template #trigger>
-                  <el-button type="primary">select file</el-button>
-                </template>
-                <el-button style="margin-left: 10px" type="success" @click="submitImageUpload"> upload to server </el-button>
-                <template #tip>
-                  <div class="el-upload__tip">jpg/png files with a size less than 5M</div>
-                </template>
-              </el-upload>
-            </div>
+            <el-upload v-model:file-list="state.fileList" action="/api/uploadCenter/upload" list-type="picture-card" :on-preview="handleImagePreview" :on-remove="handleRemove" :before-remove="handleBeforeRemove" :on-success="handleSuccess">
+              <el-icon><Plus /></el-icon>
+            </el-upload>
+
+            <el-dialog v-model="state.dialogImageVisible">
+              <img w-full :src="state.dialogImageUrl" alt="Preview Image" />
+            </el-dialog>
           </el-form-item>
         </el-form>
       </el-scrollbar>
@@ -492,7 +503,7 @@ onMounted(async () => {
       </div>
       <!-- 头像 -->
       <el-upload class="avatar-uploader" action="/api/uploadCenter/upload" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :disabled="!isCurrentUser">
-        <img :src="state.user.avator || 'https://bpic.51yuansu.com/pic3/cover/01/69/80/595f67c042c1b_610.jpg?x-oss-process=image/resize,w_260/sharpen,100'" class="avator" />
+        <img class="avator" :src="state.user.avator" />
       </el-upload>
     </div>
     <!-- 主体-树列表 -->
@@ -698,7 +709,7 @@ onMounted(async () => {
     align-items: center;
     background-color: rgb(241, 242, 243);
     padding: 0 265px;
-    min-height: calc(100vh - 395px);
+    min-height: calc(100vh - 376px);
     position: relative;
     .el-dropdown-link {
       cursor: pointer;
