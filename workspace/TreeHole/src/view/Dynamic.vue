@@ -61,9 +61,9 @@ const getTreeList = async () => {
   const limit = limit_tree;
   const userID = state.userList[current]?._id;
   if (userID) {
-    const trees = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit });
-    if (trees.length < state.limit_tree) state.infiniteScroll_tree = true;
-    state.treeList.push(...trees);
+    const { list } = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit });
+    if (list.length < state.limit_tree) state.infiniteScroll_tree = true;
+    state.treeList.push(...list);
     state.pageNo_tree++;
   }
 };
@@ -76,11 +76,11 @@ const getUserList = async () => {
   const pageNo = pageNo_user;
   const limit = limit_user;
 
-  const users = await request.post(api.user.getUserListByID, { users: record.following, pageNo, limit });
-  users.forEach((item) => (item.isFollow = true));
+  const { list } = await request.post(api.user.getUserListByID, { users: record.following, pageNo, limit });
+  list.forEach((item) => (item.isFollow = true));
 
-  if (users.length < state.limit_user) state.infiniteScroll_user = true;
-  state.userList.push(...users);
+  if (list.length < state.limit_user) state.infiniteScroll_user = true;
+  state.userList.push(...list);
   state.pageNo_user++;
 };
 

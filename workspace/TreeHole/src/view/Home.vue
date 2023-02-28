@@ -69,14 +69,14 @@ const getCurrentList = async () => {
   let data = null;
   // recommend 和 area 唯一区分
   if (current == 0) data = await request.post(api.tree.getRecommendTreeList, { trees: record.browsingHistory, pageNo, limit });
-  else data = await await request.post(api.tree.getAreaTreeList, { area: state.user.location.split("-")[1], pageNo, limit });
+  else data = await request.post(api.tree.getAreaTreeList, { area: state.user.location.split("-")[1], pageNo, limit });
 
   // 更新缓存
-  currentList.content.push(...data);
+  currentList.content.push(...data.list);
   currentList.pageNo++;
 
   // 在所有数据加载完毕之后，判断是否加载完毕
-  if (data.length < currentList.limit) currentList.infiniteScroll = true;
+  if (data.list.length < currentList.limit) currentList.infiniteScroll = true;
 };
 
 // [mitt]

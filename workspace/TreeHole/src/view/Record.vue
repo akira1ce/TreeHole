@@ -56,22 +56,22 @@ const followHandle = async (item) => {
  */
 const getUserList = async () => {
   const { pageNo, limit, record, mode } = state;
-  let users = [];
+  let data = {};
   if (mode == 0) {
     // 关注列表
-    users = await request.post(api.user.getUserListByID, { users: record.following, pageNo, limit });
-    users.forEach((item) => (item.isFollow = true));
+    data = await request.post(api.user.getUserListByID, { users: record.following, pageNo, limit });
+    data.list.forEach((item) => (item.isFollow = true));
   } else {
     // 粉丝列表
-    users = await request.post(api.user.getUserListByID, { users: record.fans, pageNo, limit });
-    users.forEach((item) => {
+    data = await request.post(api.user.getUserListByID, { users: record.fans, pageNo, limit });
+    data.list.forEach((item) => {
       if (record.following.indexOf(item._id) != -1) item.isFollow = true;
       else item.isFollow = false;
     });
   }
 
-  if (users.length < state.limit) state.infiniteScroll = true;
-  state.userList.push(...users);
+  if (data.list.length < state.limit) state.infiniteScroll = true;
+  state.userList.push(...data.list);
   state.pageNo++;
 };
 

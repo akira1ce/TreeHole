@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-02-21 10:57:55
+ * @LastEditTime: 2023-02-28 12:48:02
 -->
 <script setup>
 import api from "../api";
@@ -133,11 +133,11 @@ const getCurrentList = async () => {
   else data = await request.post(api.tree.getTreeListByID, { trees: currentList_re, pageNo: currentList.pageNo, limit: currentList.limit });
 
   // 更新缓存
-  currentList.content.push(...data);
+  currentList.content.push(...data.list);
   currentList.pageNo++;
 
   // 在所有数据加载完毕之后，判断是否存在失效数据，存在 -> 更新记录
-  if (data.length < currentList.limit) {
+  if (data.list.length < currentList.limit) {
     currentList.infiniteScroll = true;
     if (currentList.content.length != currentList_re.length) {
       state.record[list_re[current]] = currentList.content.map((item) => item._id);
