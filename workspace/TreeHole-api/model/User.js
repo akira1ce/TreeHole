@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-05 10:35:08
- * @LastEditTime: 2023-02-24 12:15:13
+ * @LastEditTime: 2023-02-28 12:56:12
  */
 const mongoose = require("mongoose");
 const Types = require("../util/schemaTypes");
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
   avator: {
     type: Types.String,
     required: false,
-    default: "",
+    default: "https://s2.loli.net/2023/02/28/PtfNEqQHhxTcAbk.png",
   },
   name: {
     type: Types.String,

@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-12 09:29:52
- * @LastEditTime: 2023-02-20 16:22:51
+ * @LastEditTime: 2023-02-28 11:40:53
  */
 const { Order, User, Tree, Record } = require("../model");
 const { result, err } = require("../util");
@@ -9,18 +9,19 @@ const { result, err } = require("../util");
 const { mergeOrders } = require("../util/merge");
 
 // 同步更新记录
-const companionOrder = async (data) => {
+const companionOrder = async (data, mode) => {
   const userID1 = data.buyerID;
   const userID2 = data.sellerID;
   const records = await Record.find({ userID: { $in: [userID1, userID2] } });
 
-  const index_0 = records[0].order.indexOf(data._id);
-  const index_1 = records[1].order.indexOf(data._id);
-
-  if (index_0 == -1) {
+  if (mode == 0) {
+    /** 增 */
     records[0].order.unshift(data._id.toString());
     records[1].order.unshift(data._id.toString());
   } else {
+    /** 删 */
+    const index_0 = records[0].order.indexOf(data._id);
+    const index_1 = records[1].order.indexOf(data._id);
     records[0].order.splice(index_0, 1);
     records[1].order.splice(index_1, 1);
   }
@@ -51,7 +52,7 @@ const addOrder = async (req, res, next) => {
 
     order = new Order(req.body);
     const data = await order.save();
-    await companionOrder(data);
+    await companionOrder(data, 0);
 
     res.send(result(200, data, "ok"));
   } catch (e) {
@@ -63,18 +64,18 @@ const addOrder = async (req, res, next) => {
 const removeById = async (req, res, next) => {
   try {
     const { _id } = req.body;
-    let data = await Order.findByIdAndRemove(_id);
+    let order = await Order.findByIdAndRemove(_id);
 
     // 订单不存在
-    if (!data) {
-      next(err("订单不存在", 403, ""));
+    if (!order) {
+      next(err("订单不存在", 304, order));
       return;
     }
 
     // 同步更新记录
-    await companionOrder(data);
+    await companionOrder(order, 1);
 
-    res.send(result(200, data, "ok"));
+    res.send(result(200, { order }, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -120,10 +121,12 @@ const modifyByTreeID = async (req, res, next) => {
 // 查询订单列表
 const getOrderList = async (req, res, next) => {
   try {
-    const { pageNo, limit } = req.body;
+    const { pageNo, limit, type, userID } = req.body;
+    const re_type = new RegExp(type, "i");
+    const re_userID = new RegExp(userID, "i");
     const data = await Promise.all([
       Order.count(),
-      Order.find()
+      Order.find({ "tree.type": re_type, $or: [{ buyerID: re_userID }, { sellerID: re_userID }] })
         .skip((pageNo - 1) * limit)
         .limit(limit),
     ]);
@@ -138,11 +141,11 @@ const getOrderList = async (req, res, next) => {
 const getOrderListByUserID = async (req, res, next) => {
   try {
     const { userID } = req.body;
-    const data = await Order.find({
+    let orders = await Order.find({
       $or: [{ buyerID: userID }, { sellerID: userID }],
     });
-    const orders = await mergeOrders(data);
-    res.send(result(200, orders, "ok"));
+    const list = await mergeOrders(orders);
+    res.send(result(200, { list }, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -153,8 +156,8 @@ const getOrderListByID = async (req, res, next) => {
   try {
     let { orders, pageNo, limit } = req.body;
     orders = orders.slice((pageNo - 1) * limit, pageNo * limit);
-    const data = await mergeOrders(await Order.find({ _id: { $in: orders } }));
-    res.send(result(200, data, "ok"));
+    let list = await mergeOrders(await Order.find({ _id: { $in: orders } }));
+    res.send(result(200, { list }, "ok"));
   } catch (e) {
     next(err(e));
   }

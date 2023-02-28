@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-05 10:53:00
- * @LastEditTime: 2023-02-23 18:01:06
+ * @LastEditTime: 2023-02-28 10:44:14
  */
 const { User, Record } = require("../model");
 const { result, err, config } = require("../util");
@@ -122,8 +122,8 @@ const getUserListByID = async (req, res, next) => {
   try {
     let { users, pageNo, limit } = req.body;
     users = users.slice((pageNo - 1) * limit, pageNo * limit);
-    const data = await User.find({ _id: { $in: users } });
-    res.send(result(200, data, "ok"));
+    const list = await User.find({ _id: { $in: users } });
+    res.send(result(200, { list }, "ok"));
   } catch (e) {
     next(err(e));
   }

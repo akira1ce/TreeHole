@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-15 11:20:39
- * @LastEditTime: 2023-02-25 19:02:32
+ * @LastEditTime: 2023-02-28 13:00:13
  */
 const { Tree, User, Comment } = require("../model");
 const { result, err } = require("../util");
@@ -93,19 +93,18 @@ const getTreeList = async (req, res, next) => {
 const getTreeListByUserID = async (req, res, next) => {
   try {
     const { userID, pageNo, limit } = req.body;
-    const trees = await Tree.find({ ownerID: userID })
+    let trees = await Tree.find({ ownerID: userID })
       .sort({ _id: -1 })
       .skip((pageNo - 1) * limit)
       .limit(limit);
-
     // 苗木不存在
     if (!trees) {
       next(err("该苗木不存在", 403, ""));
       return;
     }
 
-    const treeList = await mergeTrees(trees);
-    res.send(result(200, treeList, "ok"));
+    const list = await mergeTrees(trees);
+    res.send(result(200, { list }, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -116,9 +115,9 @@ const getTreeListByID = async (req, res, next) => {
   try {
     let { trees, pageNo, limit } = req.body;
     trees = trees.slice((pageNo - 1) * limit, pageNo * limit);
-    const data = await Tree.find({ _id: { $in: trees } });
-    const treeList = await mergeTrees(data);
-    res.send(result(200, treeList, "ok"));
+    let data = await Tree.find({ _id: { $in: trees } });
+    const list = await mergeTrees(data);
+    res.send(result(200, { list }, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -130,10 +129,11 @@ const getRecommendTreeList = async (req, res, next) => {
     let { trees, pageNo, limit } = req.body;
     let hci_gt = 0;
     let hci_lt = 5;
-    if (trees.length != 0) {
+    let data;
+    if (trees.length >= 10) {
       // 用户浏览记录前十条
       trees = trees.slice(0, 10);
-      let data = await Tree.find({ _id: { $in: trees } });
+      data = await Tree.find({ _id: { $in: trees } });
       // 计算 hci
       let hci = 0;
       data.forEach((item) => {
@@ -151,8 +151,8 @@ const getRecommendTreeList = async (req, res, next) => {
       .sort({ _id: -1 })
       .skip((pageNo - 1) * limit)
       .limit(limit);
-    const treeList = await mergeTrees(data);
-    res.send(result(200, treeList, "ok"));
+    const list = await mergeTrees(data);
+    res.send(result(200, { list }, "ok"));
   } catch (e) {
     next(err(e));
   }
@@ -163,11 +163,11 @@ const getAreaTreeList = async (req, res, next) => {
   try {
     const { area, pageNo, limit } = req.body;
     const re = new RegExp(`${area}`, "i");
-    const data = await Tree.find({ location: re })
+    let trees = await Tree.find({ location: re })
       .skip((pageNo - 1) * limit)
       .limit(limit);
-    const trees = await mergeTrees(data);
-    res.send(result(200, trees, "ok"));
+    const list = await mergeTrees(trees);
+    res.send(result(200, { list }, "ok"));
   } catch (e) {
     next(err(e));
   }
