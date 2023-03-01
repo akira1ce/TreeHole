@@ -32,3 +32,10 @@ export interface IGetOrderRequestData {
 
 export type RemoveOrderResponseData = IApiResponseData<{ order: IOrder }>
 export type GetOrderResponseData = IApiResponseData<{ count: number; list: IOrder[] }>
+export type GetDataAnalyseResponseData = IApiResponseData<{
+  userCount: number
+  treeCount: number
+  orderCount: number
+  weeklyVolume: number[]
+  popularType: { name: string; value: number }[]
+}>

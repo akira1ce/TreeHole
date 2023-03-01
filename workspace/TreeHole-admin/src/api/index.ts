@@ -194,7 +194,11 @@ export default {
      * 查询苗木订单
      * @param treeID 苗木id
      */
-    getOrderByTreeID: "/order/getOrderByTreeID"
+    getOrderByTreeID: "/order/getOrderByTreeID",
+    /**
+     * 数据分析
+     */
+    dataAnalysis: "/order/dataAnalysis"
   },
   socket: {
     /**

@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-23 15:08:04
- * @LastEditTime: 2023-02-27 18:28:13
+ * @LastEditTime: 2023-03-01 15:24:22
 -->
 <script lang="ts" setup>
 import { reactive, ref, watch, onMounted } from "vue"
@@ -127,6 +127,10 @@ const dialogImageUrl = ref<undefined | string>(undefined)
 const fileList = ref<UploadUserFile[]>([])
 
 const handleUpdate = (row: any) => {
+  if (row.status != "0") {
+    ElMessage.error("苗木正在交易中")
+    return
+  }
   currentUpdateId.value = row._id
   fileList.value.push(..._.cloneDeep(row.imgs))
   Object.keys(formData).forEach((key) => (formData[key] = row[key]))
@@ -260,15 +264,7 @@ onMounted(async () => {
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="150" align="center">
             <template #default="scope">
-              <el-button
-                type="primary"
-                text
-                bg
-                size="small"
-                @click="handleUpdate(scope.row)"
-                :disabled="scope.row.status > 0"
-                >修改</el-button
-              >
+              <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
               <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>

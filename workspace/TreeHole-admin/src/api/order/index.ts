@@ -24,3 +24,11 @@ export function GetOrderApi(data: Order.IGetOrderRequestData) {
     data
   })
 }
+
+/** 数据分析 */
+export function GetDataAnalyseApi() {
+  return request<Order.GetDataAnalyseResponseData>({
+    url: api.order.dataAnalysis,
+    method: "post"
+  })
+}

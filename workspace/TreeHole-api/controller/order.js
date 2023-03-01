@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-12 09:29:52
- * @LastEditTime: 2023-02-28 11:40:53
+ * @LastEditTime: 2023-03-01 15:04:34
  */
 const { Order, User, Tree, Record } = require("../model");
 const { result, err } = require("../util");
@@ -176,6 +176,45 @@ const getOrderByTreeID = async (req, res, next) => {
   }
 };
 
+/** 数据分析 */
+const dataAnalysis = async (req, res, next) => {
+  try {
+    /** 起止时间 */
+    const endTime = new Date();
+    let startTime = new Date(endTime.getTime() - 24 * 60 * 60 * 10 * 1000);
+
+    /** 查询 */
+    const data = await Promise.all([User.count(), Tree.count(), Order.count(), Order.find({ time: { $gte: startTime, $lte: endTime } }), Tree.find().sort({ _id: -1 }).limit(100)]);
+
+    const orders = data[3];
+    const trees = data[4];
+
+    /** 周交易额 */
+    const weeklyVolume = [0, 0, 0, 0, 0, 0, 0];
+    orders.forEach((item) => {
+      weeklyVolume[item.time.getDay()]++;
+    });
+
+    /** 热门苗木类型 */
+    let popularType = new Map();
+    trees.forEach((item) => {
+      let type = item.type;
+      if (popularType.has(type)) {
+        popularType.set(type, popularType.get(type) + 1);
+      } else {
+        popularType.set(type, 1);
+      }
+    });
+
+    /** map 转换 array  */
+    popularType = Array.from(popularType, ([key, value]) => ({ name: key, value }));
+
+    res.send(result(200, { userCount: data[0], treeCount: data[1], orderCount: data[2], weeklyVolume, popularType }, "ok"));
+  } catch (e) {
+    next(err(e, 500, null));
+  }
+};
+
 module.exports = {
   addOrder,
   removeById,
@@ -185,4 +224,5 @@ module.exports = {
   getOrderListByUserID,
   getOrderListByID,
   getOrderByTreeID,
+  dataAnalysis,
 };

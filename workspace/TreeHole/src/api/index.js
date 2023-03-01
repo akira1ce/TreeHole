@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-14 16:54:59
- * @LastEditTime: 2023-02-20 15:58:36
+ * @LastEditTime: 2023-03-01 15:04:28
  */
 export default {
   user: {
@@ -199,6 +199,10 @@ export default {
      * @param treeID 苗木id
      */
     getOrderByTreeID: "/order/getOrderByTreeID",
+    /**
+     * 数据分析
+     */
+    dataAnalysis: "/order/dataAnalysis",
   },
   socket: {
     /**
@@ -266,13 +270,12 @@ export default {
      * 删除评论
      * @param _id 会话id
      */
-    removeById: "/comment/removeById"
+    removeById: "/comment/removeById",
     /**
      * 查询苗木评论列表
      * @param treeID 苗木id
      * @param pageNo 页码
      * @param limit 页限
-     */,
-    getCommentByTreeID: "/comment/getCommentByTreeID",
+     */ getCommentByTreeID: "/comment/getCommentByTreeID",
   },
 };

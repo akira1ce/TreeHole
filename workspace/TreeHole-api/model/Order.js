@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-12 09:24:46
- * @LastEditTime: 2023-02-20 16:47:09
+ * @LastEditTime: 2023-03-01 10:36:21
  */
 const mongoose = require("mongoose");
 const Types = require("../util/schemaTypes");
@@ -28,9 +28,9 @@ const orderSchema = new mongoose.Schema({
     default: "0",
   },
   time: {
-    type: Types.String,
+    type: Types.Date,
     required: false,
-    default: new Date().toLocaleString(),
+    default: new Date(),
   },
   payTime: {
     type: Types.String,
