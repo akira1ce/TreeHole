@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-22 13:55:42
- * @LastEditTime: 2023-03-01 20:06:26
+ * @LastEditTime: 2023-03-02 10:42:49
 -->
 <script lang="ts" setup>
 import { onMounted, ref } from "vue"
@@ -85,8 +85,8 @@ onMounted(async () => {
   lineOption.series[0].data = weeklyVolume.value
   pieOption.series[0].data = popularType.value
 
-  const lineChart = echarts.init(lineEchart.value)
-  const pieChart = echarts.init(pieEchart.value)
+  const lineChart = echarts.init(lineEchart.value as HTMLElement)
+  const pieChart = echarts.init(pieEchart.value as HTMLElement)
 
   lineChart.setOption(lineOption)
   pieChart.setOption(pieOption)
@@ -168,7 +168,7 @@ onMounted(async () => {
         &::before {
           padding: 15px;
           border-radius: 10px;
-          transition: all 0.5s;
+          transition: all 0.2s;
         }
       }
       .card__info {

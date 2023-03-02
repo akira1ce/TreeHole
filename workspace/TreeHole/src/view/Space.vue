@@ -1,18 +1,19 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-02-28 13:45:33
+ * @LastEditTime: 2023-03-02 12:38:34
 -->
 <script setup>
 import api from "../api";
 import request from "../api/request";
-import { computed, nextTick, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { local, defaultState, recordHandle } from "../util";
+import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
+import { useRouter } from "vue-router";
 import TreeCard from "../components/TreeCard.vue";
 import { Edit, Delete } from "@element-plus/icons-vue";
-import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Plus } from "@element-plus/icons-vue";
+import { regionData, provinceAndCityData, CodeToText } from "element-china-area-data";
 import _ from "lodash";
 
 const router = useRouter();
@@ -23,52 +24,20 @@ const imgUploadRef = ref();
 
 // 表单规则
 const form_user_Rules = {
-  name: [
-    { required: true, message: "请输入姓名", trigger: "blur" },
-    { min: 3, max: 18, message: "Length should be 3 to 18", trigger: "blur" },
-  ],
-  location: [
-    { required: true, message: "请输入地区：xx(省)-xx(市) 如：安徽-安庆", trigger: "blur" },
-    { min: 5, max: 10, message: "Length should be 5 to 10", trigger: "blur" },
-  ],
+  name: [{ required: true, message: "请输入姓名", trigger: "blur" }],
+  location: [{ required: true, message: "请选择所在地区", trigger: "blur" }],
 };
 const form_tree_Rules = {
-  title: [
-    { required: true, message: "请输入标题", trigger: "blur" },
-    { min: 1, max: 20, message: "Length should be 1 to 20", trigger: "blur" },
-  ],
-  describe: [
-    { required: true, message: "请输入描述", trigger: "blur" },
-    { min: 5, max: 200, message: "Length should be 5 to 200", trigger: "blur" },
-  ],
-  location: [
-    { required: true, message: "请输入地区：xx(省)xx(市)xx(县)xx(镇) 如：安徽省安庆市怀宁县金拱镇", trigger: "blur" },
-    { min: 3, max: 20, message: "Length should be 3 to 20", trigger: "blur" },
-  ],
-  price: [
-    { required: true, message: "请输入价格", trigger: "blur" },
-    { min: 2, max: 5, message: "Length should be 2 to 5", trigger: "blur" },
-  ],
-  type: [
-    { required: true, message: "请输入苗木种类", trigger: "blur" },
-    { min: 1, max: 4, message: "Length should be 1 to 4", trigger: "blur" },
-  ],
-  height: [
-    { required: true, message: "请输入苗木高度", trigger: "blur" },
-    { min: 2, max: 4, message: "Length should be 2 to 4", trigger: "blur" },
-  ],
-  branchPoint: [
-    { required: true, message: "请输入苗木分支点", trigger: "blur" },
-    { min: 2, max: 4, message: "Length should be 2 to 4", trigger: "blur" },
-  ],
-  diameter: [
-    { required: true, message: "请输入苗木直径", trigger: "blur" },
-    { min: 2, max: 4, message: "Length should be 2 to 4", trigger: "blur" },
-  ],
-  crownDiameter: [
-    { required: true, message: "请输入苗木冠径", trigger: "blur" },
-    { min: 2, max: 4, message: "Length should be 2 to 4", trigger: "blur" },
-  ],
+  title: [{ required: true, message: "请输入标题", trigger: "blur" }],
+  describe: [{ required: true, message: "请输入描述", trigger: "blur" }],
+  location: [{ required: true, message: "请选择所在地区", trigger: "blur" }],
+  price: [{ required: true, message: "请输入价格", trigger: "blur" }],
+  type: [{ required: true, message: "请输入苗木种类", trigger: "blur" }],
+  height: [{ required: true, message: "请输入苗木高度", trigger: "blur" }],
+  branchPoint: [{ required: true, message: "请输入苗木分支点", trigger: "blur" }],
+  diameter: [{ required: true, message: "请输入苗木直径", trigger: "blur" }],
+  crownDiameter: [{ required: true, message: "请输入苗木冠径", trigger: "blur" }],
+  imgs: [{ required: true, trigger: "blur", message: "请至少上传一张图片" }],
 };
 
 const loginUser = local.getItem("user");
@@ -98,18 +67,14 @@ const state = reactive({
   isEmpty: false,
 });
 
-// [methods]
-/**
- * 编辑用户个人信息
- */
+//#region 用户
+/** 编辑用户个人信息 */
 const editUserInfo = () => {
   state.dialog_user = true;
   state.form_user = { ...loginUser };
 };
 
-/**
- * 更新用户信息
- */
+/** 更新用户信息 */
 const updateUserInfo = async () => {
   // 验证地区格式
   if (state.form_user.location.split("-").length != 2) {
@@ -129,47 +94,59 @@ const updateUserInfo = async () => {
  * @param {file} uploadFile
  */
 const handleAvatarSuccess = async (response, uploadFile) => {
-  state.user.avator = response.message;
+  state.user.avator = response.data.url;
   await request.post(api.user.modifyById, toRaw(state.user));
   local.setItem("user", state.user);
   ElMessage.success("头像上传成功");
 };
 
-/**
- * 头像上传成功之前回调
- * @param {file} rawFile
- */
-const beforeAvatarUpload = (rawFile) => {
-  if (rawFile.type !== "image/jpeg") {
-    // 图片资源格式验证
-    ElMessage.error("Avatar picture must be JPG format!");
-    return false;
-  } else if (rawFile.size / 1024 / 1024 > 2) {
-    // 图片大小限制
-    ElMessage.error("Avatar picture size can not exceed 2MB!");
-    return false;
-  }
-  return true;
+/** 跳转记录 */
+const toRecord = (mode) => {
+  if (isCurrentUser.value) router.push({ name: "Record", state: { mode } });
+};
+
+/** 关注/取消关注 */
+const followHandle = async (userID1, userID2) => {
+  recordHandle.follow(state.loginRecord, userID1, userID2);
+
+  // 更新缓存
+  const { fans } = state.record;
+  const index = fans.indexOf(loginUser._id);
+
+  if (index == -1) fans.push(loginUser._id);
+  else fans.splice(index, 1);
+  state.isFollow = !state.isFollow;
 };
 
 /**
- * 苗木高阔比计算
+ * 收藏
+ * @param {string} treeID
  */
+const collectHandle = (tree) => {
+  recordHandle.collect(state.record, loginUser._id, tree._id);
+};
+//#endregion
+
+//#region 苗木
+/** 苗木高阔比计算 */
 const updateHci = () => {
   const { form_tree } = state;
   form_tree.hci = parseFloat((parseInt(form_tree.height) / parseInt(form_tree.crownDiameter)).toFixed(2));
 };
-/**
- * 发布苗木
- */
+/** 发布苗木 */
 const release = () => {
   state.dialog_tree = true;
   state.form_tree = { ...defaultState.tree };
 };
 
-/**
- * 更新/发布 苗木信息
- */
+/** 地区选择器监听 */
+const handleCascadarChange = (location, mode) => {
+  console.log(location, mode);
+  if (mode == 0) state.form_user.location = `${CodeToText[location[0]]}-${CodeToText[location[1]]}`;
+  else state.form_tree.location = `${CodeToText[location[0]]}${CodeToText[location[1]]}${CodeToText[location[2]]}`;
+};
+
+/** 更新/发布 苗木信息 */
 const updateTreeInfo = async () => {
   if (state.form_tree._id == "") {
     // 发布
@@ -196,23 +173,7 @@ const updateTreeInfo = async () => {
 };
 
 /**
- * 手动上传苗木图片
- */
-const submitImageUpload = async () => {
-  await imgUploadRef.value.submit();
-};
-
-/**
- * 苗木图片上传成功回调
- * @param {object} response
- * @param {file} uploadFile
- */
-const handleImageSuccess = async (response, uploadFile) => {
-  state.form_tree.imgs.push(response.data);
-};
-
-/**
- * 苗木图片上传成功之前回调
+ * 图片上传之前回调
  * @param {file} rawFile
  */
 const beforeImageUpload = (rawFile) => {
@@ -228,30 +189,13 @@ const beforeImageUpload = (rawFile) => {
   return true;
 };
 
-/**
- * 移除苗木图片
- * @param {number} index
- */
-const removeImg = (index) => {
-  state.form_tree.imgs.splice(index, 1);
-};
-
-/**
- * 预览苗木图片
- * @param {string} imgUrl
- */
-const previewImg = (imgUrl) => {
-  state.dialog_previewImg = true;
-  state.previewImgUrl = imgUrl;
-};
-
+/** 图片预览 */
 const handleImagePreview = (uploadFile) => {
   state.dialogImageUrl = uploadFile.url;
   state.dialogImageVisible = true;
 };
 
-const handleRemove = (uploadFile, uploadFiles) => {};
-
+/** 图片删除前 */
 const handleBeforeRemove = async (uploadFile, uploadFiles) => {
   const index = state.fileList.findIndex((item) => item.name == uploadFile.name);
   if (index == -1) return false;
@@ -260,6 +204,7 @@ const handleBeforeRemove = async (uploadFile, uploadFiles) => {
   return true;
 };
 
+/** 图片上传成功 */
 const handleSuccess = (response, uploadFile, uploadFiles) => {
   if (response.data) state.form_tree.imgs.push(response.data);
 };
@@ -286,6 +231,11 @@ const handleCommand = async (command) => {
       return;
     }
     await request.post(api.tree.removeById, { _id: tree._id });
+    const filename = tree.imgs.map((item) => {
+      return item.name;
+    });
+    if (filename.length == 1) await request.post(api.uploadCenter.remove, { filename: filename[0] });
+    else if (filename.length > 1) await request.post(api.uploadCenter.remove, { filename });
     state.treeList.splice(command.index, 1);
     ElMessage.success("删除成功");
   }
@@ -317,36 +267,6 @@ const submitForm = async (formRef, mode) => {
       else if (mode == 1) updateUserInfo();
     }
   });
-};
-
-/**
- * 收藏
- * @param {string} treeID
- */
-const collectHandle = (tree) => {
-  recordHandle.collect(state.record, loginUser._id, tree._id);
-};
-
-/**
- * 跳转记录
- */
-const toRecord = (mode) => {
-  if (isCurrentUser.value) router.push({ name: "Record", state: { mode } });
-};
-
-/**
- * 关注/取消关注
- */
-const followHandle = async (userID1, userID2) => {
-  recordHandle.follow(state.loginRecord, userID1, userID2);
-
-  // 更新缓存
-  const { fans } = state.record;
-  const index = fans.indexOf(loginUser._id);
-
-  if (index == -1) fans.push(loginUser._id);
-  else fans.splice(index, 1);
-  state.isFollow = !state.isFollow;
 };
 
 /**
@@ -382,22 +302,63 @@ onMounted(async () => {
 
 <template>
   <div class="container scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
+    <!-- 个人空间-顶部 -->
+    <div class="container__top">
+      <!-- 封面 -->
+      <div class="top__cover"></div>
+      <!-- 用户信息 -->
+      <div class="top__user">
+        <div class="user_info">
+          <span class="user__name">{{ state.user.name }}</span>
+          <div class="btnOption">
+            <el-button class="editUserInfo" v-if="isCurrentUser" @click="editUserInfo">编辑个人资料</el-button>
+            <div class="unFollow btn" @click="followHandle(loginUser._id, spaceUser._id)" v-if="!isCurrentUser">{{ state.isFollow ? "取消关注" : "关注" }}</div>
+          </div>
+        </div>
+        <!-- 个人记录 关注 粉丝 -->
+        <div class="user__record">
+          <div class="record__item" @click="toRecord(0)">
+            <span class="item__count">{{ record.following?.length || "-" }}</span>
+            <span class="item__type">关注</span>
+          </div>
+          <div class="record__item" @click="toRecord(1)">
+            <span class="item__count">{{ record.fans?.length || "-" }}</span>
+            <span class="item__type">粉丝</span>
+          </div>
+        </div>
+      </div>
+      <!-- 头像 -->
+      <el-upload class="avatar-uploader" action="/api/uploadCenter/upload" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeImageUpload" :disabled="!isCurrentUser">
+        <img class="avator" :src="state.user.avator" />
+      </el-upload>
+    </div>
+    <!-- 主体-树列表 -->
+    <div class="container__main">
+      <!-- 发布 -->
+      <div class="release" v-if="isCurrentUser" @click="release">发布🙌</div>
+      <el-empty description="他好像没有发布苗木~" v-if="state.isEmpty" />
+      <!-- 苗木卡片 -->
+      <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
+        <el-button v-if="isCurrentUser" :icon="Edit" circle @click="handleCommand(beforeHandleCommand(0, index))" />
+        <el-button v-if="isCurrentUser" :icon="Delete" circle @click="handleCommand(beforeHandleCommand(1, index))" />
+      </TreeCard>
+    </div>
     <el-dialog v-model="state.dialog_previewImg">
       <img w-full :src="state.previewImgUrl" alt="Preview Image" />
     </el-dialog>
     <!-- 苗木 对话框 -->
-    <el-dialog class="treeDialog" title="苗木信息" v-model="state.dialog_tree" align-center>
+    <el-dialog class="treeDialog" title="苗木信息" v-model="state.dialog_tree" width="40%" align-center>
       <el-scrollbar height="65vh">
         <!-- 苗木表单 -->
-        <el-form class="treeForm" :model="state.form_tree" label-width="auto" ref="form_tree_Ref" :rules="form_tree_Rules">
+        <el-form class="treeForm" :model="state.form_tree" ref="form_tree_Ref" :rules="form_tree_Rules" label-width="100px" label-position="left">
+          <el-form-item label="地区" prop="location">
+            <el-cascader placeholder="请选择所在地区" :options="regionData" @change="handleCascadarChange($event, 1)"> </el-cascader>
+          </el-form-item>
           <el-form-item label="标题" prop="title">
             <el-input v-model="state.form_tree.title" />
           </el-form-item>
           <el-form-item label="描述" prop="describe">
             <el-input v-model="state.form_tree.describe" :rows="2" type="textarea" />
-          </el-form-item>
-          <el-form-item label="地区" prop="location">
-            <el-input v-model="state.form_tree.location" />
           </el-form-item>
           <el-form-item label="价格(元)" prop="price">
             <el-input v-model="state.form_tree.price" />
@@ -405,32 +366,28 @@ onMounted(async () => {
           <el-form-item label="苗木种类" prop="type">
             <el-input v-model="state.form_tree.type" />
           </el-form-item>
-          <el-form-item label="基本信息">
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="高度(cm)" prop="height">
-                  <el-input v-model="state.form_tree.height" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="冠径(cm)" prop="crownDiameter">
-                  <el-input v-model="state.form_tree.crownDiameter" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="分支点(cm)" prop="branchPoint">
-                  <el-input v-model="state.form_tree.branchPoint" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="直径(cm)" prop="diameter">
-                  <el-input v-model="state.form_tree.diameter" />
-                </el-form-item>
-              </el-col>
-            </el-row>
+          <el-form-item label="高度(cm)" prop="height">
+            <el-input v-model="state.form_tree.height" />
+          </el-form-item>
+          <el-form-item label="冠径(cm)" prop="crownDiameter">
+            <el-input v-model="state.form_tree.crownDiameter" />
+          </el-form-item>
+          <el-form-item label="分支点(cm)" prop="branchPoint">
+            <el-input v-model="state.form_tree.branchPoint" />
+          </el-form-item>
+          <el-form-item label="直径(cm)" prop="diameter">
+            <el-input v-model="state.form_tree.diameter" />
           </el-form-item>
           <el-form-item label="图片" prop="imgs">
-            <el-upload v-model:file-list="state.fileList" action="/api/uploadCenter/upload" list-type="picture-card" :on-preview="handleImagePreview" :on-remove="handleRemove" :before-remove="handleBeforeRemove" :on-success="handleSuccess">
+            <el-upload
+              v-model:file-list="state.fileList"
+              action="/api/uploadCenter/upload"
+              list-type="picture-card"
+              :on-preview="handleImagePreview"
+              :before-remove="handleBeforeRemove"
+              :before-upload="beforeImageUpload"
+              :on-success="handleSuccess"
+            >
               <el-icon><Plus /></el-icon>
             </el-upload>
 
@@ -459,7 +416,7 @@ onMounted(async () => {
           <el-input v-model="state.form_user.name" />
         </el-form-item>
         <el-form-item label="地区" prop="location">
-          <el-input v-model="state.form_user.location" />
+          <el-cascader placeholder="请选择所在地区" :options="provinceAndCityData" @change="handleCascadarChange($event, 0)"> </el-cascader>
         </el-form-item>
         <el-form-item label="性别">
           <el-radio-group v-model="state.form_user.sex">
@@ -476,47 +433,6 @@ onMounted(async () => {
         </span>
       </template>
     </el-dialog>
-    <!-- 个人空间-顶部 -->
-    <div class="container__top">
-      <!-- 封面 -->
-      <div class="top__cover"></div>
-      <!-- 用户信息 -->
-      <div class="top__user">
-        <div class="user_info">
-          <span class="user__name">{{ state.user.name }}</span>
-          <div class="btnOption">
-            <el-button class="editUserInfo" v-if="isCurrentUser" @click="editUserInfo">编辑个人资料</el-button>
-            <div class="unFollow btn" @click="followHandle(loginUser._id, spaceUser._id)" v-if="!isCurrentUser">{{ state.isFollow ? "取消关注" : "关注" }}</div>
-          </div>
-        </div>
-        <!-- 个人记录 关注 粉丝 -->
-        <div class="user__record">
-          <div class="record__item" @click="toRecord(0)">
-            <span class="item__count">{{ record.following?.length || "-" }}</span>
-            <span class="item__type">关注</span>
-          </div>
-          <div class="record__item" @click="toRecord(1)">
-            <span class="item__count">{{ record.fans?.length || "-" }}</span>
-            <span class="item__type">粉丝</span>
-          </div>
-        </div>
-      </div>
-      <!-- 头像 -->
-      <el-upload class="avatar-uploader" action="/api/uploadCenter/upload" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :disabled="!isCurrentUser">
-        <img class="avator" :src="state.user.avator" />
-      </el-upload>
-    </div>
-    <!-- 主体-树列表 -->
-    <div class="container__main">
-      <!-- 发布 -->
-      <div class="release" v-if="isCurrentUser" @click="release">发布🙌</div>
-      <el-empty description="他好像没有发布苗木~" v-if="state.isEmpty" />
-      <!-- 苗木卡片 -->
-      <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
-        <el-button v-if="isCurrentUser" :icon="Edit" circle @click="handleCommand(beforeHandleCommand(0, index))" />
-        <el-button v-if="isCurrentUser" :icon="Delete" circle @click="handleCommand(beforeHandleCommand(1, index))" />
-      </TreeCard>
-    </div>
   </div>
 </template>
 
@@ -551,58 +467,14 @@ onMounted(async () => {
   overflow-y: overlay;
   position: relative;
   :deep(.el-dialog) {
-    border-radius: 18px;
-    .el-dialog__body {
-      img {
-        width: 100%;
-      }
-    }
     .treeForm {
       margin-right: 20px;
     }
+    .el-row {
+      // gap: 10px;
+    }
     .el-col {
       margin-bottom: 20px;
-    }
-    .form_item_imgs {
-      .flex__column();
-      gap: 10px;
-      .imgList {
-        .flex__row();
-        gap: 10px;
-        .imgList_item {
-          position: relative;
-          height: fit-content;
-          .item_img {
-            height: 100px;
-            min-width: 100px;
-          }
-          .item_options {
-            .flex__row();
-            justify-content: center;
-            gap: 10px;
-            align-items: center;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            background-color: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transition: all 0.3s;
-            color: white;
-            &:hover {
-              opacity: 1;
-            }
-            .options_previewImg,
-            .options_removeImg {
-              cursor: pointer;
-              .iconfont {
-                font-size: 22px;
-              }
-            }
-          }
-        }
-      }
     }
   }
 

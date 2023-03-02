@@ -6,6 +6,7 @@ import { Search, Refresh, CirclePlus, Delete, Download, RefreshRight } from "@el
 import { usePagination } from "@/hooks/usePagination"
 import { GetUserApi, ModifyUserApi, AddUserApi, RemoveUserApi } from "@/api/user"
 import { IUser } from "@/api/user/types/user"
+import { provinceAndCityData, CodeToText } from "element-china-area-data"
 
 const loading = ref<boolean>(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
@@ -46,6 +47,9 @@ const handleCreate = () => {
       return false
     }
   })
+}
+const handleCascadarChange = (location: any) => {
+  formData.location = `${CodeToText[location[0]]}-${CodeToText[location[1]]}`
 }
 const resetForm = () => {
   currentUpdateId.value = undefined
@@ -205,13 +209,14 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
           <el-input v-model="formData.account" placeholder="请输入账号" />
         </el-form-item>
         <el-form-item prop="password" label="密码">
-          <el-input v-model="formData.password" placeholder="请输入密码" type="password"/>
+          <el-input v-model="formData.password" placeholder="请输入密码" type="password" />
         </el-form-item>
         <el-form-item prop="name" label="用户名">
           <el-input v-model="formData.name" placeholder="请输入用户名" />
         </el-form-item>
         <el-form-item prop="location" label="地区">
-          <el-input v-model="formData.location" placeholder="请输入所在地区：xx-xx 如：安徽-安庆" />
+          <el-cascader placeholder="请选择所在地区" :options="provinceAndCityData" @change="handleCascadarChange">
+          </el-cascader>
         </el-form-item>
         <el-form-item prop="role" label="角色">
           <el-radio-group v-model="formData.role" class="ml-4">

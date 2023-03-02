@@ -1,13 +1,13 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-23 15:08:04
- * @LastEditTime: 2023-03-01 15:24:22
+ * @LastEditTime: 2023-03-02 12:52:22
 -->
 <script lang="ts" setup>
 import { reactive, ref, watch, onMounted } from "vue"
 import { createTableDataApi, deleteTableDataApi, updateTableDataApi, getTableDataApi } from "@/api/table"
 import { ElMessage, ElMessageBox } from "element-plus"
-import type { FormInstance, FormRules, UploadProps, UploadUserFile } from "element-plus"
+import type { FormInstance, FormRules, UploadProps, UploadUserFile, CascaderValue } from "element-plus"
 import { Search, Refresh, CirclePlus, Delete, Download, RefreshRight } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { GetTreeApi, ModifyTreeApi, AddTreeApi, RemoveTreeApi } from "@/api/tree"
@@ -16,6 +16,7 @@ import { IUser } from "@/api/user/types/user"
 import { GetUserApi } from "@/api/user"
 import { RemoveFileApi } from "@/api/upload"
 import _ from "lodash"
+import { regionData, CodeToText } from "element-china-area-data"
 
 const loading = ref<boolean>(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
@@ -79,6 +80,11 @@ const handleCreate = () => {
     }
   })
 }
+
+const handleCascadarChange = (location: any) => {
+  formData.location = `${CodeToText[location[0]]}${CodeToText[location[1]]}${CodeToText[location[2]]}`
+}
+
 const resetForm = () => {
   currentUpdateId.value = undefined
   fileList.value = []
@@ -142,8 +148,6 @@ const handleImagePreview: UploadProps["onPreview"] = (uploadFile) => {
   dialogImageVisible.value = true
 }
 
-const handleRemove: UploadProps["onRemove"] = (uploadFile, uploadFiles) => {}
-
 const handleBeforeRemove: UploadProps["beforeRemove"] = async (uploadFile, uploadFiles) => {
   const index = fileList.value.findIndex((item) => item.name == uploadFile.name)
   if (index == -1) return false
@@ -157,6 +161,23 @@ const handleBeforeRemove: UploadProps["beforeRemove"] = async (uploadFile, uploa
 
 const handleSuccess: UploadProps["onSuccess"] = (response: any, uploadFile, uploadFiles) => {
   if (response.data) formData.imgs.push(response.data)
+}
+
+/**
+ * 图片上传之前回调
+ * @param {file} rawFile
+ */
+const handleBeforeUpload: UploadProps["beforeUpload"] = (rawFile) => {
+  if (["image/jpeg", "image/png"].indexOf(rawFile.type) == -1) {
+    // 图片资源格式验证
+    ElMessage.error("Picture must be JPG/PNG format!")
+    return false
+  } else if (rawFile.size / 1024 / 1024 > 5) {
+    // 图片大小限制
+    ElMessage.error("Picture size can not exceed 5MB!")
+    return false
+  }
+  return true
 }
 //#endregion
 
@@ -320,7 +341,7 @@ onMounted(async () => {
           <el-input v-model="formData.branchPoint" placeholder="请输入苗木分支点" />
         </el-form-item>
         <el-form-item prop="location" label="所在地区">
-          <el-input v-model="formData.location" placeholder="请输入所在地区 如：安徽省安庆市怀宁县金拱镇" />
+          <el-cascader placeholder="请选择所在地区" :options="regionData" @change="handleCascadarChange"> </el-cascader>
         </el-form-item>
         <el-form-item prop="price" label="价格">
           <el-input v-model="formData.price" placeholder="请输入价格" />
@@ -331,9 +352,9 @@ onMounted(async () => {
             action="/api/uploadCenter/upload"
             list-type="picture-card"
             :on-preview="handleImagePreview"
-            :on-remove="handleRemove"
             :before-remove="handleBeforeRemove"
             :on-success="handleSuccess"
+            :before-upload="handleBeforeUpload"
           >
             <el-icon><Plus /></el-icon>
           </el-upload>

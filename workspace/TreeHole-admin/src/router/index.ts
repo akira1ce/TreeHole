@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-22 19:02:48
- * @LastEditTime: 2023-03-01 15:17:25
+ * @LastEditTime: 2023-03-02 10:22:56
  */
 import { type RouteRecordRaw, createRouter, createWebHashHistory, createWebHistory } from "vue-router"
 
@@ -57,21 +57,6 @@ export const constantRoutes: RouteRecordRaw[] = [
           title: "首页",
           svgIcon: "dashboard",
           affix: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/personal",
-    component: Layout,
-    children: [
-      {
-        path: "index",
-        component: () => import("@/views/personal/index.vue"),
-        name: "personal",
-        meta: {
-          title: "个人中心"
-          // svgIcon: "dashboard",
         }
       }
     ]
