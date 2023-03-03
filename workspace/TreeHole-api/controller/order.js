@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-12 09:29:52
- * @LastEditTime: 2023-03-01 15:04:34
+ * @LastEditTime: 2023-03-03 17:00:50
  */
 const { Order, User, Tree, Record } = require("../model");
 const { result, err } = require("../util");
@@ -168,11 +168,13 @@ const getOrderByTreeID = async (req, res, next) => {
   try {
     const { treeID } = req.body;
     let order = await Order.findOne({ treeID });
-    const orders = await mergeOrders([order]);
-    order = orders[0];
+    if (order) {
+      const orders = await mergeOrders([order]);
+      order = orders[0];
+    }
     res.send(result(200, order, "ok"));
-  } catch (e) {
-    next(err(e));
+  } catch (error) {
+    next(result(500, null, error.message));
   }
 };
 
