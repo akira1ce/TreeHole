@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-23 15:08:04
- * @LastEditTime: 2023-03-02 12:52:22
+ * @LastEditTime: 2023-03-03 17:14:56
 -->
 <script lang="ts" setup>
 import { reactive, ref, watch, onMounted } from "vue"
@@ -16,7 +16,7 @@ import { IUser } from "@/api/user/types/user"
 import { GetUserApi } from "@/api/user"
 import { RemoveFileApi } from "@/api/upload"
 import _ from "lodash"
-import { regionData, CodeToText } from "element-china-area-data"
+import { regionData, CodeToText, TextToCode } from "element-china-area-data"
 
 const loading = ref<boolean>(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
@@ -82,14 +82,16 @@ const handleCreate = () => {
 }
 
 const handleCascadarChange = (location: any) => {
-  formData.location = `${CodeToText[location[0]]}${CodeToText[location[1]]}${CodeToText[location[2]]}`
+  formData.location = `${CodeToText[location[0]]}-${CodeToText[location[1]]}-${CodeToText[location[2]]}`
 }
 
 const resetForm = () => {
   currentUpdateId.value = undefined
   fileList.value = []
+  location.value = []
   Object.keys(formData).forEach((key) => (formData[key] = tree[key]))
 }
+
 const getUserData = async () => {
   const res = await GetUserApi({ pageNo: pageNo.value, limit: limit.value })
   const list = res.data.list
@@ -125,6 +127,7 @@ const handleDelete = (row: any) => {
 //#endregion
 
 //#region 改
+const location = ref<number[]>([])
 const currentUpdateId = ref<undefined | string>(undefined)
 /** 图片预览 */
 const dialogImageVisible = ref<boolean>(false)
@@ -137,6 +140,8 @@ const handleUpdate = (row: any) => {
     ElMessage.error("苗木正在交易中")
     return
   }
+  const loc = row.location.split("-")
+  location.value = [TextToCode[loc[0]].code, TextToCode[loc[0]][loc[1]].code, TextToCode[loc[0]][loc[1]][loc[2]].code]
   currentUpdateId.value = row._id
   fileList.value.push(..._.cloneDeep(row.imgs))
   Object.keys(formData).forEach((key) => (formData[key] = row[key]))
@@ -341,7 +346,13 @@ onMounted(async () => {
           <el-input v-model="formData.branchPoint" placeholder="请输入苗木分支点" />
         </el-form-item>
         <el-form-item prop="location" label="所在地区">
-          <el-cascader placeholder="请选择所在地区" :options="regionData" @change="handleCascadarChange"> </el-cascader>
+          <el-cascader
+            v-model="location"
+            placeholder="请选择所在地区"
+            :options="regionData"
+            @change="handleCascadarChange"
+          >
+          </el-cascader>
         </el-form-item>
         <el-form-item prop="price" label="价格">
           <el-input v-model="formData.price" placeholder="请输入价格" />

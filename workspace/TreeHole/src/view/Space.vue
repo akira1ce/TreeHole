@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-03-02 12:38:34
+ * @LastEditTime: 2023-03-03 17:44:51
 -->
 <script setup>
 import api from "../api";
@@ -13,7 +13,7 @@ import TreeCard from "../components/TreeCard.vue";
 import { Edit, Delete } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { Plus } from "@element-plus/icons-vue";
-import { regionData, provinceAndCityData, CodeToText } from "element-china-area-data";
+import { regionData, provinceAndCityData, CodeToText, TextToCode } from "element-china-area-data";
 import _ from "lodash";
 
 const router = useRouter();
@@ -49,22 +49,26 @@ const state = reactive({
   loginRecord: defaultState.record,
   infiniteScroll: false,
   treeList: [],
-  // 分页
+  /** 分页 */
   pageNo: 1,
   limit: 4,
   isFollow: false,
-  // 弹出层
+  /** 用户弹出层 */
   dialog_user: false,
-  dialog_tree: false,
-  dialog_previewImg: false,
   form_user: { ...loginUser },
+  /** 苗木弹出层 */
+  dialog_tree: false,
   form_tree: { ...defaultState.tree },
   fileList: [],
+  dialog_previewImg: false,
   dialogImageUrl: "",
   dialogImageVisible: false,
   updateTreeIndex: undefined,
-  previewImgUrl: "",
+  /** 地区 */
+  treeLocation: [],
+  userLocation: [],
   isEmpty: false,
+  isLoading: true,
 });
 
 //#region 用户
@@ -137,13 +141,13 @@ const updateHci = () => {
 const release = () => {
   state.dialog_tree = true;
   state.form_tree = { ...defaultState.tree };
+  state.treeLocation = [];
 };
 
 /** 地区选择器监听 */
 const handleCascadarChange = (location, mode) => {
-  console.log(location, mode);
   if (mode == 0) state.form_user.location = `${CodeToText[location[0]]}-${CodeToText[location[1]]}`;
-  else state.form_tree.location = `${CodeToText[location[0]]}${CodeToText[location[1]]}${CodeToText[location[2]]}`;
+  else state.form_tree.location = `${CodeToText[location[0]]}-${CodeToText[location[1]]}-${CodeToText[location[2]]}`;
 };
 
 /** 更新/发布 苗木信息 */
@@ -215,6 +219,8 @@ const handleSuccess = (response, uploadFile, uploadFiles) => {
  */
 const handleCommand = async (command) => {
   const tree = state.treeList[command.index];
+  const loc = tree.treeLocation.split("-");
+  state.treeLocation = [TextToCode[loc[0]].code, TextToCode[loc[0]][loc[1]].code, TextToCode[loc[0]][loc[1]][loc[2]].code];
   if (command.mode == 0) {
     // 编辑
     if (tree.status > 0) {
@@ -292,11 +298,20 @@ const isCurrentUser = computed(() => {
 });
 
 onMounted(async () => {
-  if (loginUser._id != state.user._id) state.loginRecord = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
-  state.record = await request.post(api.record.getRecordByUserID, { userID: state.user._id });
-  if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
-  await getTreeList();
-  if (state.treeList.length == 0) state.isEmpty = true;
+  try {
+    if (loginUser._id != state.user._id) state.loginRecord = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
+    state.record = await request.post(api.record.getRecordByUserID, { userID: state.user._id });
+    if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
+    await getTreeList();
+    if (state.treeList.length == 0) state.isEmpty = true;
+    const loc = state.user.location.split("-");
+    state.userLocation = [TextToCode[loc[0]]?.code, TextToCode[loc[0]][loc[1]]?.code];
+  } catch (error) {
+    ElMessage.error(error.message);
+  }
+  setTimeout(() => {
+    state.isLoading = false;
+  }, 500);
 });
 </script>
 
@@ -333,7 +348,7 @@ onMounted(async () => {
       </el-upload>
     </div>
     <!-- 主体-树列表 -->
-    <div class="container__main">
+    <div class="container__main" v-loading="state.isLoading">
       <!-- 发布 -->
       <div class="release" v-if="isCurrentUser" @click="release">发布🙌</div>
       <el-empty description="他好像没有发布苗木~" v-if="state.isEmpty" />
@@ -343,16 +358,13 @@ onMounted(async () => {
         <el-button v-if="isCurrentUser" :icon="Delete" circle @click="handleCommand(beforeHandleCommand(1, index))" />
       </TreeCard>
     </div>
-    <el-dialog v-model="state.dialog_previewImg">
-      <img w-full :src="state.previewImgUrl" alt="Preview Image" />
-    </el-dialog>
     <!-- 苗木 对话框 -->
     <el-dialog class="treeDialog" title="苗木信息" v-model="state.dialog_tree" width="40%" align-center>
       <el-scrollbar height="65vh">
         <!-- 苗木表单 -->
         <el-form class="treeForm" :model="state.form_tree" ref="form_tree_Ref" :rules="form_tree_Rules" label-width="100px" label-position="left">
           <el-form-item label="地区" prop="location">
-            <el-cascader placeholder="请选择所在地区" :options="regionData" @change="handleCascadarChange($event, 1)"> </el-cascader>
+            <el-cascader v-model="state.treeLocation" placeholder="请选择所在地区" :options="regionData" @change="handleCascadarChange($event, 1)"> </el-cascader>
           </el-form-item>
           <el-form-item label="标题" prop="title">
             <el-input v-model="state.form_tree.title" />
@@ -379,20 +391,11 @@ onMounted(async () => {
             <el-input v-model="state.form_tree.diameter" />
           </el-form-item>
           <el-form-item label="图片" prop="imgs">
-            <el-upload
-              v-model:file-list="state.fileList"
-              action="/api/uploadCenter/upload"
-              list-type="picture-card"
-              :on-preview="handleImagePreview"
-              :before-remove="handleBeforeRemove"
-              :before-upload="beforeImageUpload"
-              :on-success="handleSuccess"
-            >
+            <el-upload v-model:file-list="state.fileList" action="/api/uploadCenter/upload" list-type="picture-card" :on-preview="handleImagePreview" :before-remove="handleBeforeRemove" :before-upload="beforeImageUpload" :on-success="handleSuccess">
               <el-icon><Plus /></el-icon>
             </el-upload>
-
             <el-dialog v-model="state.dialogImageVisible">
-              <img w-full :src="state.dialogImageUrl" alt="Preview Image" />
+              <img w-full :src="state.dialogImageUrl" alt="Preview Image" style="width: 100%" />
             </el-dialog>
           </el-form-item>
         </el-form>
@@ -416,7 +419,7 @@ onMounted(async () => {
           <el-input v-model="state.form_user.name" />
         </el-form-item>
         <el-form-item label="地区" prop="location">
-          <el-cascader placeholder="请选择所在地区" :options="provinceAndCityData" @change="handleCascadarChange($event, 0)"> </el-cascader>
+          <el-cascader v-model="state.userLocation" placeholder="请选择所在地区" :options="provinceAndCityData" @change="handleCascadarChange($event, 0)"> </el-cascader>
         </el-form-item>
         <el-form-item label="性别">
           <el-radio-group v-model="state.form_user.sex">
@@ -580,7 +583,7 @@ onMounted(async () => {
     .flex__column();
     align-items: center;
     background-color: rgb(241, 242, 243);
-    padding: 0 265px;
+    padding: 5px 265px;
     min-height: calc(100vh - 376px);
     position: relative;
     .el-dropdown-link {
