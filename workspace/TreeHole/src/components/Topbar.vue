@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-15 15:41:39
- * @LastEditTime: 2023-02-20 16:02:07
+ * @LastEditTime: 2023-03-03 16:52:43
 -->
 <script setup>
 import { onMounted, reactive, ref } from "vue-demi";
@@ -23,7 +23,7 @@ const state = reactive({
 // 滑块移动
 const sliderMove = () => {
   if (state.current == 0) sliderRef.value.style.left = "30px";
-  else sliderRef.value.style.left = "100px";
+  else sliderRef.value.style.left = "108px";
 };
 
 /**

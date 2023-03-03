@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-26 10:49:01
- * @LastEditTime: 2023-02-20 16:00:30
+ * @LastEditTime: 2023-03-03 16:16:19
 -->
 <script setup>
 import { Delete } from "@element-plus/icons-vue";
@@ -98,7 +98,7 @@ const tag = computed(() => {
     </div>
     <!-- 订单-基本信息 -->
     <div class="order__info">
-      <span class="info__time">{{ order.time }}</span>
+      <span class="info__time">{{ new Date(order.time).toLocaleString() }}</span>
       <el-tag class="info__status" :type="tag.status">{{ tag.content }}</el-tag>
     </div>
     <!-- 订单-操作按钮 -->
@@ -125,7 +125,6 @@ const tag = computed(() => {
 }
 .order {
   .flex__row();
-  justify-content: space-between;
   align-items: center;
   padding: 15px 10px;
   .order__otherSide,
@@ -136,13 +135,13 @@ const tag = computed(() => {
   }
   .order__otherSide {
     .flex__row();
-    flex: 0.5;
+    flex: .5;
     align-items: center;
+    gap: 10px;
     cursor: pointer;
     .otherSide__avator {
       width: 40px;
       border-radius: 100px;
-      margin-right: 20px;
       cursor: pointer;
     }
   }
@@ -165,16 +164,14 @@ const tag = computed(() => {
 
   .order__info {
     .flex__row();
+    gap: 30px;
     align-items: center;
-    .info__time {
-      flex: 0.8;
-    }
   }
   .order-btns {
     .flex__row();
+    flex: .3;
     align-items: center;
     gap: 5px;
-    flex: 0.8;
     .order-delete {
       margin-left: 20px;
       font-size: 25px;

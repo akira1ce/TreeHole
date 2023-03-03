@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-07 23:43:35
- * @LastEditTime: 2023-02-27 18:32:08
+ * @LastEditTime: 2023-03-03 15:39:50
 -->
 <script setup>
 import useClipboard from "vue-clipboard3";
@@ -193,7 +193,6 @@ watchEffect(() => {
 
 .treeCard {
   border-radius: 5px;
-  margin: 5px 0;
   position: relative;
   width: 600px;
   .treeCard__header {

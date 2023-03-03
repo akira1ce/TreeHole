@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-06 14:40:24
- * @LastEditTime: 2023-02-20 16:15:35
+ * @LastEditTime: 2023-03-03 15:44:54
 -->
 <script setup>
 import { computed, onMounted, reactive, toRaw } from "vue-demi";
@@ -186,8 +186,11 @@ onMounted(async () => {
     align-items: center;
     width: 55%;
     height: fit-content;
+    padding: 5px 0;
+    gap: 5px;
     .content__comments {
       width: 600px;
+      flex: 1;
       :deep(.el-card__body) {
         .flex__column();
         gap: 10px;
