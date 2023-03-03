@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-01-08 15:54:04
- * @LastEditTime: 2023-02-20 16:07:24
+ * @LastEditTime: 2023-03-03 17:41:16
 -->
 <script setup>
 import { ElMessage } from "element-plus";
@@ -19,6 +19,7 @@ const state = reactive({
   order: defaultState.order,
   loginUser: local.getItem("user") || {},
   isEmpty: false,
+  isLoading: true,
 });
 
 // [methods]
@@ -104,42 +105,45 @@ const isCurrent = computed(() => {
 });
 
 onMounted(async () => {
-  const treeID = state.treeID;
-  if (treeID) state.order = await request.post(api.order.getOrderByTreeID, { treeID });
+  try {
+    const treeID = state.treeID;
+    if (treeID) state.order = await request.post(api.order.getOrderByTreeID, { treeID });
+    // 订单不存在
+    if (!state.order) throw new Error("订单好像不存在");
 
-  // 订单不存在
-  if (!state.order._id) {
-    state.isEmpty = true;
-    ElMessage.error("订单不存在");
-    return;
-  }
-
-  const orderID = state.order._id;
-  // 订单未支付
-  if (state.order.status == 0) {
-    // 查询订单状态
-    const queryRes = await request.post(api.alipay.query, { orderID });
-    // 已支付成功，更新订单状态
-    if (queryRes.status == 2) {
-      // 时间格式化
-      queryRes.send_pay_date = tools.timeFormat(queryRes.send_pay_date);
-      // 更新订单
-      await request.post(api.order.modifyById, { _id: orderID, status: "1", payTime: queryRes.send_pay_date });
-      state.order.status = "1";
-      state.order.payTime = queryRes.send_pay_date;
+    const orderID = state.order._id;
+    // 订单未支付
+    if (state.order.status == 0) {
+      // 查询订单状态
+      const queryRes = await request.post(api.alipay.query, { orderID });
+      // 已支付成功，更新订单状态
+      if (queryRes.status == 2) {
+        // 时间格式化
+        queryRes.send_pay_date = tools.timeFormat(queryRes.send_pay_date);
+        // 更新订单
+        await request.post(api.order.modifyById, { _id: orderID, status: "1", payTime: queryRes.send_pay_date });
+        state.order.status = "1";
+        state.order.payTime = queryRes.send_pay_date;
+      }
+      ElMessage.success(queryRes.massage);
     }
-    ElMessage.success(queryRes.massage);
+  } catch (error) {
+    ElMessage.error(error.message);
+    state.isEmpty = true;
   }
+  setTimeout(() => {
+    state.isLoading = false;
+  }, 500);
 });
 </script>
 
 <template>
-  <div class="container">
+  <div class="container" v-loading="state.isLoading">
     <!-- 空状态 -->
-    <el-empty class="center" v-if="state.isEmpty" description="订单好像不存在~"></el-empty>
+    <el-empty class="center" v-if="state.isEmpty && !state.isLoading" description="订单好像不存在~"></el-empty>
 
     <!-- 订单 -->
-    <div class="container__order" v-else>
+    <div class="container__order" v-if="!state.isEmpty && !state.isLoading">
       <!-- 订单状态 -->
       <div class="order__status" shadow="hover">
         <div class="status__icon">
@@ -243,7 +247,7 @@ onMounted(async () => {
   .container__order {
     .flex__column();
     gap: 20px;
-    width: 80%;
+    width: 70%;
     height: 100%;
     padding: 30px;
     background-color: white;

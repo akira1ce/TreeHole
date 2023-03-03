@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-14 17:06:45
- * @LastEditTime: 2023-02-20 15:58:50
+ * @LastEditTime: 2023-03-03 17:19:35
  */
 import instance from "./interceptor";
 
@@ -21,17 +21,13 @@ function request(url, params, method) {
       url,
       method,
       ...data,
-    })
-      .then((res) => {
-        if (res.code === 200) {
-          resolve(res.data);
-        } else {
-          reject(res);
-        }
-      })
-      .catch((e) => {
-        console.log(`output->e`, e);
-      });
+    }).then((res) => {
+      if (res.code === 200) {
+        resolve(res.data);
+      } else {
+        reject(res);
+      }
+    });
   });
 }
 

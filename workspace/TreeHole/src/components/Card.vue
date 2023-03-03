@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-18 17:01:04
- * @LastEditTime: 2023-02-20 15:58:16
+ * @LastEditTime: 2023-03-03 17:52:34
 -->
 <script setup>
 import { defineProps, toRaw } from "vue-demi";
@@ -36,9 +36,13 @@ const toSpace = (user) => {
  * @param {string} treeID
  */
 const toTreeDetail = async (treeID) => {
-  if (route.name == "TreeDetail") return;
-  await request.post(api.record.modifyRecordTree, { userID: local.getItem("user")._id, treeID, mode: 0, clearAll: 0 });
-  router.push({ name: "TreeDetail", state: { treeID } });
+  try {
+    if (route.name == "TreeDetail") return;
+    await request.post(api.record.modifyRecordTree, { userID: local.getItem("user")._id, treeID, mode: 0, clearAll: 0 });
+    router.push({ name: "TreeDetail", state: { treeID } });
+  } catch (error) {
+    ElMessage.error(error.message);
+  }
 };
 </script>
 

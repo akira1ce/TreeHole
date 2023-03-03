@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-14 18:57:18
- * @LastEditTime: 2023-02-20 16:06:20
+ * @LastEditTime: 2023-03-03 17:41:46
 -->
 <script setup>
 import api from "../api";
@@ -83,9 +83,13 @@ const getCurrentList = async () => {
 eventBus.on("switchNav", switchNav);
 
 onMounted(async () => {
-  const userID = state.user._id;
-  state.record = await request.post(api.record.getRecordByUserID, { userID });
-  switchNav(state.current);
+  try {
+    const userID = state.user._id;
+    state.record = await request.post(api.record.getRecordByUserID, { userID });
+    switchNav(state.current);
+  } catch (error) {
+    ElMessage.error(error.message);
+  }
 });
 </script>
 

@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-12-04 10:12:34
- * @LastEditTime: 2023-02-23 16:53:54
+ * @LastEditTime: 2023-03-03 17:42:25
 -->
 <script setup>
 import { ElMessage } from "element-plus";
@@ -76,8 +76,12 @@ const getUserList = async () => {
 };
 
 onMounted(async () => {
-  state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
-  await getUserList();
+  try {
+    state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
+    await getUserList();
+  } catch (error) {
+    ElMessage.error(error.message);
+  }
 });
 </script>
 

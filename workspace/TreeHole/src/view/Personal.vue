@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-02-28 12:48:02
+ * @LastEditTime: 2023-03-03 17:49:38
 -->
 <script setup>
 import api from "../api";
@@ -56,6 +56,8 @@ const state = reactive({
     content: [],
   },
   record: defaultState.record,
+  isEmpty: false,
+  isLoading: true,
 });
 
 // [methods]
@@ -81,7 +83,7 @@ const toRecord = (mode) => {
  * 切换导航 -> 我的收藏 历史记录 我的订单
  * @param {number} index
  */
-const switchNav = (target) => {
+const switchNav = async (target) => {
   // 缓存
   state.current = target;
   local.setItem("current_personal", target);
@@ -94,7 +96,15 @@ const switchNav = (target) => {
   else state.currentList = state.orderList;
 
   // 首次特判
-  if (state.currentList.content.length == 0) getCurrentList();
+  if (state.currentList.content.length == 0) {
+    state.isLoading = true;
+    state.isEmpty = false;
+    await getCurrentList();
+    if (state.currentList.content.length == 0) state.isEmpty = true;
+    setTimeout(() => {
+      state.isLoading = false;
+    }, 500);
+  }
 };
 
 // 清楚历史记录
@@ -136,8 +146,9 @@ const getCurrentList = async () => {
   currentList.content.push(...data.list);
   currentList.pageNo++;
 
-  // 在所有数据加载完毕之后，判断是否存在失效数据，存在 -> 更新记录
+  if (currentList.length == 0) state.isEmpty = true;
   if (data.list.length < currentList.limit) {
+    // 在所有数据加载完毕之后，判断是否存在失效数据，存在 -> 更新记录
     currentList.infiniteScroll = true;
     if (currentList.content.length != currentList_re.length) {
       state.record[list_re[current]] = currentList.content.map((item) => item._id);
@@ -147,9 +158,13 @@ const getCurrentList = async () => {
 };
 
 onMounted(async () => {
-  state.record = await request.post(api.record.getRecordByUserID, { userID: user._id });
-  state.current = local.getItem("current_personal") || 0;
-  switchNav(state.current);
+  try {
+    state.record = await request.post(api.record.getRecordByUserID, { userID: user._id });
+    state.current = local.getItem("current_personal") || 0;
+    switchNav(state.current);
+  } catch (error) {
+    ElMessage.error(error.message);
+  }
 });
 
 // [computed]
@@ -203,8 +218,8 @@ const record = computed(() => {
         </div>
       </el-affix>
       <!-- 主体 -->
-      <div class="main__content">
-        <el-empty class="center" v-if="state.currentList.content.length == 0" description="什么也没有喔~"></el-empty>
+      <div class="main__content" v-loading="state.isLoading">
+        <el-empty class="center" v-if="state.isEmpty" description="什么也没有喔~"></el-empty>
         <!-- 树 -->
         <div class="content__trees" v-if="state.current < 2">
           <Card v-for="(item, index) in state.currentList.content" :key="item._id" :tree="item" />

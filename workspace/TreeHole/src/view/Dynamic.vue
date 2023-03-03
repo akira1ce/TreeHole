@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:36:37
- * @LastEditTime: 2023-02-23 18:39:52
+ * @LastEditTime: 2023-03-03 17:39:51
 -->
 <script setup>
 import api from "../api";
@@ -25,6 +25,7 @@ const state = reactive({
   infiniteScroll_user: false,
   isEmpty_user: false,
   isEmpty_tree: false,
+  isLoading: true,
 });
 
 // [methods]
@@ -113,12 +114,19 @@ const treeList = computed(() => {
 });
 
 onMounted(async () => {
-  const userID = state.user._id;
-  state.record = await request.post(api.record.getRecordByUserID, { userID });
-  await getUserList();
-  await getTreeList();
-  if (state.userList.length == 0) state.isEmpty_user = true;
-  if (state.treeList.length == 0) state.isEmpty_tree = true;
+  try {
+    const userID = state.user._id;
+    state.record = await request.post(api.record.getRecordByUserID, { userID });
+    await getUserList();
+    await getTreeList();
+    if (state.userList.length == 0) state.isEmpty_user = true;
+    if (state.treeList.length == 0) state.isEmpty_tree = true;
+  } catch (error) {
+    ElMessage.error(error.message);
+  }
+  setTimeout(() => {
+    state.isLoading = false;
+  }, 500);
 });
 </script>
 
@@ -135,7 +143,7 @@ onMounted(async () => {
       </div>
     </div>
     <!-- 树列表 -->
-    <div class="container__content scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll_tree">
+    <div class="container__content scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll_tree" v-loading="state.isLoading">
       <el-empty class="center" v-if="state.isEmpty_tree" description="他好像没有发布苗木~"></el-empty>
       <div class="content__treeList">
         <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.record" :collectHandle="collectHandle">
@@ -205,10 +213,12 @@ onMounted(async () => {
     height: 100%;
     .content__treeList {
       .flex__column();
+      padding: 5px 0;
       align-items: center;
       width: 68%;
       height: fit-content;
       position: relative;
+      gap: 5px;
       .unFollow {
         font-size: 14px;
         padding: 10px;

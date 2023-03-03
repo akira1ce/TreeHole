@@ -167,23 +167,24 @@ const currentSocket = computed(() => {
 });
 
 onMounted(async () => {
-  state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
-
-  // 获取会话列表
-  await getSocketList();
-
-  // 存在指定用户
-  if (userID) {
-    state.socketList.some((item, index) => {
-      if ((item.userID1 == userID || item.userID2 == userID) && item.treeID == treeID) {
-        state.current = index;
-        return true;
-      }
-    });
+  try {
+    state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
+    /** 获取会话列表 */
+    await getSocketList();
+    /** 存在指定用户 */
+    if (userID) {
+      state.socketList.some((item, index) => {
+        if ((item.userID1 == userID || item.userID2 == userID) && item.treeID == treeID) {
+          state.current = index;
+          return true;
+        }
+      });
+    }
+    /** 下放滚动条 */
+    downScroll();
+  } catch (error) {
+    ElMessage.error(error.message);
   }
-
-  // 下放滚动条
-  downScroll();
 });
 </script>
 
