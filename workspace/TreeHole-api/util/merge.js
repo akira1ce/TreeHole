@@ -7,6 +7,7 @@ const { Tree, User, Record, Order, Socket } = require("../model");
 
 // mergexxx
 const mergeComments = async (data) => {
+  if (data.length == 0) return data;
   const comments = [];
   for (let i = 0; i < data.length; i++) {
     const comment = {};
@@ -19,6 +20,7 @@ const mergeComments = async (data) => {
 };
 
 const mergeTrees = async (data) => {
+  if (data.length == 0) return data;
   const trees = [];
   for (let i = 0; i < data.length; i++) {
     const tree = {};
@@ -30,13 +32,8 @@ const mergeTrees = async (data) => {
   return trees;
 };
 
-const mergeRecord = async (data) => {
-  const record = {};
-  Object.assign(record, data._doc);
-  return record;
-};
-
 const mergeOrders = async (data) => {
+  if (data.length == 0) return data;
   const orders = [];
   for (let i = 0; i < data.length; i++) {
     let item = data[i];
@@ -50,6 +47,7 @@ const mergeOrders = async (data) => {
 };
 
 const mergeSockets = async (data) => {
+  if (data.length == 0) return data;
   const sockets = [];
   for (let i = 0; i < data.length; i++) {
     const item = data[i];

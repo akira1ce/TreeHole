@@ -114,7 +114,7 @@ const getSocketListByUserID = async (req, res, next) => {
     const data = await Socket.find({
       $or: [{ userID1: userID }, { userID2: userID }],
     });
-    const sockets = await mergeSockets(data, userID);
+    const sockets = await mergeSockets(data);
     res.send(result(200, sockets, "ok"));
   } catch (e) {
     next(err(e));

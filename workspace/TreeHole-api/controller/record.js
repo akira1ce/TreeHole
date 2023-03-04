@@ -6,8 +6,6 @@
 const { Record, Order, Socket } = require("../model");
 const { result, err } = require("../util");
 
-const { mergeRecord } = require("../util/merge");
-
 // 获取用户记录
 const getRecordByUserID = async (req, res, next) => {
   try {
@@ -19,8 +17,6 @@ const getRecordByUserID = async (req, res, next) => {
       next(err("记录不存在", 403, ""));
       return;
     }
-
-    const record = await mergeRecord(data);
     res.send(result(200, record, "ok"));
   } catch (e) {
     next(err(e));

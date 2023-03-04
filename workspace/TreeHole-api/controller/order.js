@@ -167,12 +167,9 @@ const getOrderListByID = async (req, res, next) => {
 const getOrderByTreeID = async (req, res, next) => {
   try {
     const { treeID } = req.body;
-    let order = await Order.findOne({ treeID });
-    if (order) {
-      const orders = await mergeOrders([order]);
-      order = orders[0];
-    }
-    res.send(result(200, order, "ok"));
+    let data = await Order.find({ treeID });
+    const orders = await mergeOrders(data);
+    res.send(result(200, { order: orders[0] || null }, "ok"));
   } catch (error) {
     next(result(500, null, error.message));
   }
