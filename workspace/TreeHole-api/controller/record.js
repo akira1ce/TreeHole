@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-11 09:35:44
- * @LastEditTime: 2023-02-20 16:34:52
+ * @LastEditTime: 2023-03-07 20:15:34
  */
 const { Record, Order, Socket } = require("../model");
 const { result, err } = require("../util");
@@ -10,10 +10,10 @@ const { result, err } = require("../util");
 const getRecordByUserID = async (req, res, next) => {
   try {
     const { userID } = req.body;
-    const data = await Record.findOne({ userID });
+    const record = await Record.findOne({ userID });
 
     // 记录不存在
-    if (!data) {
+    if (!record) {
       next(err("记录不存在", 403, ""));
       return;
     }

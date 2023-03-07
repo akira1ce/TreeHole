@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-03-03 17:44:51
+ * @LastEditTime: 2023-03-07 20:23:09
 -->
 <script setup>
 import api from "../api";
@@ -219,7 +219,7 @@ const handleSuccess = (response, uploadFile, uploadFiles) => {
  */
 const handleCommand = async (command) => {
   const tree = state.treeList[command.index];
-  const loc = tree.treeLocation.split("-");
+  const loc = tree.location.split("-");
   state.treeLocation = [TextToCode[loc[0]].code, TextToCode[loc[0]][loc[1]].code, TextToCode[loc[0]][loc[1]][loc[2]].code];
   if (command.mode == 0) {
     // 编辑
