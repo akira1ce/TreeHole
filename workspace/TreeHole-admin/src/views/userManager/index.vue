@@ -14,6 +14,7 @@ const { paginationData, handleCurrentChange, handleSizeChange } = usePagination(
 //#region 增
 const dialogVisible = ref<boolean>(false)
 const formRef = ref<FormInstance | null>(null)
+const cascaderData = ref<number[]>([])
 const formData = reactive<IUser>({
   account: "",
   password: "",
@@ -60,6 +61,7 @@ const resetForm = () => {
   formData.role = "0"
   formData.sex = "1"
   formData.status = "1"
+  cascaderData.value.length = 0
 }
 //#endregion
 
@@ -215,7 +217,12 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
           <el-input v-model="formData.name" placeholder="请输入用户名" />
         </el-form-item>
         <el-form-item prop="location" label="地区">
-          <el-cascader placeholder="请选择所在地区" :options="provinceAndCityData" @change="handleCascadarChange">
+          <el-cascader
+            v-model="cascaderData"
+            placeholder="请选择所在地区"
+            :options="provinceAndCityData"
+            @change="handleCascadarChange"
+          >
           </el-cascader>
         </el-form-item>
         <el-form-item prop="role" label="角色">

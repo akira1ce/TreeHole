@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-05 10:53:00
- * @LastEditTime: 2023-02-28 10:44:14
+ * @LastEditTime: 2023-03-15 18:34:08
  */
 const { User, Record } = require("../model");
 const { result, err, config } = require("../util");
@@ -106,7 +106,7 @@ const getUserList = async (req, res, next) => {
     const re_account = new RegExp(account, "i");
     const re_name = new RegExp(name, "i");
     const data = await Promise.all([
-      User.count(),
+      User.find({ account: re_account, name: re_name }).count(),
       User.find({ account: re_account, name: re_name })
         .skip((pageNo - 1) * limit)
         .limit(limit),

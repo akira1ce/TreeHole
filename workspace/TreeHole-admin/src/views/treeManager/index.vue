@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-23 15:08:04
- * @LastEditTime: 2023-03-03 17:14:56
+ * @LastEditTime: 2023-03-15 19:55:36
 -->
 <script lang="ts" setup>
 import { reactive, ref, watch, onMounted } from "vue"
@@ -43,6 +43,8 @@ const tree: ITree = {
 const userList = reactive<IUser[]>([])
 const pageNo = ref<number>(1)
 const limit = ref<number>(10)
+const query = ref<string>("")
+const isInfinite = ref<boolean>(true)
 
 const dialogVisible = ref<boolean>(false)
 const formRef = ref<FormInstance | null>(null)
@@ -92,14 +94,34 @@ const resetForm = () => {
   Object.keys(formData).forEach((key) => (formData[key] = tree[key]))
 }
 
-const getUserData = async () => {
-  const res = await GetUserApi({ pageNo: pageNo.value, limit: limit.value })
-  const list = res.data.list
-  if (list.length != 0) {
-    userList.push(...list)
-    pageNo.value++
+const getUserData = async (name: string) => {
+  /** 搜索参数不存在 */
+  if (!name) {
+    pageNo.value = 1
+    userList.length = 0
+    isInfinite.value = true
+    return
   }
+
+  query.value = name
+  /** 数据加载完毕 */
+  if (isInfinite.value == false) return
+  const res = await GetUserApi({ pageNo: pageNo.value, limit: limit.value, name })
+  const list = res.data.list
+  /** 禁用滚动加载 */
+  if (list.length == 0) {
+    isInfinite.value = false
+    return
+  }
+
+  userList.push(...list)
+  pageNo.value++
 }
+
+const handleLoadMore = () => {
+  if (userList.length >= 10) getUserData(query.value)
+}
+
 /**
  * 苗木高阔比计算
  */
@@ -227,7 +249,7 @@ const handleRefresh = () => {
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
 
 onMounted(async () => {
-  await getUserData()
+  // await getUserData()
 })
 </script>
 
@@ -318,13 +340,17 @@ onMounted(async () => {
     >
       <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px" label-position="left">
         <el-form-item prop="ownerID" label="所有者ID" v-if="currentUpdateId === undefined">
-          <el-select v-model="formData.ownerID" v-loadmore="getUserData">
-            <el-option
-              v-for="user in userList"
-              :label="user.name"
-              :value="user._id as string"
-              :key="user._id"
-            ></el-option>
+          <el-select
+            v-model="formData.ownerID"
+            filterable
+            remote
+            reserve-keyword
+            placeholder="请输入用户名"
+            remote-show-suffix
+            :remote-method="getUserData"
+            v-loadmore="handleLoadMore"
+          >
+            <el-option v-for="user in userList" :label="user.name" :value="user._id as string" :key="user._id" />
           </el-select>
         </el-form-item>
         <el-form-item prop="title" label="苗木标题">
