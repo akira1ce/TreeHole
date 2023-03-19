@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-01-08 15:54:04
- * @LastEditTime: 2023-03-03 17:41:16
+ * @LastEditTime: 2023-03-19 18:24:29
 -->
 <script setup>
 import { ElMessage } from "element-plus";
@@ -107,7 +107,13 @@ const isCurrent = computed(() => {
 onMounted(async () => {
   try {
     const treeID = state.treeID;
-    if (treeID) state.order = await request.post(api.order.getOrderByTreeID, { treeID });
+
+    /** 苗木 id 存在 */
+    if (treeID) {
+      const { order } = await request.post(api.order.getOrderByTreeID, { treeID });
+      state.order = order;
+    }
+
     // 订单不存在
     if (!state.order) throw new Error("订单好像不存在");
 
@@ -242,11 +248,11 @@ onMounted(async () => {
   height: calc(100vh - @topbar_height);
   overflow-y: overlay;
   position: relative;
-  padding: 0px 3.333vw;
+  padding: 0px 10vw;
   background-color: @defaultColor;
   .container__order {
     .flex__column();
-    gap: 20px;
+    gap: 30px;
     width: 70%;
     height: 100%;
     padding: 30px;
