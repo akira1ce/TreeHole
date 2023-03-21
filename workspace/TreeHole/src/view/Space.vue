@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-03-07 20:23:09
+ * @LastEditTime: 2023-03-21 13:39:03
 -->
 <script setup>
 import api from "../api";
@@ -44,14 +44,16 @@ const loginUser = local.getItem("user");
 const spaceUser = history.state.spaceUser;
 
 const state = reactive({
-  user: spaceUser || loginUser,
+  user: spaceUser,
+  /** 记录 */
   record: defaultState.record,
   loginRecord: defaultState.record,
+  /** 分页 */
   infiniteScroll: false,
   treeList: [],
-  /** 分页 */
   pageNo: 1,
   limit: 4,
+  /** 是否关注 */
   isFollow: false,
   /** 用户弹出层 */
   dialog_user: false,
@@ -64,7 +66,7 @@ const state = reactive({
   dialogImageUrl: "",
   dialogImageVisible: false,
   updateTreeIndex: undefined,
-  /** 地区 */
+  /** 地区选择 */
   treeLocation: [],
   userLocation: [],
   isEmpty: false,
@@ -80,15 +82,11 @@ const editUserInfo = () => {
 
 /** 更新用户信息 */
 const updateUserInfo = async () => {
-  // 验证地区格式
-  if (state.form_user.location.split("-").length != 2) {
-    ElMessage.error("地区格式有误，正确格式：xx(省)-xx(市) 如：安徽-安庆");
-    return;
-  }
   await request.post(api.user.modifyById, state.form_user);
   // 更新缓存
   ElMessage.success("用户信息更新成功");
   local.setItem("user", state.form_user);
+  if (spaceUser) history.state.spaceUser = toRaw(state.form_user);
   state.dialog_user = false;
 };
 
@@ -137,11 +135,13 @@ const updateHci = () => {
   const { form_tree } = state;
   form_tree.hci = parseFloat((parseInt(form_tree.height) / parseInt(form_tree.crownDiameter)).toFixed(2));
 };
+
 /** 发布苗木 */
 const release = () => {
   state.dialog_tree = true;
   state.form_tree = { ...defaultState.tree };
   state.treeLocation = [];
+  state.fileList = [];
 };
 
 /** 地区选择器监听 */
@@ -359,7 +359,7 @@ onMounted(async () => {
       </TreeCard>
     </div>
     <!-- 苗木 对话框 -->
-    <el-dialog class="treeDialog" title="苗木信息" v-model="state.dialog_tree" width="40%" align-center>
+    <el-dialog class="treeDialog" title="苗木信息" v-model="state.dialog_tree" width="40%" align-center v-if="isCurrentUser">
       <el-scrollbar height="65vh">
         <!-- 苗木表单 -->
         <el-form class="treeForm" :model="state.form_tree" ref="form_tree_Ref" :rules="form_tree_Rules" label-width="100px" label-position="left">
@@ -409,7 +409,7 @@ onMounted(async () => {
       </template>
     </el-dialog>
     <!-- 用户信息对话框 -->
-    <el-dialog title="用户信息" v-model="state.dialog_user" align-center>
+    <el-dialog title="用户信息" v-model="state.dialog_user" align-center v-if="isCurrentUser">
       <!-- 用户表单 -->
       <el-form :model="state.form_user" label-width="auto" ref="form_user_Ref" :rules="form_user_Rules">
         <el-form-item label="账号" prop="account">
@@ -581,6 +581,7 @@ onMounted(async () => {
   }
   .container__main {
     .flex__column();
+    gap: 5px;
     align-items: center;
     background-color: rgb(241, 242, 243);
     padding: 5px 265px;

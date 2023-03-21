@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-01-08 15:54:04
- * @LastEditTime: 2023-03-19 18:24:29
+ * @LastEditTime: 2023-03-21 13:37:04
 -->
 <script setup>
 import { ElMessage } from "element-plus";
@@ -196,12 +196,12 @@ onMounted(async () => {
           <span class="info__describe"> {{ tree.describe }}</span>
         </div>
       </div>
+      <el-divider />
       <!-- 订单信息 -->
       <div class="order__info">
         <!-- 头部 -->
         <div class="info__header">
           <span class="header__title">订单信息</span>
-          <el-button round @click="toSocket(buyer._id, seller._id, tree)">{{ isCurrent ? "联系卖家" : "联系买家" }}</el-button>
         </div>
         <!-- 主体 -->
         <div class="info__main">
@@ -212,9 +212,7 @@ onMounted(async () => {
           <span>拍下时间: {{ state.order.time.split(",").join(" ") }}</span>
           <span v-if="state.order.status > '0'">付款时间: {{ state.order.payTime }}</span>
           <span v-if="state.order.status > '1'">交易完成时间: {{}}</span>
-          <span
-            >支付状态: <el-tag :type="state.order.status == 0 ? 'warning' : 'success'">{{ state.order.status == 0 ? "未支付" : "已支付" }}</el-tag></span
-          >
+          <span>支付状态: <el-tag :type="state.order.status == 0 ? 'warning' : 'success'">{{ state.order.status == 0 ? "未支付" : "已支付" }}</el-tag></span>
         </div>
       </div>
       <div class="order__option">
@@ -252,14 +250,13 @@ onMounted(async () => {
   background-color: @defaultColor;
   .container__order {
     .flex__column();
-    gap: 30px;
     width: 70%;
     height: 100%;
     padding: 30px;
     background-color: white;
     .order__status {
       .flex__column();
-      margin: 40px 20px;
+      padding: 30px 20px 60px 20px;
       .status__icon {
         .flex__row();
         align-items: center;
@@ -300,10 +297,11 @@ onMounted(async () => {
     }
     .order__tree {
       .flex__row();
+      padding: 10px 0;
       gap: 20px;
       cursor: pointer;
       .tree__cover {
-        width: 200px;
+        width: 160px;
       }
       .tree__info {
         flex: 1;
@@ -336,7 +334,7 @@ onMounted(async () => {
         justify-content: space-between;
         align-content: center;
         .header__title {
-          font-size: 20px;
+          font-size: 18px;
           line-height: 32px;
         }
       }
@@ -344,9 +342,7 @@ onMounted(async () => {
         .flex__column();
         gap: 10px;
         color: #494545;
-        font-size: 16px;
-        .main__item {
-        }
+        font-size: 15px;
       }
     }
     .order__option {
