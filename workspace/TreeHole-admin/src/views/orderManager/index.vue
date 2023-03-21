@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-23 15:08:04
- * @LastEditTime: 2023-02-28 11:33:24
+ * @LastEditTime: 2023-03-21 14:11:42
 -->
 <script lang="ts" setup>
 import { reactive, ref, watch, onMounted } from "vue"
@@ -89,6 +89,12 @@ const resetSearch = () => {
 const handleRefresh = () => {
   getTableData()
 }
+const timeFormat = (time: string) => {
+  time = new Date(time).toLocaleString()
+  const time1: string[] = time.split(",")[0].split("/")
+  const time2: string[] = time.split(",")[1].split(" ")
+  return `${time1[2]}/${time1[0]}/${time1[1]} ${time2[1]}`
+}
 //#endregion
 
 /** 监听分页参数的变化 */
@@ -159,8 +165,12 @@ onMounted(async () => {
               <span>{{ scope.row.tree.price }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="time" label="创建时间" align="center" />
-          <el-table-column prop="payTime" label="价格" align="center">
+          <el-table-column prop="time" label="创建时间" align="center">
+            <template #default="scope">
+              <span>{{ timeFormat(scope.row.time) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="payTime" label="支付时间" align="center">
             <template #default="scope">
               <span>{{ scope.row.payTime || "--" }}</span>
             </template>
