@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-07 23:43:35
- * @LastEditTime: 2023-03-03 15:39:50
+ * @LastEditTime: 2023-03-21 13:57:04
 -->
 <script setup>
 import useClipboard from "vue-clipboard3";
@@ -272,6 +272,7 @@ watchEffect(() => {
       .view-box {
         padding: 2px;
         width: 180px;
+        object-fit: cover;
         cursor: pointer;
       }
     }

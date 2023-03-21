@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-03-03 17:49:38
+ * @LastEditTime: 2023-03-21 13:54:15
 -->
 <script setup>
 import api from "../api";
@@ -317,10 +317,8 @@ const record = computed(() => {
     position: relative;
     .main__navMenu {
       .flex__row();
-      backdrop-filter: blur(2px) brightness(100%);
-      background-color: rgba(255, 255, 255, 0.65);
+      background-color: rgb(255, 255, 255);
       border-bottom: 1px solid rgb(241, 242, 243);
-      // opacity: 0.9;
       position: relative;
       .navMenu__item {
         font-size: 16px;

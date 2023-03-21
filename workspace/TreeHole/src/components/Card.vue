@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-18 17:01:04
- * @LastEditTime: 2023-03-03 17:52:34
+ * @LastEditTime: 2023-03-21 13:55:00
 -->
 <script setup>
 import { defineProps, toRaw } from "vue-demi";
@@ -84,6 +84,7 @@ const toTreeDetail = async (treeID) => {
     height: 100%;
     border-radius: 6px;
     transition: all 0.5s;
+    object-fit: cover;
     cursor: pointer;
     &:hover {
       transform: scale(1.05);
