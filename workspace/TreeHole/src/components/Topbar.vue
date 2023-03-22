@@ -96,7 +96,6 @@ onMounted(() => {
     height: 50%;
     font-size: 17px;
     font-weight: 500;
-    font-family: @defaultFont;
     color: @defaultColor;
     padding: 0 24px;
     gap: 36px;

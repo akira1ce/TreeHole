@@ -357,7 +357,6 @@ onMounted(async () => {
       padding: 10px;
       position: relative;
       background-color: white;
-      font-family: PingFang SC, Microsoft YaHei;
       .sendBox-input {
         flex: 1;
         height: 20px;
@@ -366,7 +365,6 @@ onMounted(async () => {
         border: none;
         border-radius: 10px;
         font-size: 16px;
-        font-family: inherit;
         background-color: rgb(241, 242, 243);
         transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
         &:active {
@@ -374,7 +372,6 @@ onMounted(async () => {
         }
       }
       .sendBox-send {
-        font-family: inherit;
         font-size: 16px;
         background: @activeColor;
         color: white;

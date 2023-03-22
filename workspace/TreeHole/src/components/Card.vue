@@ -59,9 +59,6 @@ const toTreeDetail = async (treeID) => {
 </template>
 
 <style lang="less" scoped>
-//font
-@defaultFont: PingFang SC, Microsoft YaHei;
-
 //color
 @defaultColor: rgb(155, 161, 166);
 @activeColor: rgb(94, 161, 97);
@@ -78,7 +75,6 @@ const toTreeDetail = async (treeID) => {
   .flex__column();
   margin: 12px;
   position: relative;
-  font-family: @defaultFont;
   .card__cover {
     width: 100%;
     height: 100%;

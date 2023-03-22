@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-07 23:43:35
- * @LastEditTime: 2023-03-21 13:57:04
+ * @LastEditTime: 2023-03-22 14:05:19
 -->
 <script setup>
 import useClipboard from "vue-clipboard3";
@@ -296,6 +296,9 @@ watchEffect(() => {
       color: rgba(94, 161, 97, 0.6);
       transition: all 0.5s;
       cursor: pointer;
+      &:hover {
+        transform: scale(1.1);
+      }
     }
     .sold {
       position: absolute;
@@ -314,7 +317,7 @@ watchEffect(() => {
   }
   &:hover {
     .icon-youjiantou1 {
-      right: 20px;
+      right: 25px;
     }
   }
 }

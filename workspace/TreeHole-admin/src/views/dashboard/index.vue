@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-22 13:55:42
- * @LastEditTime: 2023-03-02 10:42:49
+ * @LastEditTime: 2023-03-22 14:14:31
 -->
 <script lang="ts" setup>
 import { onMounted, ref } from "vue"
@@ -161,6 +161,7 @@ onMounted(async () => {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+        align-items: center;
       }
       .iconfont {
         font-size: 65px;

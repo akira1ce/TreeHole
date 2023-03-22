@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-14 09:08:28
- * @LastEditTime: 2023-02-20 16:15:58
+ * @LastEditTime: 2023-03-22 14:22:06
  */
 /* http://meyerweb.com/eric/tools/css/reset/ 
    v2.0 | 20110126
@@ -136,7 +136,7 @@ table {
 #app {
   height: 100vh;
   overflow: hidden;
-  font-family: PingFang SC, Microsoft YaHei;
+  font-family: JetBrains Mono, PingFang SC, "Microsoft Yahei", "Hiragino Sans GB", "Heiti SC", "WenQuanYi Micro Hei", sans-serif;
 }
 .scroll::-webkit-scrollbar {
   width: 10px;

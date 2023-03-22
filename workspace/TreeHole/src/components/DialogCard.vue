@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-12-10 16:48:50
- * @LastEditTime: 2023-03-03 15:16:53
+ * @LastEditTime: 2023-03-22 13:53:05
 -->
 <script setup>
 import { computed } from "vue-demi";
@@ -87,7 +87,6 @@ const orderBtn = computed(() => {
   align-self: center;
   width: 45vw;
   height: 20vh;
-  font-family: inherit;
   .card__tips {
     padding-top: 20px;
   }
@@ -100,7 +99,7 @@ const orderBtn = computed(() => {
     border-radius: 5px;
     background-color: white;
     .tree__cover {
-      // align-self: center;
+      align-self: center;
       width: 30%;
       position: relative;
       img {

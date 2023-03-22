@@ -145,7 +145,6 @@ const navigate = (el) => {
       gap: 7px;
       font-size: 12px;
       font-weight: lighter;
-      font-family: @defaultFont;
       color: @defaultColor;
       transition: all 0.5s;
       cursor: pointer;
