@@ -1,0 +1,138 @@
+[{
+  "_id": {
+    "$oid": "64193b38ab93622389b2d805"
+  },
+  "userID1": "634a46aae553096bd0c95c10",
+  "userID2": "636616c07a179f73dd085492",
+  "context": [
+    {
+      "data": {
+        "content": "123",
+        "type": 1
+      },
+      "senderID": "634a46aae553096bd0c95c10",
+      "time": "3/21/2023, 1:50:27 PM"
+    },
+    {
+      "data": {
+        "content": "123",
+        "type": 1
+      },
+      "senderID": "636616c07a179f73dd085492",
+      "time": "3/22/2023, 1:51:51 PM"
+    },
+    {
+      "data": {
+        "content": "不好",
+        "type": 1
+      },
+      "senderID": "634a46aae553096bd0c95c10",
+      "time": "3/22/2023, 1:51:54 PM"
+    },
+    {
+      "data": {
+        "content": "去你的",
+        "type": 1
+      },
+      "senderID": "636616c07a179f73dd085492",
+      "time": "3/22/2023, 1:51:58 PM"
+    },
+    {
+      "data": {
+        "content": "骂人是不好的",
+        "type": 1
+      },
+      "senderID": "634a46aae553096bd0c95c10",
+      "time": "3/22/2023, 1:52:02 PM"
+    }
+  ],
+  "treeID": "63774226c0acc1eac23a0f5b",
+  "tree": {
+    "_id": "63774226c0acc1eac23a0f5b",
+    "ownerID": "636616c07a179f73dd085492",
+    "type": "金桔",
+    "height": "300",
+    "diameter": "10",
+    "branchPoint": "100",
+    "location": "安徽省-铜陵市-枞阳县",
+    "describe": "树形极好，欢迎来电交流！！",
+    "price": "500",
+    "imgs": [
+      {
+        "name": "1679373278759-test.png",
+        "url": "http://127.0.0.1:5000/uploadCenter/files/1679373278759-test.png"
+      }
+    ],
+    "__v": 0,
+    "time": "2022/2/1 17:09:01",
+    "title": "纯种金桔",
+    "status": "0",
+    "crownDiameter": "200",
+    "hci": 1.5,
+    "owner": {
+      "_id": "636616c07a179f73dd085492",
+      "account": "admin",
+      "name": "Admin",
+      "sex": "1",
+      "location": "安徽省-铜陵市",
+      "avator": "http://127.0.0.1:5000/uploadCenter/files/1672479218174-avator4.jpg",
+      "role": "2",
+      "__v": 0,
+      "status": "1"
+    }
+  },
+  "refer": 2,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "64193bc2ab93622389b2d859"
+  },
+  "userID1": "634a63a0e553096bd0c95c4c",
+  "userID2": "634a46aae553096bd0c95c10",
+  "context": [
+    {
+      "data": {
+        "content": "123",
+        "type": 1
+      },
+      "senderID": "634a46aae553096bd0c95c10",
+      "time": "3/21/2023, 1:49:58 PM"
+    }
+  ],
+  "treeID": "634a679fe553096bd0c95c54",
+  "tree": {
+    "_id": "634a679fe553096bd0c95c54",
+    "ownerID": "634a63a0e553096bd0c95c4c",
+    "type": "桂花",
+    "height": "300",
+    "diameter": "10",
+    "branchPoint": "150",
+    "location": "安徽省安庆市怀宁县金拱镇",
+    "describe": "树形极好，欢迎来电交流！！",
+    "imgs": [
+      {
+        "name": "1679373092499-test.png",
+        "url": "http://127.0.0.1:5000/uploadCenter/files/1679373092499-test.png"
+      }
+    ],
+    "price": "800",
+    "time": "2022/11/30 11:09:01",
+    "title": "极品多枝桂花",
+    "status": "0",
+    "crownDiameter": "200",
+    "hci": 1.5,
+    "owner": {
+      "_id": "634a63a0e553096bd0c95c4c",
+      "account": "15391612278",
+      "name": "L",
+      "sex": "0",
+      "location": "安徽-铜陵",
+      "avator": "http://127.0.0.1:5000/uploadCenter/files/1672479203962-avator3.jpg",
+      "role": "0",
+      "__v": 0,
+      "status": "1"
+    }
+  },
+  "refer": 2,
+  "__v": 0
+}]
