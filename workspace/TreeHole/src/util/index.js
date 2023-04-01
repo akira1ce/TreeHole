@@ -49,7 +49,7 @@ const defaultState = {
     describe: "",
     imgs: [],
     price: "",
-    state: "0",
+    state: "-1",
     time: "",
     title: "",
   },
