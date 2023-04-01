@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:36:37
- * @LastEditTime: 2023-03-03 17:39:51
+ * @LastEditTime: 2023-04-01 16:06:15
 -->
 <script setup>
 import api from "../api";
@@ -62,7 +62,8 @@ const getTreeList = async () => {
   const limit = limit_tree;
   const userID = state.userList[current]?._id;
   if (userID) {
-    const { list } = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit });
+    const baseStatus = userID == state.user._id ? -1 : 0;
+    const { list } = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit, baseStatus });
     if (list.length < state.limit_tree) state.infiniteScroll_tree = true;
     state.treeList.push(...list);
     state.pageNo_tree++;

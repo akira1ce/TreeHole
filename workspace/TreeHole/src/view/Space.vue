@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-03-21 13:39:03
+ * @LastEditTime: 2023-04-01 18:39:23
 -->
 <script setup>
 import api from "../api";
@@ -20,7 +20,6 @@ const router = useRouter();
 
 const form_user_Ref = ref();
 const form_tree_Ref = ref();
-const imgUploadRef = ref();
 
 // 表单规则
 const form_user_Rules = {
@@ -41,7 +40,7 @@ const form_tree_Rules = {
 };
 
 const loginUser = local.getItem("user");
-const spaceUser = history.state.spaceUser;
+const spaceUser = history.state.spaceUser || loginUser;
 
 const state = reactive({
   user: spaceUser,
@@ -71,6 +70,14 @@ const state = reactive({
   userLocation: [],
   isEmpty: false,
   isLoading: true,
+});
+
+// [computed]
+const record = computed(() => state.record);
+
+// 是否是当前用户
+const isCurrentUser = computed(() => {
+  return state.user._id == loginUser._id;
 });
 
 //#region 用户
@@ -140,8 +147,10 @@ const updateHci = () => {
 const release = () => {
   state.dialog_tree = true;
   state.form_tree = { ...defaultState.tree };
+  state.form_tree.imgs = [];
   state.treeLocation = [];
   state.fileList = [];
+  console.log(state);
 };
 
 /** 地区选择器监听 */
@@ -164,14 +173,14 @@ const updateTreeInfo = async () => {
     // 更新缓存
     state.treeList.unshift(tree);
     // 数据重置
-    state.form_tree = defaultState.tree;
+    state.form_tree = { ...defaultState.tree };
     ElMessage.success("发布成功");
   } else {
     // 编辑
     updateHci();
     await request.post(api.tree.modifyById, state.form_tree);
     state.dialog_tree = false;
-    state.form_tree = defaultState.tree;
+    state.form_tree = { ...defaultState.tree };
     ElMessage.success("编辑成功");
   }
 };
@@ -281,21 +290,12 @@ const submitForm = async (formRef, mode) => {
 const getTreeList = async () => {
   const { pageNo, limit } = state;
   const userID = state.user._id;
-  if (userID) {
-    const { list } = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit });
-    if (list.length < limit) state.infiniteScroll = true;
-    state.treeList.push(...list);
-    state.pageNo++;
-  }
+  const baseStatus = isCurrentUser.value ? -1 : 0;
+  const { list } = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit, baseStatus });
+  if (list.length < limit) state.infiniteScroll = true;
+  state.treeList.push(...list);
+  state.pageNo++;
 };
-
-// [computed]
-const record = computed(() => state.record);
-
-// 是否是当前用户
-const isCurrentUser = computed(() => {
-  return state.user._id == loginUser._id;
-});
 
 onMounted(async () => {
   try {
@@ -409,7 +409,7 @@ onMounted(async () => {
       </template>
     </el-dialog>
     <!-- 用户信息对话框 -->
-    <el-dialog title="用户信息" v-model="state.dialog_user" align-center v-if="isCurrentUser">
+    <el-dialog title="用户信息" v-model="state.dialog_user" align-center v-if="isCurrentUser" width="40%">
       <!-- 用户表单 -->
       <el-form :model="state.form_user" label-width="auto" ref="form_user_Ref" :rules="form_user_Rules">
         <el-form-item label="账号" prop="account">

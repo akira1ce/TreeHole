@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-15 11:20:39
- * @LastEditTime: 2023-03-04 12:02:22
+ * @LastEditTime: 2023-04-01 21:26:57
  */
 const { Tree, User, Comment } = require("../model");
 const { result, err } = require("../util");
@@ -92,8 +92,9 @@ const getTreeList = async (req, res, next) => {
 // 查询用户苗木列表
 const getTreeListByUserID = async (req, res, next) => {
   try {
-    const { userID, pageNo, limit } = req.body;
-    let trees = await Tree.find({ ownerID: userID })
+    const { userID, pageNo, limit, baseStatus } = req.body;
+
+    let trees = await Tree.find({ $and: [{ ownerID: userID }, { status: { $gte: baseStatus } }] })
       .sort({ _id: -1 })
       .skip((pageNo - 1) * limit)
       .limit(limit);
@@ -147,7 +148,7 @@ const getRecommendTreeList = async (req, res, next) => {
       if (hci_gt < 0) hci_gt = 0;
     }
 
-    data = await Tree.find({ hci: { $gt: hci_gt, $lt: hci_lt } })
+    data = await Tree.find({ $and: [{ hci: { $gt: hci_gt, $lt: hci_lt } }, { status: "0" }] })
       .sort({ _id: -1 })
       .skip((pageNo - 1) * limit)
       .limit(limit);
@@ -163,7 +164,7 @@ const getAreaTreeList = async (req, res, next) => {
   try {
     const { area, pageNo, limit } = req.body;
     const re = new RegExp(`${area}`, "i");
-    let trees = await Tree.find({ location: re })
+    let trees = await Tree.find({ $and: [{ location: re }, { status: "0" }] })
       .skip((pageNo - 1) * limit)
       .limit(limit);
     const list = await mergeTrees(trees);
