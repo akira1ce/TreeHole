@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-15 19:23:37
- * @LastEditTime: 2023-02-20 16:06:29
+ * @LastEditTime: 2023-04-01 18:49:49
 -->
 <script setup>
 import { onMounted, reactive, ref } from "vue";
@@ -9,6 +9,7 @@ import { useRouter } from "vue-router";
 import request from "../api/request";
 import api from "../api";
 import { local } from "../util";
+import { ElMessage } from "element-plus";
 
 const router = useRouter();
 const formRef = ref();
@@ -54,6 +55,10 @@ const Submit = async (formEl, mode) => {
       } else if (mode == 1) {
         const { account, password } = user;
         const res = await request.post(api.user.login, { account, password });
+        if (res.user.status == "0") {
+          ElMessage.error("用户待审核中...");
+          return;
+        }
         local.setItem("token", res.token);
         local.setItem("user", res.user);
         router.push({ name: "Home" });

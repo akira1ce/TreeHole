@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-09 10:39:02
- * @LastEditTime: 2023-02-25 18:17:23
+ * @LastEditTime: 2023-04-01 15:58:54
  */
 const mongoose = require("mongoose");
 const Types = require("../util/schemaTypes");
@@ -17,7 +17,7 @@ const treeSchema = new mongoose.Schema({
   status: {
     type: Types.String,
     required: false,
-    default: "0",
+    default: "-1",
   },
   title: {
     type: Types.String,

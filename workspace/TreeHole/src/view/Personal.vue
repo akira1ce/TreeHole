@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-03-21 13:54:15
+ * @LastEditTime: 2023-04-01 17:57:48
 -->
 <script setup>
 import api from "../api";
@@ -204,7 +204,7 @@ const record = computed(() => {
       <div class="space" @click="toSpace(user)">空间 <i class="iconfont icon-youjiantou"></i></div>
     </div>
     <div class="container__main">
-      <el-affix :offset="76">
+      <el-affix offset="76" target=".container__main">
         <!-- 导航 -->
         <div class="main__navMenu">
           <div v-for="(item, index) in navMenu" class="navMenu__item" :class="{ active: state.current == index }" @click="switchNav(index)">
@@ -255,6 +255,7 @@ const record = computed(() => {
   height: calc(100vh - @topbar_height);
   overflow-y: overlay;
   position: relative;
+  box-sizing: border-box;
   padding: 30px 3.333vw;
   .container__userInfo {
     .flex__row();
@@ -361,7 +362,6 @@ const record = computed(() => {
     .main__content {
       width: 100%;
       min-height: 415px;
-      padding-bottom: 5px;
       position: relative;
       .content__trees {
         display: grid;

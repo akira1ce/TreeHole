@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-07 23:43:35
- * @LastEditTime: 2023-03-22 14:05:19
+ * @LastEditTime: 2023-04-01 15:57:58
 -->
 <script setup>
 import useClipboard from "vue-clipboard3";
@@ -165,9 +165,10 @@ watchEffect(() => {
         <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="handleCollect()"></i>
         <!-- 联系卖家 -->
         <el-button round @click="toSocket(loginUser._id, user._id, tree)" v-if="tree.status == 0">联系卖家</el-button>
-        <el-button round type="info" disabled="" v-if="tree.status != 0">已售</el-button>
+        <el-button round type="info" disabled v-if="tree.status > 0">已售</el-button>
       </div>
-      <span class="sold" v-else-if="tree.status != 0">已售</span>
+      <span class="sold" style="background-color: rgba(246, 171, 113, 0.8)" v-else-if="tree.status == '-1'">待审核</span>
+      <span class="sold" v-else-if="tree.status > 0">已售</span>
       <i class="iconfont icon-youjiantou1" v-if="route.name != 'TreeDetail'" @click="toTreeDetail(tree._id)"></i>
     </div>
   </el-card>

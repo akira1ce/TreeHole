@@ -9,27 +9,37 @@ const router = useRouter();
 // [state]
 const formRef = ref();
 const user = reactive({
+  name: "",
   account: "",
   password: "",
   role: 0,
 });
 
 const rules = reactive({
+  name: [
+    {
+      required: true,
+      message: "请输入用户名",
+      trigger: "blur",
+    },
+    { min: 3, max: 11, message: "用户名长度需在 3-11 之间", trigger: "blur" },
+  ],
   account: [
     {
       required: true,
-      message: "Please input Activity account",
+      message: "请输入账号",
       trigger: "blur",
     },
-    { min: 3, max: 11, message: "Length should be 3 to 11", trigger: "blur" },
+    { min: 3, max: 11, message: "账号长度需在 3-11 之间", trigger: "blur" },
+    { pattern: /^[a-zA-Z0-9]+$/, message: "只能由数字和英文字母组成", trigger: "blur" },
   ],
   password: [
     {
       required: true,
-      message: "Please input Activity password",
+      message: "请输入密码",
       trigger: "blur",
     },
-    { min: 5, max: 18, message: "Length should be 5 to 18", trigger: "blur" },
+    { min: 5, max: 18, message: "密码长度需在 5-18 之间", trigger: "blur" },
   ],
 });
 
@@ -50,8 +60,7 @@ const Submit = async (formEl, mode) => {
           formEl.resetFields();
         } else if (mode == 1) {
           // register
-          const { account, password, role } = user;
-          const res = await request.post(api.user.register, { account, password, role });
+          const res = await request.post(api.user.register, { ...user });
           router.push({
             name: "Login",
             state: { user: res.user },
@@ -76,7 +85,10 @@ const toLogin = () => {
     <div class="box">
       <div class="main">
         <h2 class="main-title">Welcome TreeHole 🙌</h2>
-        <el-form :model="user" :rules="rules" label-width="50px" ref="formRef" class="main-form" status-icon>
+        <el-form :model="user" :rules="rules" label-width="100px" ref="formRef" class="main-form" status-icon>
+          <el-form-item label="name" prop="name">
+            <el-input v-model="user.name"></el-input>
+          </el-form-item>
           <el-form-item label="Account" prop="account">
             <el-input v-model="user.account"></el-input>
           </el-form-item>

@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-05 10:35:08
- * @LastEditTime: 2023-02-28 12:56:12
+ * @LastEditTime: 2023-04-01 18:17:33
  */
 const mongoose = require("mongoose");
 const Types = require("../util/schemaTypes");
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
   name: {
     type: Types.String,
     required: false,
-    default: "",
+    default: "苗友12138",
   },
   sex: {
     type: String,
@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
   location: {
     type: Types.String,
     required: false,
-    default: "",
+    default: "安徽省-铜陵市",
   },
   status: {
     type: String,

@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-23 15:08:04
- * @LastEditTime: 2023-03-15 19:55:36
+ * @LastEditTime: 2023-04-01 21:23:47
 -->
 <script lang="ts" setup>
 import { reactive, ref, watch, onMounted } from "vue"
@@ -91,6 +91,8 @@ const resetForm = () => {
   currentUpdateId.value = undefined
   fileList.value = []
   location.value = []
+  console.log(tree.imgs)
+  tree.imgs = []
   Object.keys(formData).forEach((key) => (formData[key] = tree[key]))
 }
 
@@ -158,7 +160,7 @@ const dialogImageUrl = ref<undefined | string>(undefined)
 const fileList = ref<UploadUserFile[]>([])
 
 const handleUpdate = (row: any) => {
-  if (row.status != "0") {
+  if (row.status > "0") {
     ElMessage.error("苗木正在交易中")
     return
   }
@@ -353,8 +355,20 @@ onMounted(async () => {
             <el-option v-for="user in userList" :label="user.name" :value="user._id as string" :key="user._id" />
           </el-select>
         </el-form-item>
+        <el-form-item prop="location" label="所在地区">
+          <el-cascader
+            v-model="location"
+            placeholder="请选择所在地区"
+            :options="regionData"
+            @change="handleCascadarChange"
+          >
+          </el-cascader>
+        </el-form-item>
         <el-form-item prop="title" label="苗木标题">
           <el-input v-model="formData.title" placeholder="请输入苗木标题" />
+        </el-form-item>
+        <el-form-item prop="describe" label="苗木描述">
+          <el-input v-model="formData.describe" placeholder="请输入苗木描述" />
         </el-form-item>
         <el-form-item prop="type" label="苗木类型">
           <el-input v-model="formData.type" placeholder="请输入苗木类型" />
@@ -370,15 +384,6 @@ onMounted(async () => {
         </el-form-item>
         <el-form-item prop="branchPoint" label="分支点(cm)">
           <el-input v-model="formData.branchPoint" placeholder="请输入苗木分支点" />
-        </el-form-item>
-        <el-form-item prop="location" label="所在地区">
-          <el-cascader
-            v-model="location"
-            placeholder="请选择所在地区"
-            :options="regionData"
-            @change="handleCascadarChange"
-          >
-          </el-cascader>
         </el-form-item>
         <el-form-item prop="price" label="价格">
           <el-input v-model="formData.price" placeholder="请输入价格" />
