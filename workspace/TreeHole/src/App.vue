@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-14 09:08:28
- * @LastEditTime: 2023-02-20 16:15:45
+ * @LastEditTime: 2023-04-01 17:13:17
 -->
 <script setup>
 import Sidebar from "./components/Sidebar.vue";
@@ -18,7 +18,11 @@ const whitelist = ["Login", "Register"];
   <Sidebar v-if="whitelist.indexOf(route.name) == -1" />
   <!-- 顶部栏 -->
   <Topbar v-if="whitelist.indexOf(route.name) == -1" />
-  <router-view></router-view>
+  <router-view v-slot="{ Component }">
+    <keep-alive :include="['Dynamic', 'Home', 'Space', 'Personal']">
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
 </template>
 
 <style lang="less" scoped></style>
