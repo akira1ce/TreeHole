@@ -19,7 +19,7 @@ const user = reactive({
   password: "admin123",
 });
 
-// 表单规则
+/** 表单规则 */
 const rules = reactive({
   account: [
     {
@@ -39,7 +39,6 @@ const rules = reactive({
   ],
 });
 
-// [methods]
 /**
  * 登陆
  * @param {object} formEl
@@ -49,16 +48,21 @@ const Submit = async (formEl, mode) => {
   if (!formEl) return;
   await formEl.validate(async (valid, fields) => {
     if (valid) {
+      /** 重置 */
       if (mode == 0) {
         if (!formEl) return;
         formEl.resetFields();
       } else if (mode == 1) {
+        /** 登陆 */
         const { account, password } = user;
         const res = await request.post(api.user.login, { account, password });
+
+        /** 待审核 */
         if (res.user.status == "0") {
           ElMessage.error("用户待审核中...");
           return;
         }
+
         local.setItem("token", res.token);
         local.setItem("user", res.user);
         router.push({ name: "Home" });
@@ -69,7 +73,7 @@ const Submit = async (formEl, mode) => {
   });
 };
 
-// register
+/** register */
 const toRegister = () => {
   router.push({ name: "Register" });
 };

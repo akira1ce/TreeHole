@@ -17,7 +17,6 @@ const props = defineProps(["tree"]);
 
 const tree = props.tree;
 
-// [methods]
 /**
  * 跳转个人空间
  * @param {Object} user
@@ -38,6 +37,7 @@ const toSpace = (user) => {
 const toTreeDetail = async (treeID) => {
   try {
     if (route.name == "TreeDetail") return;
+    /** 浏览记录 */
     await request.post(api.record.modifyRecordTree, { userID: local.getItem("user")._id, treeID, mode: 0, clearAll: 0 });
     router.push({ name: "TreeDetail", state: { treeID } });
   } catch (error) {

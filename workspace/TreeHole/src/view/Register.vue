@@ -6,7 +6,6 @@ import api from "../api";
 
 const router = useRouter();
 
-// [state]
 const formRef = ref();
 const user = reactive({
   name: "",
@@ -43,7 +42,6 @@ const rules = reactive({
   ],
 });
 
-// [methods]
 /**
  * 注册
  * @param {object} formEl
@@ -55,11 +53,11 @@ const Submit = async (formEl, mode) => {
     if (valid) {
       try {
         if (mode == 0) {
-          // reset
+          /** 重置 */
           if (!formEl) return;
           formEl.resetFields();
         } else if (mode == 1) {
-          // register
+          /** 注册 */
           const res = await request.post(api.user.register, { ...user });
           router.push({
             name: "Login",

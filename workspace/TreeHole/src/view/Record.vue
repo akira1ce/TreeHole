@@ -19,13 +19,13 @@ const loginUser = local.getItem("user");
 const state = reactive({
   record: defaultState.record,
   userList: [],
+  /** 关注/粉丝 */
   mode: history.state.mode || 0,
   pageNo: 1,
   limit: 10,
   infiniteScroll: false,
 });
 
-// [methods]
 /**
  * 跳转个人空间
  * @param {Object} user
@@ -39,7 +39,7 @@ const toSpace = (user) => {
   }
 };
 
-// 关注/取消关注
+/** 关注/取消关注 */
 const followHandle = async (item) => {
   const userID1 = loginUser._id;
   const userID2 = item._id;
@@ -51,18 +51,16 @@ const followHandle = async (item) => {
   else ElMessage.success("取消关注成功");
 };
 
-/**
- * 获取用户列表
- */
+/** 获取用户列表 */
 const getUserList = async () => {
   const { pageNo, limit, record, mode } = state;
   let data = {};
   if (mode == 0) {
-    // 关注列表
+    /** 关注列表 */
     data = await request.post(api.user.getUserListByID, { users: record.following, pageNo, limit });
     data.list.forEach((item) => (item.isFollow = true));
   } else {
-    // 粉丝列表
+    /** 粉丝列表 */
     data = await request.post(api.user.getUserListByID, { users: record.fans, pageNo, limit });
     data.list.forEach((item) => {
       if (record.following.indexOf(item._id) != -1) item.isFollow = true;

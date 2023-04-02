@@ -22,30 +22,15 @@ const state = reactive({
   isLoading: true,
 });
 
-// [methods]
 /**
  * 跳转苗木详情
  * @param {string} treeID
  */
 const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
+  /** 浏览记录  */
   await request.post(api.record.modifyRecordTree, { userID: state.loginUser._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
-};
-
-/**
- * 跳转聊天
- * - user1
- * - user2
- * - tree
- * @param {string} userID1
- * @param {string} userID2
- * @param {string} treeID
- */
-const toSocket = async (userID1, userID2, tree) => {
-  const treeID = tree._id;
-  await request.post(api.socket.addSocket, { userID1, userID2, treeID, tree });
-  router.push({ name: "Socket", state: { userID: userID2, treeID } });
 };
 
 /**
@@ -54,21 +39,22 @@ const toSocket = async (userID1, userID2, tree) => {
  */
 const cancelOrder = async (order) => {
   if (state.order.status == 1) {
+    /** 退款 */
     const refundRes = await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
     ElMessage.success("已取消订单并退款成功");
   }
 
   await request.post(api.order.removeById, { _id: order._id });
+  /** 重置苗木状态 */
   await request.post(api.tree.modifyById, { _id: order.treeID, status: 0 });
 
-  // 更新缓存
+  /** 更新缓存 */
   history.state.order = null;
   state.order._id = "";
-  ElMessage.success("已取消订单");
 };
 
 /**
- * 立即支付
+ * 支付宝支付
  * @param {object} order
  */
 const toPay = async (order) => {
@@ -86,11 +72,9 @@ const completeOrder = async (order) => {
   await request.post(api.order.modifyById, { _id: order._id, status: "2" });
   await request.post(api.tree.modifyById, { _id: order.treeID, status: "2" });
   state.order.status = "2";
-  ElMessage.success("确认收货完成");
   ElMessage.success("交易完成");
 };
 
-// [computed]
 const tree = computed(() => {
   return state.order.tree || {};
 });
@@ -211,7 +195,9 @@ onMounted(async () => {
           <span>订单编号: {{ state.order._id }}</span>
           <span>拍下时间: {{ state.order.time.split(",").join(" ") }}</span>
           <span v-if="state.order.status > '0'">付款时间: {{ state.order.payTime }}</span>
-          <span>支付状态: <el-tag :type="state.order.status == 0 ? 'warning' : 'success'">{{ state.order.status == 0 ? "未支付" : "已支付" }}</el-tag></span>
+          <span
+            >支付状态: <el-tag :type="state.order.status == 0 ? 'warning' : 'success'">{{ state.order.status == 0 ? "未支付" : "已支付" }}</el-tag></span
+          >
         </div>
       </div>
       <div class="order__option">

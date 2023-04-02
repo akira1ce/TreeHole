@@ -19,7 +19,6 @@ const state = reactive({
   current: local.getItem("current_home") || 0,
 });
 
-// [methods]
 // 滑块移动
 const sliderMove = () => {
   if (state.current == 0) sliderRef.value.style.left = "30px";

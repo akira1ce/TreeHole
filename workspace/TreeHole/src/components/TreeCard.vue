@@ -27,7 +27,6 @@ const state = reactive({
   isCollect: false,
 });
 
-// [methods]
 // 收藏
 const handleCollect = async () => {
   state.isCollect = !state.isCollect;
@@ -45,6 +44,7 @@ const handleCollect = async () => {
  */
 const toSocket = async (userID1, userID2, tree) => {
   const treeID = tree._id;
+  /** 新增会话 */
   await request.post(api.socket.addSocket, { userID1, userID2, treeID, tree });
   router.push({ name: "Socket", state: { userID: userID2, treeID } });
 };
@@ -68,6 +68,7 @@ const toSpace = (user) => {
  */
 const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
+  /** 浏览记录 */
   await request.post(api.record.modifyRecordTree, { userID: loginUser._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
 };

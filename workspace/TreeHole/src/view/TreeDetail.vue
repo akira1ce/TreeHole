@@ -20,6 +20,7 @@ const state = reactive({
   treeID: history.state.treeID,
   user: local.getItem("user") || {},
   record: { ...defaultState.record },
+  /** 评论 */
   comments: [],
   comment: { ...defaultState.comment },
   pageNo: 1,
@@ -28,7 +29,6 @@ const state = reactive({
   isEmpty: false,
 });
 
-// [methods]
 /**
  * 关注用户
  * @param {string} userID1
@@ -47,9 +47,7 @@ const collectHandle = (tree) => {
   recordHandle.collect(state.record, state.user._id, tree._id);
 };
 
-/**
- * 发送评论
- */
+/** 发送评论 */
 const sendComment = async () => {
   const { comment } = state;
   if (comment.context == "") {
@@ -59,22 +57,20 @@ const sendComment = async () => {
   const newComment = await request.post(api.comment.addComment, comment);
   newComment.sender = state.user;
 
-  // 更新缓存
+  /** 更新缓存 */
   state.comments.unshift(newComment);
   state.comment.context = "";
   ElMessage.success("发表成功");
 };
 
-/**
- * 删除评论
- */
+/** 删除评论 */
 const removeComment = async (comment, index) => {
   await request.post(api.comment.removeById, { _id: comment._id });
   state.comments.splice(index, 1);
   ElMessage.success("删除成功");
 };
 
-// 获取评论列表
+/** 获取评论列表 */
 const getCommentList = async () => {
   const { pageNo, limit, treeID } = state;
 
@@ -98,8 +94,7 @@ const toSpace = (user) => {
   }
 };
 
-// [computed]
-// 是否关注
+/** 是否关注 */
 const isFollow = computed(() => {
   const { record, tree } = state;
   return record.following.indexOf(tree.ownerID) != -1;

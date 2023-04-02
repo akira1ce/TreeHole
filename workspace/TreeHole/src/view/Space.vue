@@ -61,9 +61,11 @@ const state = reactive({
   dialog_tree: false,
   form_tree: { ...defaultState.tree },
   fileList: [],
+  /** 预览图片 */
   dialog_previewImg: false,
   dialogImageUrl: "",
   dialogImageVisible: false,
+  /** 更新苗木下标 */
   updateTreeIndex: undefined,
   /** 地区选择 */
   treeLocation: [],
@@ -72,10 +74,9 @@ const state = reactive({
   isLoading: true,
 });
 
-// [computed]
 const record = computed(() => state.record);
 
-// 是否是当前用户
+/** 是否是当前用户 */
 const isCurrentUser = computed(() => {
   return state.user._id == loginUser._id;
 });
@@ -90,7 +91,7 @@ const editUserInfo = () => {
 /** 更新用户信息 */
 const updateUserInfo = async () => {
   await request.post(api.user.modifyById, state.form_user);
-  // 更新缓存
+  /** 更新缓存 */
   ElMessage.success("用户信息更新成功");
   local.setItem("user", state.form_user);
   if (spaceUser) history.state.spaceUser = toRaw(state.form_user);
@@ -118,7 +119,7 @@ const toRecord = (mode) => {
 const followHandle = async (userID1, userID2) => {
   recordHandle.follow(state.loginRecord, userID1, userID2);
 
-  // 更新缓存
+  /** 更新缓存 */
   const { fans } = state.record;
   const index = fans.indexOf(loginUser._id);
 
@@ -162,21 +163,21 @@ const handleCascadarChange = (location, mode) => {
 /** 更新/发布 苗木信息 */
 const updateTreeInfo = async () => {
   if (state.form_tree._id == "") {
-    // 发布
+    /** 发布 */
     delete state.form_tree._id;
     delete state.form_tree.time;
-    // 更新 hci
+    /** 更新 hci */
     updateHci();
     const { tree } = await request.post(api.tree.addTree, state.form_tree);
     tree.owner = state.user;
     state.dialog_tree = false;
-    // 更新缓存
+    /** 更新缓存 */
     state.treeList.unshift(tree);
-    // 数据重置
+    /** 数据重置 */
     state.form_tree = { ...defaultState.tree };
     ElMessage.success("发布成功");
   } else {
-    // 编辑
+    /** 编辑 */
     updateHci();
     await request.post(api.tree.modifyById, state.form_tree);
     state.dialog_tree = false;
@@ -191,11 +192,11 @@ const updateTreeInfo = async () => {
  */
 const beforeImageUpload = (rawFile) => {
   if (["image/jpeg", "image/png"].indexOf(rawFile.type) == -1) {
-    // 图片资源格式验证
+    /** 图片资源格式验证 */
     ElMessage.error("Picture must be JPG/PNG format!");
     return false;
   } else if (rawFile.size / 1024 / 1024 > 5) {
-    // 图片大小限制
+    /** 图片大小限制 */
     ElMessage.error("Picture size can not exceed 5MB!");
     return false;
   }
@@ -231,7 +232,7 @@ const handleCommand = async (command) => {
   const loc = tree.location.split("-");
   state.treeLocation = [TextToCode[loc[0]].code, TextToCode[loc[0]][loc[1]].code, TextToCode[loc[0]][loc[1]][loc[2]].code];
   if (command.mode == 0) {
-    // 编辑
+    /** 编辑 */
     if (tree.status > 0) {
       ElMessage.error("苗木正在交易或交易完成，无法编辑");
       return;
@@ -240,7 +241,7 @@ const handleCommand = async (command) => {
     state.form_tree = tree;
     state.fileList = _.cloneDeep(tree.imgs);
   } else {
-    // 删除
+    /** 删除 */
     if (tree.status == 1) {
       ElMessage.error("苗木正在交易中，无法删除");
       return;
@@ -299,11 +300,17 @@ const getTreeList = async () => {
 
 onMounted(async () => {
   try {
+    /** 登陆用户记录 */
     if (loginUser._id != state.user._id) state.loginRecord = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
+    /** 当前用户记录 */
     state.record = await request.post(api.record.getRecordByUserID, { userID: state.user._id });
+    /** 非当前用户是否关注 */
     if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
+
     await getTreeList();
     if (state.treeList.length == 0) state.isEmpty = true;
+
+    /** 地区 */
     const loc = state.user.location.split("-");
     state.userLocation = [TextToCode[loc[0]]?.code, TextToCode[loc[0]][loc[1]]?.code];
   } catch (error) {

@@ -16,15 +16,12 @@ const router = useRouter();
 const user = local.getItem("user") || {};
 const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket", "Login"];
 
-// [methods]
-// avator loading errorHandler
-const errorHandler = () => true;
-
 /**
  * 跳转个人空间
  * @param {proxy} user
  */
 const toSpace = (user) => {
+  /** 当前用户 */
   if (history.state.spaceUser?._id == user._id) return;
   else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
   else {
@@ -39,7 +36,7 @@ const toSpace = (user) => {
  */
 const navigate = (el) => {
   const id = el.target.dataset.id || el.target?.parentNode.dataset.id;
-  /** back */
+  /** 返回 */
   if (id == -1) {
     router.go(-1);
     return;

@@ -17,7 +17,8 @@ onMounted(() => {
     zoom: 14,
     center: new TMap.LatLng(39.986785, 116.301012),
   });
-  const geocoder = new TMap.service.Geocoder(); // 新建一个正逆地址解析类
+  /** 新建一个正逆地址解析类 */
+  const geocoder = new TMap.service.Geocoder();
   const markers = new TMap.MultiMarker({
     map: map,
     geometries: [],
@@ -25,12 +26,13 @@ onMounted(() => {
 
   function convert(location) {
     markers.setGeometries([]);
-    // 将给定的地址转换为坐标位置
+    /** 将给定的地址转换为坐标位置 */
     geocoder.getLocation({ address: location }).then((result) => {
       markers.updateGeometries([
         {
           id: "container",
-          position: result.result.location, // 将得到的坐标位置用点标记标注在地图上
+          /** 将得到的坐标位置用点标记标注在地图上 */
+          position: result.result.location,
         },
       ]);
       map.setCenter(result.result.location);

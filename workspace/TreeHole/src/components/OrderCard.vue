@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-26 10:49:01
- * @LastEditTime: 2023-03-03 16:16:19
+ * @LastEditTime: 2023-04-02 17:14:47
 -->
 <script setup>
 import { Delete } from "@element-plus/icons-vue";
@@ -16,11 +16,9 @@ const route = useRoute();
 
 const props = defineProps(["order", "deleteOrder", "index"]);
 
-// [state]
 const { order, deleteOrder, index } = props;
 const user = local.getItem("user");
 
-// [methods]
 /**
  * 跳转聊天
  * - user1
@@ -32,6 +30,7 @@ const user = local.getItem("user");
  */
 const toSocket = async (userID1, userID2, tree) => {
   const treeID = tree._id;
+  /** 新增会话 */
   await request.post(api.socket.addSocket, { userID1, userID2, treeID, tree });
   router.push({ name: "Socket", state: { userID: userID2, treeID } });
 };
@@ -45,17 +44,13 @@ const toSpace = (user) => {
   router.push({ path: "/space", state: { spaceUser: toRaw(user) } });
 };
 
-const spaceLink = () => {
-  if (otherSide.value._id == order.tree.ownerID) toSpace(otherSide.value);
-  else toSpace(user);
-};
-
 /**
  * 跳转苗木详情
  * @param {string} treeID
  */
 const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
+  /** 浏览记录 */
   await request.post(api.record.modifyRecordTree, { userID: user._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
 };

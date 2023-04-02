@@ -16,13 +16,13 @@ const route = useRoute();
 const props = defineProps(["tree", "loginUser", "orderOp"]);
 const { tree, loginUser, orderOp } = props;
 
-// [methods]
 /**
  * 跳转苗木详情
  * @param {string} treeID
  */
 const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
+  /** 浏览记录 */
   await request.post(api.record.modifyRecordTree, { userID: loginUser._id, treeID, mode: 0, clearAll: 0 });
   router.push({ name: "TreeDetail", state: { treeID } });
 };

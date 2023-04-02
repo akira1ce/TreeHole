@@ -12,23 +12,27 @@ import TreeCard from "../components/TreeCard.vue";
 import { ElMessage } from "element-plus";
 
 const state = reactive({
+  /** 当前选中用户 */
   current: 0,
   record: defaultState.record,
+  /** 关注列表 */
   userList: [],
+  /** 苗木列表 */
   treeList: [],
   user: local.getItem("user"),
+  /** 苗木分页 */
   pageNo_tree: 1,
-  pageNo_user: 1,
   limit_tree: 4,
-  limit_user: 12,
   infiniteScroll_tree: false,
-  infiniteScroll_user: false,
   isEmpty_user: false,
+  /** 用户分页 */
+  pageNo_user: 1,
+  limit_user: 12,
+  infiniteScroll_user: false,
   isEmpty_tree: false,
   isLoading: true,
 });
 
-// [methods]
 /**
  * 收藏树
  * @param {string} treeID
@@ -36,8 +40,6 @@ const state = reactive({
 const collectHandle = (tree) => {
   recordHandle.collect(state.record, state.user._id, tree._id);
 };
-
-const errorHandler = () => true;
 
 /**
  * 选择关注列表中的用户
@@ -53,26 +55,24 @@ const selectUser = (e) => {
   getTreeList();
 };
 
-/**
- * 获取树列表
- */
+/** 获取树列表 */
 const getTreeList = async () => {
   const { pageNo_tree, limit_tree, current } = state;
   const pageNo = pageNo_tree;
   const limit = limit_tree;
   const userID = state.userList[current]?._id;
+
   if (userID) {
     const baseStatus = userID == state.user._id ? -1 : 0;
     const { list } = await request.post(api.tree.getTreeListByUserID, { userID, pageNo, limit, baseStatus });
+
     if (list.length < state.limit_tree) state.infiniteScroll_tree = true;
     state.treeList.push(...list);
     state.pageNo_tree++;
   }
 };
 
-/**
- * 获取用户列表
- */
+/** 获取用户列表 */
 const getUserList = async () => {
   const { pageNo_user, limit_user, record } = state;
   const pageNo = pageNo_user;
@@ -86,11 +86,9 @@ const getUserList = async () => {
   state.pageNo_user++;
 };
 
-/**
- * 关注-取消关注
- */
+/** 关注-取消关注 */
 const followHandle = async () => {
-  const { current, record, user } = state;
+  const { current, user } = state;
   const follow_current = state.userList[current];
 
   const userID1 = user._id;
@@ -103,23 +101,19 @@ const followHandle = async () => {
   else ElMessage.success("取消关注成功");
 };
 
-// [computed]
 // 当前用户
 const currentUser = computed(() => {
   return state.userList[state.current];
-});
-
-// 当前关注用户树列表
-const treeList = computed(() => {
-  return state.treeList;
 });
 
 onMounted(async () => {
   try {
     const userID = state.user._id;
     state.record = await request.post(api.record.getRecordByUserID, { userID });
+
     await getUserList();
     await getTreeList();
+    
     if (state.userList.length == 0) state.isEmpty_user = true;
     if (state.treeList.length == 0) state.isEmpty_tree = true;
   } catch (error) {

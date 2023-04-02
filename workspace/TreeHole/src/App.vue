@@ -14,6 +14,7 @@ const route = useRoute();
 const whitelist = ["Login", "Register"];
 const isRouterAlive = ref(true);
 
+/** 刷新 */
 const reload = () => {
   isRouterAlive.value = false;
   nextTick(() => {

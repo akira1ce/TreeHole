@@ -55,7 +55,6 @@ const state = reactive({
   infiniteScroll: false,
 });
 
-// [methods]
 /**
  * 订单操作
  * - 立即购买 code 0
@@ -67,18 +66,23 @@ const orderOp = async (tree, code) => {
   tree = toRaw(tree);
   const { socketList, current } = state;
   const { title, describe, price } = tree;
+
   if (code == -1) return;
   if (code == 0) {
+    /** 新增订单 */
     const order = await request.post(api.order.addOrder, { treeID: tree._id, tree, buyerID: loginUser._id, sellerID: tree.ownerID });
+
+    /** 支付宝支付 */
     await request.post(api.tree.modifyById, { _id: tree._id, status: "1" });
     const payUrl = await request.post(api.alipay.pagePay, { orderID: order._id, title, describe, price });
+
     socketList[current].tree.status = 1;
     ElMessage.success("购买成功");
     window.open(payUrl);
   }
 };
 
-// 下放滚动条
+/** 下放滚动条 */
 const downScroll = () => {
   nextTick(() => {
     dialogRef.value.scrollTop = dialogRef.value.scrollHeight;
@@ -98,7 +102,6 @@ const removeSocket = async (userID, socketID, index) => {
   history.state.treeID = null;
 };
 
-// 跳转用户空间
 /**
  * 跳转个人空间
  * @param {proxy} user
@@ -112,7 +115,7 @@ const toSpace = (user) => {
   }
 };
 
-// 切换用户
+/** 切换用户 */
 const selectOtherSide = (e) => {
   const id = e.target.dataset?.id || e.target.parentNode.dataset?.id || e.target.parentNode.parentNode.dataset?.id;
   if (state.current == id || id == undefined) return;
@@ -120,7 +123,7 @@ const selectOtherSide = (e) => {
   downScroll();
 };
 
-// 发送信息
+/** 发送信息 */
 const sendMsg = async () => {
   const senderID = loginUser._id;
   const content = state.text;
@@ -134,19 +137,19 @@ const sendMsg = async () => {
     time,
   };
 
-  // 空白特判
+  /** 空白特判 */
   if (content == "") {
     ElMessage.warning("信息内容不能为空喔~");
     return;
   }
 
-  // socket 实时
+  /** 触发 socket 回调 */
   socket.emit("sendMessage", msg);
 
   state.text = "";
 };
 
-// 获取会话列表
+/** 获取会话列表 */
 const getSocketList = async () => {
   const { pageNo, limit, record } = state;
 
@@ -161,8 +164,7 @@ const getSocketList = async () => {
   state.pageNo++;
 };
 
-// [computed]
-// 当前聊天内容
+/** 当前会话 */
 const currentSocket = computed(() => {
   return state.socketList[state.current];
 });

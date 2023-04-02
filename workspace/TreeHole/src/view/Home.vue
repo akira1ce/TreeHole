@@ -16,6 +16,7 @@ const navMenu = ["recommend", "area"];
 const state = reactive({
   user: local.getItem("user") || {},
   record: { ...defaultState.record },
+  /** 当前导航 */
   current: local.getItem("current_home") || 0,
   currentList: {
     pageNo: 1,
@@ -23,12 +24,14 @@ const state = reactive({
     content: [],
     infiniteScroll: false,
   },
+  /** 推荐 */
   recommend: {
     pageNo: 1,
     limit: 16,
     content: [],
     infiniteScroll: false,
   },
+  /** 地区 */
   area: {
     pageNo: 1,
     limit: 16,
@@ -38,7 +41,7 @@ const state = reactive({
   isLoader: true,
 });
 
-// [methods]
+/** 切换导航 */
 const switchNav = (target) => {
   // 缓存
   state.current = target;
@@ -56,13 +59,11 @@ const switchNav = (target) => {
   }
 };
 
-/**
- * 获取树列表
- */
+/** 获取树列表 */
 const getCurrentList = async () => {
   const { current, record } = state;
 
-  // 定位当前集合
+  /** 定位当前集合 */
   const currentList = state[navMenu[current]];
   const { pageNo, limit } = currentList;
 
@@ -71,15 +72,14 @@ const getCurrentList = async () => {
   if (current == 0) data = await request.post(api.tree.getRecommendTreeList, { trees: record.browsingHistory, pageNo, limit });
   else data = await request.post(api.tree.getAreaTreeList, { area: state.user.location.split("-")[1], pageNo, limit });
 
-  // 更新缓存
+  /** 更新缓存 */
   currentList.content.push(...data.list);
   currentList.pageNo++;
 
-  // 在所有数据加载完毕之后，判断是否加载完毕
+  /** 在所有数据加载完毕之后，判断是否加载完毕 */
   if (data.list.length < currentList.limit) currentList.infiniteScroll = true;
 };
 
-// [mitt]
 eventBus.on("switchNav", switchNav);
 
 onMounted(async () => {

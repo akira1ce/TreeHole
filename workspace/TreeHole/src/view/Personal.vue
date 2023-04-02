@@ -18,7 +18,6 @@ const route = useRoute();
 
 const sliderRef = ref();
 
-// [state]
 // 导航
 const navMenu = ["历史记录", "我的收藏", "我的交易"];
 const sliderLeft = ["22px", "125px", "228px"];
@@ -37,18 +36,21 @@ const state = reactive({
     infiniteScroll: false,
     content: [],
   },
+  /** 浏览记录 */
   historyList: {
     pageNo: 1,
     limit: 12,
     infiniteScroll: false,
     content: [],
   },
+  /** 收藏 */
   collectList: {
     pageNo: 1,
     limit: 12,
     infiniteScroll: false,
     content: [],
   },
+  /** 订单 */
   orderList: {
     pageNo: 1,
     limit: 6,
@@ -60,7 +62,6 @@ const state = reactive({
   isLoading: true,
 });
 
-// [methods]
 /**
  * 跳转个人空间
  * @param {proxy} user
@@ -74,7 +75,7 @@ const toSpace = (user) => {
   }
 };
 
-// 跳转记录 - 关注 - 粉丝
+/** 跳转记录 - 关注 - 粉丝 */
 const toRecord = (mode) => {
   router.push({ name: "Record", state: { mode } });
 };
@@ -84,18 +85,17 @@ const toRecord = (mode) => {
  * @param {number} index
  */
 const switchNav = async (target) => {
-  // 缓存
+  /** 缓存 */
   state.current = target;
   local.setItem("current_personal", target);
 
-  // css
   sliderRef.value.style.left = sliderLeft[target];
 
   if (target == 0) state.currentList = state.historyList;
   else if (target == 1) state.currentList = state.collectList;
   else state.currentList = state.orderList;
 
-  // 首次特判
+  /** 首次特判 */
   if (state.currentList.content.length == 0) {
     state.isLoading = true;
     state.isEmpty = false;
@@ -107,10 +107,10 @@ const switchNav = async (target) => {
   }
 };
 
-// 清楚历史记录
+/** 清楚历史记录 */
 const clearBrowsing = async () => {
   await request.post(api.record.modifyRecordTree, { userID: user._id, mode: 0, clearAll: 1 });
-  // 更新缓存
+  /** 更新缓存 */
   state.record.browsingHistory = [];
   state.historyList.content = [];
   state.historyList.infiniteScroll = false;
@@ -133,26 +133,26 @@ const deleteOrder = async (orderID, index) => {
   state.currentList.content.splice(index, 1);
 };
 
-// 分页加载导航数据 treeList or orderList
+/** 分页加载导航数据 treeList or orderList */
 const getCurrentList = async () => {
   const { current } = state;
 
-  // 定位当前集合
+  /** 定位当前集合 */
   const currentList = state[list[current]];
   const currentList_re = state.record[list_re[current]];
 
   let data = null;
-  // order 和 tree 唯一区分
+  /** order 和 tree 唯一区分 */
   if (current == 2) data = await request.post(api.order.getOrderListByID, { orders: currentList_re, pageNo: currentList.pageNo, limit: currentList.limit });
   else data = await request.post(api.tree.getTreeListByID, { trees: currentList_re, pageNo: currentList.pageNo, limit: currentList.limit });
 
-  // 更新缓存
+  /** 更新缓存 */
   currentList.content.push(...data.list);
   currentList.pageNo++;
 
   if (currentList.length == 0) state.isEmpty = true;
   if (data.list.length < currentList.limit) {
-    // 在所有数据加载完毕之后，判断是否存在失效数据，存在 -> 更新记录
+    /** 在所有数据加载完毕之后，判断是否存在失效数据，存在 -> 更新记录 */
     currentList.infiniteScroll = true;
     if (currentList.content.length != currentList_re.length) {
       state.record[list_re[current]] = currentList.content.map((item) => item._id);
