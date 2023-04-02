@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-04-01 17:57:48
+ * @LastEditTime: 2023-04-02 11:28:19
 -->
 <script setup>
 import api from "../api";
@@ -124,6 +124,10 @@ const clearBrowsing = async () => {
  * @param {number} index
  */
 const deleteOrder = async (orderID, index) => {
+  if (state.currentList.content[index].status != 2) {
+    ElMessage.warning("订单进行中...");
+    return;
+  }
   await request.post(api.record.modifyRecordOrder, { userID: user._id, orderID });
   state.record.order.splice(index, 1);
   state.currentList.content.splice(index, 1);
@@ -204,7 +208,7 @@ const record = computed(() => {
       <div class="space" @click="toSpace(user)">空间 <i class="iconfont icon-youjiantou"></i></div>
     </div>
     <div class="container__main">
-      <el-affix offset="76" target=".container__main">
+      <el-affix :offset="76" target=".container__main">
         <!-- 导航 -->
         <div class="main__navMenu">
           <div v-for="(item, index) in navMenu" class="navMenu__item" :class="{ active: state.current == index }" @click="switchNav(index)">
