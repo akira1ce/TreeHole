@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 17:02:41
- * @LastEditTime: 2023-02-27 18:39:23
+ * @LastEditTime: 2023-04-02 14:47:10
 -->
 <script setup>
 import api from "../api";
@@ -9,7 +9,7 @@ import { defaultState, local } from "../util";
 import request from "../api/request";
 import { io } from "socket.io-client";
 import { ElMessage } from "element-plus";
-import { computed, nextTick, onMounted, reactive, ref, toRaw } from "vue-demi";
+import { computed, nextTick, onBeforeUnmount, onDeactivated, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import DialogCard from "../components/DialogCard.vue";
 
@@ -19,9 +19,7 @@ const route = useRoute();
 const dialogRef = ref(null);
 
 const socket = io("ws://localhost:3000");
-
-// socket 信息中转
-socket.on("sendMessage", async function (msg) {
+const socketCallback = async (msg) => {
   const { socketList, current } = state;
   // 接收方 数据缓存
   if (currentSocket.value.otherSide._id == msg.senderID) socketList[current].context.push(msg);
@@ -38,7 +36,10 @@ socket.on("sendMessage", async function (msg) {
     await request.post(api.socket.modifyById, { _id, msg });
   }
   downScroll();
-});
+};
+
+// socket 信息中转
+socket.on("sendMessage", socketCallback);
 
 const loginUser = local.getItem("user");
 const userID = history.state.userID;
@@ -185,6 +186,11 @@ onMounted(async () => {
   } catch (error) {
     ElMessage.error(error.message);
   }
+});
+
+onBeforeUnmount(() => {
+  socket.off("sendMessage", socketCallback);
+  socket.close();
 });
 </script>
 
