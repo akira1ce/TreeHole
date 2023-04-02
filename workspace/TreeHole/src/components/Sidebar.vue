@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-15 15:41:20
- * @LastEditTime: 2023-04-01 18:02:38
+ * @LastEditTime: 2023-04-02 16:56:17
 -->
 <script setup>
 import { onMounted, ref, toRaw } from "vue-demi";
@@ -14,7 +14,7 @@ const route = useRoute();
 const router = useRouter();
 
 const user = local.getItem("user") || {};
-const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket"];
+const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket", "Login"];
 
 // [methods]
 // avator loading errorHandler
@@ -39,11 +39,13 @@ const toSpace = (user) => {
  */
 const navigate = (el) => {
   const id = el.target.dataset.id || el.target?.parentNode.dataset.id;
-  // back
+  /** back */
   if (id == -1) {
     router.go(-1);
     return;
   }
+  /** 退出登陆 */
+  if (id == 5) local.clear();
   router.push({ name: whitelist[id] });
 };
 </script>
@@ -83,6 +85,7 @@ const navigate = (el) => {
       <div class="socket" :id="route.path.startsWith('Socket') && 'active'" data-id="4">
         <i class="iconfont icon-chat"></i>
       </div>
+      <div class="loginout" data-id="5"><i class="iconfont icon-tuichu"></i></div>
     </div>
   </div>
 </template>
@@ -167,6 +170,13 @@ const navigate = (el) => {
       }
     }
     .socket {
+      cursor: pointer;
+      transition: all 0.2s;
+      &:hover {
+        color: @activeColor;
+      }
+    }
+    .loginout {
       cursor: pointer;
       transition: all 0.2s;
       &:hover {
