@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-01-08 15:54:04
- * @LastEditTime: 2023-03-21 13:37:04
+ * @LastEditTime: 2023-04-02 15:00:19
 -->
 <script setup>
 import { ElMessage } from "element-plus";
@@ -211,7 +211,6 @@ onMounted(async () => {
           <span>订单编号: {{ state.order._id }}</span>
           <span>拍下时间: {{ state.order.time.split(",").join(" ") }}</span>
           <span v-if="state.order.status > '0'">付款时间: {{ state.order.payTime }}</span>
-          <span v-if="state.order.status > '1'">交易完成时间: {{}}</span>
           <span>支付状态: <el-tag :type="state.order.status == 0 ? 'warning' : 'success'">{{ state.order.status == 0 ? "未支付" : "已支付" }}</el-tag></span>
         </div>
       </div>
