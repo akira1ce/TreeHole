@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-05 10:53:00
- * @LastEditTime: 2023-03-15 18:34:08
+ * @LastEditTime: 2023-04-02 14:52:54
  */
 const { User, Record } = require("../model");
 const { result, err, config } = require("../util");
@@ -15,7 +15,7 @@ const register = async (req, res, next) => {
 
     // 用户名已被占用
     if (user) {
-      next(err("用户名已被占用", 403, null));
+      next(err("该账号已被占用", 403, null));
       return;
     }
 
