@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-04-01 18:39:23
+ * @LastEditTime: 2023-04-07 14:08:55
 -->
 <script setup>
 import api from "../api";
@@ -151,7 +151,6 @@ const release = () => {
   state.form_tree.imgs = [];
   state.treeLocation = [];
   state.fileList = [];
-  console.log(state);
 };
 
 /** 地区选择器监听 */
@@ -166,10 +165,11 @@ const updateTreeInfo = async () => {
     /** 发布 */
     delete state.form_tree._id;
     delete state.form_tree.time;
+    state.form_tree.ownerID = loginUser._id;
     /** 更新 hci */
     updateHci();
     const { tree } = await request.post(api.tree.addTree, state.form_tree);
-    tree.owner = state.user;
+    tree.owner = loginUser;
     state.dialog_tree = false;
     /** 更新缓存 */
     state.treeList.unshift(tree);
