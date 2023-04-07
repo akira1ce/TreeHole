@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-05 10:53:00
- * @LastEditTime: 2023-04-02 14:52:54
+ * @LastEditTime: 2023-04-07 16:07:16
  */
 const { User, Record } = require("../model");
 const { result, err, config } = require("../util");
@@ -15,7 +15,7 @@ const register = async (req, res, next) => {
 
     // 用户名已被占用
     if (user) {
-      next(err("该账号已被占用", 403, null));
+      next(err("注册用户已存在！", 403, null));
       return;
     }
 
@@ -40,13 +40,18 @@ const login = async (req, res, next) => {
 
     // 用户不存在
     if (!user) {
-      next(err("用户不存在", 403, null));
+      next(err("用户不存在，请先注册！", 401, null));
       return;
     }
 
     // 密码错误
     if (password !== user.password) {
-      next(err("密码错误", 403, null));
+      next(err("密码错误，请重新输入！", 401, null));
+      return;
+    }
+
+    if(user.status == '0') {
+      next(err("用户待审核中...", 401, null));
       return;
     }
 

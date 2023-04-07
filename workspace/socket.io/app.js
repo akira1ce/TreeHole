@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-01 15:24:55
- * @LastEditTime: 2023-04-02 14:49:38
+ * @LastEditTime: 2023-04-07 23:08:27
  */
 const app = require("express")();
 const http = require("http").Server(app);
@@ -10,9 +10,9 @@ const io = require("socket.io")(http, { cors: true });
 const port = process.env.PORT || 3000;
 
 io.on("connection", (socket) => {
-  socket.on("sendMessage", (msg) => {
-    console.log(msg.senderID, ":", msg.data.content);
-    io.emit("sendMessage", msg);
+  socket.on("sendMessage", (content) => {
+    console.log(`[${content.socketID}]`, content.senderID, ":", content.context);
+    io.emit("sendMessage", content);
   });
 });
 

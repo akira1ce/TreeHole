@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-15 19:23:37
- * @LastEditTime: 2023-04-01 18:49:49
+ * @LastEditTime: 2023-04-07 16:01:03
 -->
 <script setup>
 import { onMounted, reactive, ref } from "vue";
@@ -56,13 +56,6 @@ const Submit = async (formEl, mode) => {
         /** 登陆 */
         const { account, password } = user;
         const res = await request.post(api.user.login, { account, password });
-
-        /** 待审核 */
-        if (res.user.status == "0") {
-          ElMessage.error("用户待审核中...");
-          return;
-        }
-
         local.setItem("token", res.token);
         local.setItem("user", res.user);
         router.push({ name: "Home" });
