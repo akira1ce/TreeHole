@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-04-02 11:28:19
+ * @LastEditTime: 2023-04-07 15:25:45
 -->
 <script setup>
 import api from "../api";
@@ -58,7 +58,6 @@ const state = reactive({
     content: [],
   },
   record: defaultState.record,
-  isEmpty: false,
   isLoading: true,
 });
 
@@ -98,9 +97,7 @@ const switchNav = async (target) => {
   /** 首次特判 */
   if (state.currentList.content.length == 0) {
     state.isLoading = true;
-    state.isEmpty = false;
     await getCurrentList();
-    if (state.currentList.content.length == 0) state.isEmpty = true;
     setTimeout(() => {
       state.isLoading = false;
     }, 500);
@@ -114,7 +111,6 @@ const clearBrowsing = async () => {
   state.record.browsingHistory = [];
   state.historyList.content = [];
   state.historyList.infiniteScroll = false;
-  state.currentList = {};
   ElMessage.success("浏览记录已清空");
 };
 
@@ -150,8 +146,7 @@ const getCurrentList = async () => {
   currentList.content.push(...data.list);
   currentList.pageNo++;
 
-  if (currentList.length == 0) state.isEmpty = true;
-  if (data.list.length < currentList.limit) {
+  if (data.list.length == 0) {
     /** 在所有数据加载完毕之后，判断是否存在失效数据，存在 -> 更新记录 */
     currentList.infiniteScroll = true;
     if (currentList.content.length != currentList_re.length) {
@@ -174,6 +169,10 @@ onMounted(async () => {
 // [computed]
 const record = computed(() => {
   return state.record;
+});
+
+const isEmpty = computed(() => {
+  return state.currentList.content.length == 0;
 });
 </script>
 
@@ -223,7 +222,7 @@ const record = computed(() => {
       </el-affix>
       <!-- 主体 -->
       <div class="main__content" v-loading="state.isLoading">
-        <el-empty class="center" v-if="state.isEmpty" description="什么也没有喔~"></el-empty>
+        <el-empty class="center" v-if="isEmpty" description="什么也没有喔~"></el-empty>
         <!-- 树 -->
         <div class="content__trees" v-if="state.current < 2">
           <Card v-for="(item, index) in state.currentList.content" :key="item._id" :tree="item" />

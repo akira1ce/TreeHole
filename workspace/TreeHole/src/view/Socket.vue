@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 17:02:41
- * @LastEditTime: 2023-04-02 14:47:10
+ * @LastEditTime: 2023-04-07 15:13:35
 -->
 <script setup>
 import api from "../api";
@@ -158,8 +158,7 @@ const getSocketList = async () => {
     if (loginUser._id == item.userID1) item.otherSide = item.user2;
     else item.otherSide = item.user1;
   });
-
-  if (sockets.length < state.limit) state.infiniteScroll = true;
+  if (sockets.length == 0) state.infiniteScroll = true;
   state.socketList.push(...sockets);
   state.pageNo++;
 };
@@ -167,6 +166,10 @@ const getSocketList = async () => {
 /** 当前会话 */
 const currentSocket = computed(() => {
   return state.socketList[state.current];
+});
+
+const isEmpty = computed(() => {
+  return state.socketList.length == 0;
 });
 
 onMounted(async () => {
@@ -200,10 +203,13 @@ onBeforeUnmount(() => {
   <div class="container">
     <!-- 聊天列表 -->
     <div class="container__userList scroll" @click="selectOtherSide" v-infinite-scroll="getSocketList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
-      <div class="userList__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.socketList">
+      <div v-if="isEmpty">
+        <span>你还没有联系任何人喔~</span>
+      </div>
+      <div class="userList__item" v-for="(item, index) in state.socketList" :id="state.current == index && 'active'" :data-id="index" :key="item._id">
         <div class="item__left">
-          <img :src="item.otherSide.avator" />
-          <span>{{ item.otherSide.name }}</span>
+          <img :src="item.otherSide?.avator || 'https://s2.loli.net/2023/02/28/PtfNEqQHhxTcAbk.png'" />
+          <span>{{ item.otherSide?.name || "该用户已注销" }}</span>
         </div>
         <i class="iconfont icon-lajitong" @click="removeSocket(loginUser._id, item._id, index)"></i>
       </div>
@@ -212,7 +218,7 @@ onBeforeUnmount(() => {
     <!-- 对话框 -->
     <div class="container__dialog" v-show="state.current != -1">
       <!-- 标题 -->
-      <div class="dialog__title" @click="toSpace(currentSocket?.otherSide)">{{ currentSocket?.otherSide.name }} {{ currentSocket?.otherSide.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
+      <div class="dialog__title" @click="toSpace(currentSocket?.otherSide)">{{ currentSocket?.otherSide?.name || "该用户已注销" }} {{ currentSocket?.otherSide?.sex == 1 ? "🤦‍♂️" : "🤦‍♀️" }}</div>
       <!-- 信息列表 -->
       <div class="dialog__msgList scroll" ref="dialogRef">
         <!-- 对话框苗木卡片 -->

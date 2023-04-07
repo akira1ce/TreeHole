@@ -1,11 +1,11 @@
 <!--
  * @Author: Akira
  * @Date: 2022-12-04 10:12:34
- * @LastEditTime: 2023-03-03 17:42:25
+ * @LastEditTime: 2023-04-07 15:27:53
 -->
 <script setup>
 import { ElMessage } from "element-plus";
-import { onMounted, reactive, ref, toRaw } from "vue-demi";
+import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import api from "../api";
 import request from "../api/request";
@@ -68,10 +68,14 @@ const getUserList = async () => {
     });
   }
 
-  if (data.list.length < state.limit) state.infiniteScroll = true;
+  if (data.list.length == 0) state.infiniteScroll = true;
   state.userList.push(...data.list);
   state.pageNo++;
 };
+
+const isEmpty = computed(() => {
+  return state.userList.length == 0;
+});
 
 onMounted(async () => {
   try {
@@ -86,6 +90,7 @@ onMounted(async () => {
 <template>
   <div class="container scroll" v-infinite-scroll="getUserList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
     <h1 class="container__title">{{ state.mode == 0 ? "关注列表 👀" : "粉丝列表 😍" }}</h1>
+    <el-empty class="center" v-if="isEmpty" description="今天也是寂寞的一天~"></el-empty>
     <!-- 关注列表 -->
     <div class="container__list" v-if="state.mode == 0">
       <div class="list__item" v-for="(item, index) in state.userList">

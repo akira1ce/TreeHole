@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:36:37
- * @LastEditTime: 2023-04-01 16:06:15
+ * @LastEditTime: 2023-04-07 14:41:00
 -->
 <script setup>
 import api from "../api";
@@ -24,12 +24,10 @@ const state = reactive({
   pageNo_tree: 1,
   limit_tree: 4,
   infiniteScroll_tree: false,
-  isEmpty_user: false,
   /** 用户分页 */
   pageNo_user: 1,
   limit_user: 12,
   infiniteScroll_user: false,
-  isEmpty_tree: false,
   isLoading: true,
 });
 
@@ -81,7 +79,14 @@ const getUserList = async () => {
   const { list } = await request.post(api.user.getUserListByID, { users: record.following, pageNo, limit });
   list.forEach((item) => (item.isFollow = true));
 
-  if (list.length < state.limit_user) state.infiniteScroll_user = true;
+  if (list.length == 0) {
+    state.infiniteScroll_user = true;
+    /** 在所有数据加载完毕之后，判断是否存在失效数据，存在 -> 更新记录 */
+    if (state.userList.length < record.following.length) {
+      record.following = state.userList.map((item) => item._id);
+      await request.post(api.record.modifyByID, record);
+    }
+  }
   state.userList.push(...list);
   state.pageNo_user++;
 };
@@ -106,6 +111,14 @@ const currentUser = computed(() => {
   return state.userList[state.current];
 });
 
+const isEmpty_user = computed(() => {
+  return state.userList.length == 0;
+});
+
+const isEmpty_tree = computed(() => {
+  return state.treeList.length == 0;
+});
+
 onMounted(async () => {
   try {
     const userID = state.user._id;
@@ -113,9 +126,6 @@ onMounted(async () => {
 
     await getUserList();
     await getTreeList();
-    
-    if (state.userList.length == 0) state.isEmpty_user = true;
-    if (state.treeList.length == 0) state.isEmpty_tree = true;
   } catch (error) {
     ElMessage.error(error.message);
   }
@@ -129,8 +139,8 @@ onMounted(async () => {
   <div class="container">
     <!-- 关注列表 -->
     <div class="container__follow scroll" v-infinite-scroll="getUserList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll_user" @click="selectUser">
-      <div v-if="state.isEmpty_user">
-        <span>你还没有关注任何人!</span>
+      <div v-if="isEmpty_user">
+        <span>你还没有关注任何人喔~</span>
       </div>
       <div class="follow__item" :id="state.current == index && 'active'" :data-id="index" :key="item._id" v-for="(item, index) in state.userList">
         <img :src="item.avator" />
@@ -139,7 +149,7 @@ onMounted(async () => {
     </div>
     <!-- 树列表 -->
     <div class="container__content scroll" v-infinite-scroll="getTreeList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll_tree" v-loading="state.isLoading">
-      <el-empty class="center" v-if="state.isEmpty_tree" description="他好像没有发布苗木~"></el-empty>
+      <el-empty class="center" v-if="isEmpty_tree" description="他好像没有发布苗木~"></el-empty>
       <div class="content__treeList">
         <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.record" :collectHandle="collectHandle">
           <div class="unFollow" @click="followHandle">

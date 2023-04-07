@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-04-07 14:08:55
+ * @LastEditTime: 2023-04-07 14:39:18
 -->
 <script setup>
 import api from "../api";
@@ -70,7 +70,6 @@ const state = reactive({
   /** 地区选择 */
   treeLocation: [],
   userLocation: [],
-  isEmpty: false,
   isLoading: true,
 });
 
@@ -298,6 +297,10 @@ const getTreeList = async () => {
   state.pageNo++;
 };
 
+const isEmpty = computed(() => {
+  return state.treeList.length == 0;
+});
+
 onMounted(async () => {
   try {
     /** 登陆用户记录 */
@@ -308,7 +311,6 @@ onMounted(async () => {
     if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
 
     await getTreeList();
-    if (state.treeList.length == 0) state.isEmpty = true;
 
     /** 地区 */
     const loc = state.user.location.split("-");
@@ -358,7 +360,7 @@ onMounted(async () => {
     <div class="container__main" v-loading="state.isLoading">
       <!-- 发布 -->
       <div class="release" v-if="isCurrentUser" @click="release">发布🙌</div>
-      <el-empty description="他好像没有发布苗木~" v-if="state.isEmpty" />
+      <el-empty description="他好像没有发布苗木~" v-if="isEmpty" />
       <!-- 苗木卡片 -->
       <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
         <el-button v-if="isCurrentUser" :icon="Edit" circle @click="handleCommand(beforeHandleCommand(0, index))" />
