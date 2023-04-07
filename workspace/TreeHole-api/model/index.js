@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-05 10:11:34
- * @LastEditTime: 2023-02-20 16:46:50
+ * @LastEditTime: 2023-04-07 20:48:00
  */
 const mongoose = require("mongoose");
 const { config } = require("../util");
@@ -33,4 +33,5 @@ module.exports = {
   Order: mongoose.model("Order", require("./Order"), "Order"),
   Socket: mongoose.model("Socket", require("./Socket"), "Socket"),
   Comment: mongoose.model("Comment", require("./Comment"), "Comment"),
+  SocketContent: mongoose.model("SocketContent", require("./SocketContent"), "SocketContent"),
 };

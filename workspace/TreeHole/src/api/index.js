@@ -237,6 +237,21 @@ export default {
      */
     getSocketListByID: "/socket/getSocketListByID",
   },
+  socketContent: {
+    /**
+     * 添加会话内容
+     * @param socketID 会话id
+     * @param senderID 发送方id
+     * @param type 类型
+     * @param content 内容
+     */
+    addSocketContent: "/socketContent/addSocketContent",
+    /**
+     * 查询会话内容
+     * @param sid 会话id
+     */
+    getSocketContentBySid: "/socketContent/getSocketContentBySid",
+  },
   alipay: {
     /**
      * 支付宝页面支付

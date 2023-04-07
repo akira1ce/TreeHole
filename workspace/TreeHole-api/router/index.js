@@ -17,5 +17,6 @@ router.use("/order", multipartyMid, require("./order"));
 router.use("/socket", multipartyMid, require("./socket"));
 router.use("/alipay", multipartyMid, require("./alipay"));
 router.use("/comment", multipartyMid, require("./comment"));
+router.use("/socketContent", multipartyMid, require("./socketContent"));
 
 module.exports = router;

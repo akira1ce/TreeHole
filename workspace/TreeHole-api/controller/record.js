@@ -1,9 +1,9 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-11 09:35:44
- * @LastEditTime: 2023-03-07 20:15:34
+ * @LastEditTime: 2023-04-07 23:11:49
  */
-const { Record, Order, Socket } = require("../model");
+const { Record, Order, Socket, SocketContent } = require("../model");
 const { result, err } = require("../util");
 
 // 获取用户记录
@@ -175,7 +175,10 @@ const modifyRecordSocket = async (req, res, next) => {
       const socket = await Socket.findOne({ _id: socketID });
       const refer = --socket.refer;
       if (refer != 0) await Socket.findByIdAndUpdate(socketID, { refer });
-      else await Socket.findByIdAndDelete(socketID);
+      else {
+        await Socket.findByIdAndDelete(socketID);
+        await SocketContent.deleteMany({ socketID });
+      }
     }
 
     res.send(result(200, data, "ok"));

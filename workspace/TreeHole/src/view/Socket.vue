@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 17:02:41
- * @LastEditTime: 2023-04-07 15:13:35
+ * @LastEditTime: 2023-04-07 23:08:40
 -->
 <script setup>
 import api from "../api";
@@ -9,7 +9,7 @@ import { defaultState, local } from "../util";
 import request from "../api/request";
 import { io } from "socket.io-client";
 import { ElMessage } from "element-plus";
-import { computed, nextTick, onBeforeUnmount, onDeactivated, onMounted, reactive, ref, toRaw } from "vue-demi";
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import DialogCard from "../components/DialogCard.vue";
 
@@ -19,22 +19,11 @@ const route = useRoute();
 const dialogRef = ref(null);
 
 const socket = io("ws://localhost:3000");
-const socketCallback = async (msg) => {
-  const { socketList, current } = state;
-  // 接收方 数据缓存
-  if (currentSocket.value.otherSide._id == msg.senderID) socketList[current].context.push(msg);
-  else {
-    for (let i = 0; i < socketList.length; i++) {
-      if (socketList[i].otherSide._id == msg.senderID) socketList[i].context.push(msg);
-    }
-  }
-  // 发送方 数据缓存 + 存储
-  if (msg.senderID == loginUser._id) {
-    socketList[current].context.push(msg);
-    const _id = currentSocket.value._id;
-    // 更新数据
-    await request.post(api.socket.modifyById, { _id, msg });
-  }
+const socketCallback = async (content) => {
+  /** 数据缓存 */
+  if (currentSocket.value._id == content.socketID) state.socketContent.push(content);
+  /** 发送方 数据存储 */
+  if (content.senderID == loginUser._id) await request.post(api.socketContent.addSocketContent, content);
   downScroll();
 };
 
@@ -49,6 +38,7 @@ const state = reactive({
   current: -1,
   text: "",
   socketList: [],
+  socketContent: [],
   record: defaultState.record,
   pageNo: 1,
   limit: 12,
@@ -115,36 +105,36 @@ const toSpace = (user) => {
   }
 };
 
+const getSocketContent = async () => {
+  state.socketContent = await request.post(api.socketContent.getSocketContentBySid, { sid: currentSocket.value._id });
+};
+
 /** 切换用户 */
-const selectOtherSide = (e) => {
+const selectOtherSide = async (e) => {
   const id = e.target.dataset?.id || e.target.parentNode.dataset?.id || e.target.parentNode.parentNode.dataset?.id;
   if (state.current == id || id == undefined) return;
   state.current = id;
+  await getSocketContent();
   downScroll();
 };
 
 /** 发送信息 */
 const sendMsg = async () => {
-  const senderID = loginUser._id;
-  const content = state.text;
-  const time = new Date().toLocaleString();
-  const msg = {
-    data: {
-      content,
-      type: 1,
-    },
-    senderID,
-    time,
-  };
-
   /** 空白特判 */
-  if (content == "") {
+  if (state.text == "") {
     ElMessage.warning("信息内容不能为空喔~");
     return;
   }
 
+  const content = {
+    socketID: currentSocket.value._id,
+    senderID: loginUser._id,
+    context: state.text,
+    type: 1,
+  };
+
   /** 触发 socket 回调 */
-  socket.emit("sendMessage", msg);
+  socket.emit("sendMessage", content);
 
   state.text = "";
 };
@@ -185,6 +175,7 @@ onMounted(async () => {
           return true;
         }
       });
+      state.socketContent = await request.post(api.socketContent.getSocketContentBySid, { sid: currentSocket.value._id });
     }
     /** 下放滚动条 */
     downScroll();
@@ -223,9 +214,9 @@ onBeforeUnmount(() => {
       <div class="dialog__msgList scroll" ref="dialogRef">
         <!-- 对话框苗木卡片 -->
         <DialogCard v-if="currentSocket?.tree" :key="currentSocket?.treeID" :tree="currentSocket?.tree" :loginUser="loginUser" :orderOp="orderOp" />
-        <div class="msgList__item" :class="item.senderID == loginUser._id ? 'flexEnd' : 'flexStart'" v-for="item in currentSocket?.context">
+        <div class="msgList__item" :class="item.senderID == loginUser._id ? 'flexEnd' : 'flexStart'" v-for="item in state.socketContent">
           <img class="item__img" :src="item.senderID == loginUser._id ? loginUser.avator : currentSocket?.otherSide.avator" />
-          <div class="item__content">{{ item.data.content }}</div>
+          <div class="item__content">{{ item.context }}</div>
         </div>
       </div>
       <!-- 输入框 -->
