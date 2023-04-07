@@ -1,10 +1,10 @@
 /*
  * @Author: Akira
  * @Date: 2023-04-02 16:17:37
- * @LastEditTime: 2023-04-02 16:17:42
+ * @LastEditTime: 2023-04-07 13:47:38
  */
 //  静态数据
-export default defaultState = {
+export default {
   comment: {
     treeID: "",
     senderID: "",
@@ -22,7 +22,7 @@ export default defaultState = {
   },
   tree: {
     _id: "",
-    ownerID: local.getItem("user")?._id || "",
+    ownerID: "",
     type: "",
     height: "",
     diameter: "",

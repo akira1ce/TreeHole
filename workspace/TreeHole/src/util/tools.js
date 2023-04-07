@@ -1,4 +1,9 @@
-export default tools = {
+/*
+ * @Author: Akira
+ * @Date: 2023-04-02 16:19:08
+ * @LastEditTime: 2023-04-07 13:45:29
+ */
+export default {
   // 时间格式化
   timeFormat: (time) => {
     const timeArr = time.split(" ");

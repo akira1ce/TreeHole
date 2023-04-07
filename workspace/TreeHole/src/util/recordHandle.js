@@ -1,5 +1,8 @@
+import api from "../api";
+import request from "../api/request";
+import { ElMessage } from "element-plus";
 // 记录回调
-export default recordHandle = {
+export default {
   /**
    * 收藏
    * @param {proxy} record
