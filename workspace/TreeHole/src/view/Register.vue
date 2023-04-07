@@ -11,7 +11,7 @@ const user = reactive({
   name: "",
   account: "",
   password: "",
-  role: 0,
+  role: "1",
 });
 
 const rules = reactive({
@@ -84,14 +84,20 @@ const toLogin = () => {
       <div class="main">
         <h2 class="main-title">Welcome TreeHole 🙌</h2>
         <el-form :model="user" :rules="rules" label-width="100px" ref="formRef" class="main-form" status-icon>
-          <el-form-item label="name" prop="name">
+          <el-form-item label="用户名" prop="name">
             <el-input v-model="user.name"></el-input>
           </el-form-item>
-          <el-form-item label="Account" prop="account">
+          <el-form-item label="账号" prop="account">
             <el-input v-model="user.account"></el-input>
           </el-form-item>
-          <el-form-item label="Password" prop="password">
+          <el-form-item label="密码" prop="password">
             <el-input v-model="user.password" type="password"></el-input>
+          </el-form-item>
+          <el-form-item label="角色" prop="role">
+            <el-radio-group v-model="user.role">
+              <el-radio label="0" style="color: white">种植苗木用户</el-radio>
+              <el-radio label="1" style="color: white">苗木买家</el-radio>
+            </el-radio-group>
           </el-form-item>
           <el-form-item>
             <el-button @click="Submit(formRef, 0)">Reset</el-button>
@@ -146,15 +152,10 @@ const toLogin = () => {
         padding-bottom: 1.667vw;
       }
       :deep(.main-form) {
-        .el-form-item__label {
+        .el-form-item__label,
+        .el-radio__label {
           color: #fff;
         }
-      }
-      .group {
-        margin-top: 1.667vw;
-        display: flex;
-        justify-content: center;
-        gap: 2.5vw;
       }
     }
   }
