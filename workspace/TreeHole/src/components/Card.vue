@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-18 17:01:04
- * @LastEditTime: 2023-03-21 13:55:00
+ * @LastEditTime: 2023-04-08 11:01:24
 -->
 <script setup>
 import { defineProps, toRaw } from "vue-demi";
@@ -77,7 +77,7 @@ const toTreeDetail = async (treeID) => {
   position: relative;
   .card__cover {
     width: 100%;
-    height: 100%;
+    aspect-ratio: 1.74;
     border-radius: 6px;
     transition: all 0.5s;
     object-fit: cover;
