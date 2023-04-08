@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-15 19:23:37
- * @LastEditTime: 2023-04-07 16:01:03
+ * @LastEditTime: 2023-04-08 12:29:59
 -->
 <script setup>
 import { onMounted, reactive, ref } from "vue";
@@ -24,7 +24,7 @@ const rules = reactive({
   account: [
     {
       required: true,
-      message: "Please input Activity account",
+      message: "请输入账号！",
       trigger: "blur",
     },
     { min: 3, max: 11, message: "Length should be 3 to 11", trigger: "blur" },
@@ -32,7 +32,7 @@ const rules = reactive({
   password: [
     {
       required: true,
-      message: "Please input Activity password",
+      message: "请输入密码!",
       trigger: "blur",
     },
     { min: 5, max: 18, message: "Length should be 5 to 18", trigger: "blur" },

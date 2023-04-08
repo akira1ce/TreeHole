@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-23 15:08:04
- * @LastEditTime: 2023-04-01 21:23:47
+ * @LastEditTime: 2023-04-08 14:38:34
 -->
 <script lang="ts" setup>
 import { reactive, ref, watch, onMounted } from "vue"
@@ -52,6 +52,7 @@ const formData = reactive<ITree>({ ...tree })
 const formRules: FormRules = reactive({
   ownerID: [{ required: true, trigger: "blur", message: "请输入选择所有者" }],
   title: [{ required: true, trigger: "blur", message: "请输入苗木标题" }],
+  describe: [{ required: true, trigger: "blur", message: "请输入苗木描述" }],
   type: [{ required: true, trigger: "blur", message: "请输入苗木类型" }],
   height: [{ required: true, trigger: "blur", message: "请输入苗木高度" }],
   crownDiameter: [{ required: true, trigger: "blur", message: "请输入苗木盆径木" }],
@@ -160,10 +161,10 @@ const dialogImageUrl = ref<undefined | string>(undefined)
 const fileList = ref<UploadUserFile[]>([])
 
 const handleUpdate = (row: any) => {
-  if (row.status > "0") {
-    ElMessage.error("苗木正在交易中")
-    return
-  }
+  // if (row.status > "0") {
+  //   ElMessage.error("苗木正在交易中")
+  //   return
+  // }
   const loc = row.location.split("-")
   location.value = [TextToCode[loc[0]].code, TextToCode[loc[0]][loc[1]].code, TextToCode[loc[0]][loc[1]][loc[2]].code]
   currentUpdateId.value = row._id
@@ -405,7 +406,7 @@ onMounted(async () => {
             <img w-full :src="dialogImageUrl" alt="Preview Image" />
           </el-dialog>
         </el-form-item>
-        <el-form-item prop="status" label="状态">
+        <el-form-item prop="status" label="状态" v-if="formData.status < '1'">
           <el-switch
             v-model="formData.status"
             active-color="#13ce66"

@@ -1,15 +1,21 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-07 12:22:04
- * @LastEditTime: 2023-02-20 16:17:54
+ * @LastEditTime: 2023-04-08 11:40:41
  */
-const { Comment } = require("../model");
+const { Comment, Tree } = require("../model");
 const { result, err } = require("../util");
 const { mergeComments } = require("../util/merge");
 
 // 增加评论
 const addComment = async (req, res, next) => {
   try {
+    const { treeID } = req.body;
+    const tree = await Tree.findOne({ _id: treeID });
+    if (!tree) {
+      next(result(401, tree, "该苗木已被删除！"));
+      return;
+    }
     const comment = new Comment(req.body);
     const data = await comment.save();
     res.send(result(200, data, "ok"));

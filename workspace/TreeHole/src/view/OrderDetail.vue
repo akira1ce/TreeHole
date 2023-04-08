@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-01-08 15:54:04
- * @LastEditTime: 2023-04-02 15:00:19
+ * @LastEditTime: 2023-04-08 12:04:25
 -->
 <script setup>
 import { ElMessage } from "element-plus";
@@ -51,6 +51,7 @@ const cancelOrder = async (order) => {
   /** 更新缓存 */
   history.state.order = null;
   state.order._id = "";
+  ElMessage.success("已取消订单成功");
 };
 
 /**
