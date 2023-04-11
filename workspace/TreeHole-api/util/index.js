@@ -1,13 +1,13 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-05 11:06:01
- * @LastEditTime: 2023-02-27 11:54:08
+ * @LastEditTime: 2023-04-11 23:04:19
  */
 function result(code, data, message) {
   return { code, data, message };
 }
 
-function err(e, status, data) {
+function err(e, status = 401, data = null) {
   message = e.toString().split('"').join("");
   return {
     status,
