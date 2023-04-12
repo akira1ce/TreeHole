@@ -1,15 +1,15 @@
 <!--
  * @Author: Akira
  * @Date: 2022-12-04 10:12:34
- * @LastEditTime: 2023-04-07 15:27:53
+ * @LastEditTime: 2023-04-12 15:13:30
 -->
 <script setup>
-import { ElMessage } from "element-plus";
 import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
-import api from "../api";
-import request from "../api/request";
 import { local, defaultState } from "../util";
+import { ElMessage } from "element-plus";
+import request from "../api/request";
+import api from "../api";
 
 const router = useRouter();
 const route = useRoute();
@@ -17,7 +17,6 @@ const route = useRoute();
 const loginUser = local.getItem("user");
 
 const state = reactive({
-  record: defaultState.record,
   userList: [],
   /** 关注/粉丝 */
   mode: history.state.mode || 0,
@@ -39,32 +38,42 @@ const toSpace = (user) => {
   }
 };
 
-/** 关注/取消关注 */
-const followHandle = async (item) => {
-  const userID1 = loginUser._id;
-  const userID2 = item._id;
-  await request.post(api.record.modifyRecordUser, { userID1, userID2 });
-
+/** 关注 */
+const handleFollow = async (item) => {
+  const { fromUserID, toUserID } = item;
+  if (state.mode == 0) await request.post(api.follow.addFollow, { fromUserID, toUserID });
+  else await request.post(api.follow.addFollow, { fromUserID: toUserID, toUserID: fromUserID });
+  /** 更新缓存 */
   item.isFollow = !item.isFollow;
+  ElMessage.success("关注成功！");
+};
 
-  if (item.isFollow) ElMessage.success("关注成功");
-  else ElMessage.success("取消关注成功");
+/** 取消关注 */
+const handleUnFollow = async (item) => {
+  const { fromUserID, toUserID } = item;
+  if (state.mode == 0) await request.post(api.follow.removeFollow, { fromUserID, toUserID });
+  else await request.post(api.follow.removeFollow, { fromUserID: toUserID, toUserID: fromUserID });
+  /** 更新缓存 */
+  item.isFollow = !item.isFollow;
+  ElMessage.success("取消关注成功！");
 };
 
 /** 获取用户列表 */
 const getUserList = async () => {
-  const { pageNo, limit, record, mode } = state;
+  const { pageNo, limit, mode } = state;
+  const followList = await request.post(api.follow.getFollowList, { fromUserID: loginUser._id, pageNo, limit });
+  const fansList = await request.post(api.follow.getFansList, { toUserID: loginUser._id, pageNo, limit });
   let data = {};
   if (mode == 0) {
     /** 关注列表 */
-    data = await request.post(api.user.getUserListByID, { users: record.following, pageNo, limit });
+    data = followList;
     data.list.forEach((item) => (item.isFollow = true));
   } else {
     /** 粉丝列表 */
-    data = await request.post(api.user.getUserListByID, { users: record.fans, pageNo, limit });
-    data.list.forEach((item) => {
-      if (record.following.indexOf(item._id) != -1) item.isFollow = true;
-      else item.isFollow = false;
+    data = fansList;
+    const follow_re = followList.list.map((item) => item.toUserID);
+    data.list.forEach(async (item) => {
+      item.isFollow = follow_re.includes(item.fromUserID);
     });
   }
 
@@ -79,7 +88,6 @@ const isEmpty = computed(() => {
 
 onMounted(async () => {
   try {
-    state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
     await getUserList();
   } catch (error) {
     ElMessage.error(error.message);
@@ -93,21 +101,23 @@ onMounted(async () => {
     <el-empty class="center" v-if="isEmpty" description="今天也是寂寞的一天~"></el-empty>
     <!-- 关注列表 -->
     <div class="container__list" v-if="state.mode == 0">
-      <div class="list__item" v-for="(item, index) in state.userList">
-        <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
+      <div class="list__item" v-for="item in state.userList">
+        <img class="item__avator" :src="item.toUser.avator" @click="toSpace(item.toUser)" />
         <div class="item__info">
-          <span class="info__name">{{ item.name }}</span>
-          <span class="info__follow" @click="followHandle(item)">{{ item.isFollow ? "取消关注" : "关注" }}</span>
+          <span class="info__name">{{ item.toUser.name }}</span>
+          <span class="info__follow" @click="handleFollow(item)" v-if="!item.isFollow">关注</span>
+          <span class="info__follow" @click="handleUnFollow(item)" v-if="item.isFollow">取消关注</span>
         </div>
       </div>
     </div>
     <!-- 粉丝列表 -->
     <div class="container__list" v-else>
-      <div class="list__item" v-for="(item, index) in state.userList">
-        <img class="item__avator" :src="item.avator" @click="toSpace(item)" />
+      <div class="list__item" v-for="item in state.userList">
+        <img class="item__avator" :src="item.fromUser.avator" @click="toSpace(item.fromUser)" />
         <div class="item__info">
-          <span class="info__name">{{ item.name }}</span>
-          <span class="info__follow" @click="followHandle(item)">{{ item.isFollow ? "取消关注" : "关注" }}</span>
+          <span class="info__name">{{ item.fromUser.name }}</span>
+          <span class="info__follow" @click="handleFollow(item)" v-if="!item.isFollow">关注</span>
+          <span class="info__follow" @click="handleUnFollow(item)" v-if="item.isFollow">取消关注</span>
         </div>
       </div>
     </div>
@@ -164,6 +174,7 @@ onMounted(async () => {
           font-size: 14px;
           padding: 10px;
           color: @activeColor;
+          align-self: center;
           background-color: rgba(94, 161, 97, 0.11);
           border-radius: 10px;
           transition: all 0.3s;

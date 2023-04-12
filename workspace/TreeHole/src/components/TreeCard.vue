@@ -1,36 +1,45 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-07 23:43:35
- * @LastEditTime: 2023-04-01 15:57:58
+ * @LastEditTime: 2023-04-12 14:55:18
 -->
 <script setup>
 import useClipboard from "vue-clipboard3";
-import { defineProps, reactive, toRaw, watchEffect } from "vue-demi";
+import { defineProps, reactive, toRaw, watchEffect, onMounted, watch } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
-import { Position } from "@element-plus/icons-vue";
-import { local } from "../util";
 import request from "../api/request";
+import { local } from "../util";
 import api from "../api";
 
 const router = useRouter();
 const route = useRoute();
+
 const { toClipboard } = useClipboard();
 
-const props = defineProps(["tree", "collectHandle", "record"]);
+const props = defineProps(["tree"]);
 
-const { tree, collectHandle } = props;
-const user = tree.owner;
+const { tree } = props;
+const owner = tree.owner;
 const loginUser = local.getItem("user");
 
 const state = reactive({
   isCollect: false,
+  isFollow: false,
 });
 
-// 收藏
-const handleCollect = async () => {
+/** 收藏 */
+const handleCollect = async (userID, treeID) => {
+  await request.post(api.collect.addCollect, { userID, treeID });
   state.isCollect = !state.isCollect;
-  await collectHandle(tree);
+  ElMessage.success("收藏成功！");
+};
+
+/** 取消收藏 */
+const handleUnCollect = async (userID, treeID) => {
+  await request.post(api.collect.removeCollect, { userID, treeID });
+  state.isCollect = !state.isCollect;
+  ElMessage.success("取消收藏成功！");
 };
 
 /**
@@ -69,7 +78,7 @@ const toSpace = (user) => {
 const toTreeDetail = async (treeID) => {
   if (route.name == "TreeDetail") return;
   /** 浏览记录 */
-  await request.post(api.record.modifyRecordTree, { userID: loginUser._id, treeID, mode: 0, clearAll: 0 });
+  await request.post(api.history.addHistory, { userID: loginUser._id, treeID });
   router.push({ name: "TreeDetail", state: { treeID } });
 };
 
@@ -87,9 +96,9 @@ const copyLocation = async (location) => {
   }
 };
 
-// 监听记录变化
-watchEffect(() => {
-  state.isCollect = props.record?.collect.indexOf(tree._id) != -1;
+onMounted(async () => {
+  state.isCollect = await request.post(api.collect.isCollect, { userID: loginUser._id, treeID: tree._id });
+  if (loginUser._id != owner._id) state.isFollow = await request.post(api.follow.isFollow, { fromUserID: loginUser._id, toUserID: owner._id });
 });
 </script>
 
@@ -101,9 +110,9 @@ watchEffect(() => {
       <!-- 树-头左 -->
       <div class="header__left">
         <!-- 用户信息 -->
-        <img class="header__avator" :src="user.avator" @click="toSpace(user)" />
+        <img class="header__avator" :src="owner.avator" @click="toSpace(owner)" />
         <div class="header__info">
-          <span class="info__name">{{ user.name }}</span>
+          <span class="info__name">{{ owner.name }}</span>
           <span class="info__time">{{ tree.time.split(",")[0] }}</span>
         </div>
       </div>
@@ -160,12 +169,12 @@ watchEffect(() => {
         </photo-provider>
       </div>
       <!-- 卡片-底部 -->
-      <div class="main__footer" v-if="user._id != loginUser._id">
+      <div class="main__footer" v-if="owner._id != loginUser._id">
         <!-- 收藏 -->
-        <i class="iconfont icon-shoucang-active" v-show="state.isCollect" @click="handleCollect()"></i>
-        <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="handleCollect()"></i>
+        <i class="iconfont icon-shoucang-active" v-show="state.isCollect" @click="handleUnCollect(loginUser._id, tree._id)"></i>
+        <i class="iconfont icon-shoucang" v-show="!state.isCollect" @click="handleCollect(loginUser._id, tree._id)"></i>
         <!-- 联系卖家 -->
-        <el-button round @click="toSocket(loginUser._id, user._id, tree)" v-if="tree.status == 0">联系卖家</el-button>
+        <el-button round @click="toSocket(loginUser._id, owner._id, tree)" v-if="tree.status == 0">联系卖家</el-button>
         <el-button round type="info" disabled v-if="tree.status > 0">已售</el-button>
       </div>
       <span class="sold" style="background-color: rgba(246, 171, 113, 0.8)" v-else-if="tree.status == '-1'">待审核</span>
@@ -221,6 +230,21 @@ watchEffect(() => {
         .info__time {
           color: rgb(150, 152, 153);
           font-size: 12px;
+        }
+      }
+    }
+    .header__right {
+      .unFollow {
+        font-size: 14px;
+        padding: 10px;
+        color: @activeColor;
+        cursor: pointer;
+        background-color: rgba(94, 161, 97, 0.11);
+        border-radius: 8px;
+        transition: all 0.3s;
+        &:hover {
+          color: white;
+          background-color: @activeColor;
         }
       }
     }

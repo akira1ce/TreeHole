@@ -1,12 +1,14 @@
 /*
  * @Author: Akira
  * @Date: 2023-04-11 23:37:04
- * @LastEditTime: 2023-04-11 23:52:33
+ * @LastEditTime: 2023-04-12 09:47:46
  */
 const { result, err } = require("../util");
 const { Collect } = require("../model");
+const { mergeCollect } = require("../util/merge");
 
-const addCollect = async (res, req, next) => {
+/** 收藏 */
+const addCollect = async (req, res, next) => {
   try {
     const { userID, treeID } = req.body;
     const collect = await Collect.findOne({ userID, treeID });
@@ -22,7 +24,8 @@ const addCollect = async (res, req, next) => {
   }
 };
 
-const removeCollect = async (res, req, next) => {
+/** 取消收藏 */
+const removeCollect = async (req, res, next) => {
   try {
     const { userID, treeID } = req.body;
     const collect = await Collect.findOne({ userID, treeID });
@@ -37,16 +40,21 @@ const removeCollect = async (res, req, next) => {
   }
 };
 
+/** 获取收藏列表 */
 const getCollectList = async (req, res, next) => {
   try {
-    const { userID } = req.body;
-    const list = await Collect.find({ userID });
+    const { userID, pageNo, limit } = req.body;
+    const collect = await Collect.find({ userID })
+      .skip((pageNo - 1) * limit)
+      .limit(limit);
+    const list = await mergeCollect(collect);
     res.send(result(200, { list }, "ok"));
   } catch (e) {
     next(err(e));
   }
 };
 
+/** 是否收藏 */
 const isCollect = async (req, res, next) => {
   try {
     const { userID, treeID } = req.body;

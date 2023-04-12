@@ -1,21 +1,20 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-14 18:57:18
- * @LastEditTime: 2023-03-03 17:41:46
+ * @LastEditTime: 2023-04-12 11:52:15
 -->
 <script setup>
-import api from "../api";
-import request from "../api/request";
 import { onMounted, reactive } from "vue-demi";
+import Loader from "../components/Loader.vue";
 import { defaultState, local } from "../util";
 import Card from "../components/Card.vue";
-import Loader from "../components/Loader.vue";
 import eventBus from "../lib/eventBus";
+import request from "../api/request";
+import api from "../api";
 
 const navMenu = ["recommend", "area"];
 const state = reactive({
   user: local.getItem("user") || {},
-  record: { ...defaultState.record },
   /** 当前导航 */
   current: local.getItem("current_home") || 0,
   currentList: {
@@ -43,13 +42,11 @@ const state = reactive({
 
 /** 切换导航 */
 const switchNav = (target) => {
-  // 缓存
+  /** 缓存 */
   state.current = target;
   local.setItem("current_home", target);
-
   state.currentList = state[navMenu[target]];
-
-  // 首次特判
+  /** 首次特判 */
   if (state.currentList.content.length == 0) {
     state.isLoader = true;
     setTimeout(async () => {
@@ -61,7 +58,7 @@ const switchNav = (target) => {
 
 /** 获取树列表 */
 const getCurrentList = async () => {
-  const { current, record } = state;
+  const { current, user } = state;
 
   /** 定位当前集合 */
   const currentList = state[navMenu[current]];
@@ -69,7 +66,7 @@ const getCurrentList = async () => {
 
   let data = null;
   // recommend 和 area 唯一区分
-  if (current == 0) data = await request.post(api.tree.getRecommendTreeList, { trees: record.browsingHistory, pageNo, limit });
+  if (current == 0) data = await request.post(api.tree.getRecommendTreeList, { userID: user._id, pageNo, limit });
   else data = await request.post(api.tree.getAreaTreeList, { area: state.user.location.split("-")[1], pageNo, limit });
 
   /** 更新缓存 */
@@ -84,8 +81,6 @@ eventBus.on("switchNav", switchNav);
 
 onMounted(async () => {
   try {
-    const userID = state.user._id;
-    state.record = await request.post(api.record.getRecordByUserID, { userID });
     switchNav(state.current);
   } catch (error) {
     ElMessage.error(error.message);
@@ -97,7 +92,7 @@ onMounted(async () => {
   <div class="container scroll" v-infinite-scroll="getCurrentList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.currentList.infiniteScroll">
     <el-empty class="center" v-if="state.currentList.content.length == 0 && !state.isLoader" description="这里没有数据了~"></el-empty>
     <Loader class="center" v-if="state.isLoader"></Loader>
-    <Card v-for="(item, index) in state.currentList.content" :key="item._id" :tree="item" />
+    <Card v-for="item in state.currentList.content" :key="item._id" :tree="item" />
   </div>
 </template>
 

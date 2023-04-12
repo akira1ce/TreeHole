@@ -1,12 +1,14 @@
 /*
  * @Author: Akira
  * @Date: 2023-04-11 23:02:15
- * @LastEditTime: 2023-04-11 23:37:08
+ * @LastEditTime: 2023-04-12 12:13:44
  */
 const { result, err } = require("../util");
 const { Follow } = require("../model");
+const { mergeFollow } = require("../util/merge");
 
-const addFollow = async (res, req, next) => {
+/** 关注 */
+const addFollow = async (req, res, next) => {
   try {
     const { fromUserID, toUserID } = req.body;
     const follow = await Follow.findOne({ fromUserID, toUserID });
@@ -21,8 +23,8 @@ const addFollow = async (res, req, next) => {
     next(err(e));
   }
 };
-
-const removeFollow = async (res, req, next) => {
+/** 取消关注 */
+const removeFollow = async (req, res, next) => {
   try {
     const { fromUserID, toUserID } = req.body;
     const follow = await Follow.findOne({ fromUserID, toUserID });
@@ -37,6 +39,7 @@ const removeFollow = async (res, req, next) => {
   }
 };
 
+/** 获取关注粉丝列表 */
 const getFollowCount = async (req, res, next) => {
   try {
     const { userID } = req.body;
@@ -48,6 +51,35 @@ const getFollowCount = async (req, res, next) => {
   }
 };
 
+/** 获取关注列表 */
+const getFollowList = async (req, res, next) => {
+  try {
+    const { fromUserID, pageNo, limit } = req.body;
+    const follow = await Follow.find({ fromUserID })
+      .skip((pageNo - 1) * limit)
+      .limit(limit);
+    const list = await mergeFollow(follow);
+    res.send(result(200, { list }, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
+/** 获取粉丝列表 */
+const getFansList = async (req, res, next) => {
+  try {
+    const { toUserID, pageNo, limit } = req.body;
+    const fans = await Follow.find({ toUserID })
+      .skip((pageNo - 1) * limit)
+      .limit(limit);
+    const list = await mergeFollow(fans);
+    res.send(result(200, { list }, "ok"));
+  } catch (e) {
+    next(err(e));
+  }
+};
+
+/** 是否关注 */
 const isFollow = async (req, res, next) => {
   try {
     const { fromUserID, toUserID } = req.body;
@@ -64,5 +96,7 @@ module.exports = {
   addFollow,
   removeFollow,
   getFollowCount,
+  getFansList,
+  getFollowList,
   isFollow,
 };

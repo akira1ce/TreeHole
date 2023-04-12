@@ -1,14 +1,14 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-12 09:29:52
- * @LastEditTime: 2023-03-03 17:00:50
+ * @LastEditTime: 2023-04-12 12:05:57
  */
 const { Order, User, Tree, Record } = require("../model");
 const { result, err } = require("../util");
 
 const { mergeOrders } = require("../util/merge");
 
-// 同步更新记录
+/** 同步更新记录 */
 const companionOrder = async (data, mode) => {
   const userID1 = data.buyerID;
   const userID2 = data.sellerID;
@@ -30,13 +30,13 @@ const companionOrder = async (data, mode) => {
   await Record.findByIdAndUpdate(records[1]._id, records[1]);
 };
 
-// 增加订单
+/** 增加订单 */
 const addOrder = async (req, res, next) => {
   try {
     const { treeID } = req.body;
     let tree = await Tree.findOne({ _id: treeID });
 
-    // 苗木不存在
+    /** 苗木不存在 */
     if (!tree) {
       next(err("该苗木已被删除", 403, ""));
       return;
@@ -44,7 +44,7 @@ const addOrder = async (req, res, next) => {
 
     let order = await Order.findOne({ treeID });
 
-    // 苗木已被购买
+    /** 苗木已被购买 */
     if (order) {
       next(err("该苗木已被购买", 403, ""));
       return;
@@ -60,7 +60,7 @@ const addOrder = async (req, res, next) => {
   }
 };
 
-// 删除订单
+/** 删除订单 */
 const removeById = async (req, res, next) => {
   try {
     const { _id } = req.body;
@@ -81,7 +81,7 @@ const removeById = async (req, res, next) => {
   }
 };
 
-// 修改订单
+/** 修改订单 */
 const modifyById = async (req, res, next) => {
   try {
     const { _id } = req.body;
@@ -99,7 +99,7 @@ const modifyById = async (req, res, next) => {
   }
 };
 
-// 修改订单
+/** 修改订单 */
 const modifyByTreeID = async (req, res, next) => {
   try {
     const { treeID, state } = req.body;
@@ -118,7 +118,7 @@ const modifyByTreeID = async (req, res, next) => {
   }
 };
 
-// 查询订单列表
+/** 查询订单列表 */
 const getOrderList = async (req, res, next) => {
   try {
     const { pageNo, limit, type, userID } = req.body;
@@ -137,13 +137,13 @@ const getOrderList = async (req, res, next) => {
   }
 };
 
-// 查询用户订单列表
+/** 查询用户订单列表 */
 const getOrderListByUserID = async (req, res, next) => {
   try {
-    const { userID } = req.body;
-    let orders = await Order.find({
-      $or: [{ buyerID: userID }, { sellerID: userID }],
-    });
+    const { userID, pageNo, limit } = req.body;
+    let orders = await Order.find({ $or: [{ buyerID: userID }, { sellerID: userID }] })
+      .skip((pageNo - 1) * limit)
+      .limit(limit);
     const list = await mergeOrders(orders);
     res.send(result(200, { list }, "ok"));
   } catch (e) {
@@ -151,7 +151,7 @@ const getOrderListByUserID = async (req, res, next) => {
   }
 };
 
-// 查询订单集合列表
+/** 查询订单集合列表 */
 const getOrderListByID = async (req, res, next) => {
   try {
     let { orders, pageNo, limit } = req.body;
@@ -163,7 +163,7 @@ const getOrderListByID = async (req, res, next) => {
   }
 };
 
-// 查询苗木订单
+/** 查询苗木订单 */
 const getOrderByTreeID = async (req, res, next) => {
   try {
     const { treeID } = req.body;

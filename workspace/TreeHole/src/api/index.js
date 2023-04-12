@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-14 16:54:59
- * @LastEditTime: 2023-03-01 15:04:28
+ * @LastEditTime: 2023-04-12 09:26:28
  */
 export default {
   user: {
@@ -292,5 +292,91 @@ export default {
      * @param pageNo 页码
      * @param limit 页限
      */ getCommentByTreeID: "/comment/getCommentByTreeID",
+  },
+  follow: {
+    /**
+     * 关注
+     * @param fromUserID
+     * @param toUserID
+     */
+    addFollow: "/follow/addFollow",
+    /**
+     * 取消关注
+     * @param fromUserID
+     * @param toUserID
+     */
+    removeFollow: "/follow/removeFollow",
+    /**
+     * 获取关注粉丝数量
+     * @param userID
+     */
+    getFollowCount: "/follow/getFollowCount",
+    /**
+     * 获取关注列表
+     * @param userID
+     * @param pageNo
+     * @param limit
+     */
+    getFollowList: "/follow/getFollowList",
+    /**
+     * 获取粉丝列表
+     * @param userID
+     * @param pageNo
+     * @param limit
+     */
+    getFansList: "/follow/getFansList",
+    /**
+     * 是否关注
+     * @param fromUserID
+     * @param toUserID
+     */
+    isFollow: "/follow/isFollow",
+  },
+  collect: {
+    /**
+     * 收藏
+     * @param userID
+     * @param treeID
+     */
+    addCollect: "/collect/addCollect",
+    /**
+     * 取消收藏
+     * @param userID
+     * @param treeID
+     */
+    removeCollect: "/collect/removeCollect",
+    /**
+     * 获取收藏列表
+     * @param userID
+     * @param pageNo
+     * @param limit
+     */
+    getCollectList: "/collect/getCollectList",
+    /**
+     * 是否收藏
+     * @param userID
+     * @param treeID
+     */
+    isCollect: "/collect/isCollect",
+  },
+  history: {
+    /**
+     * 添加浏览记录
+     * @param userID
+     * @param treeID
+     */
+    addHistory: "/history/addHistory",
+    /**
+     * 清空历史记录
+     * @param userID
+     */
+    removeAllHistory: "/history/removeAllHistory",
+    /**
+     * 获取浏览记录
+     * @param userID
+     * @param pageNo
+     * @param limit
+     */
+    getHistoryList: "/history/getHistoryList",
   },
 };

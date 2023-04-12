@@ -10,26 +10,6 @@ const recordSchema = new mongoose.Schema({
     type: Types.String,
     required: true,
   },
-  following: {
-    type: Types.Array,
-    required: false,
-    default: [],
-  },
-  fans: {
-    type: Types.Array,
-    required: false,
-    default: [],
-  },
-  collect: {
-    type: Types.Array,
-    required: false,
-    default: [],
-  },
-  browsingHistory: {
-    type: Types.Array,
-    required: false,
-    default: [],
-  },
   order: {
     type: Types.Array,
     require: false,

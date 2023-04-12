@@ -1,16 +1,16 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-06 14:40:24
- * @LastEditTime: 2023-03-03 15:44:54
+ * @LastEditTime: 2023-04-12 11:09:42
 -->
 <script setup>
-import { computed, onMounted, reactive, toRaw } from "vue-demi";
-import { useRoute, useRouter } from "vue-router";
-import api from "../api";
-import request from "../api/request";
-import { defaultState, local, recordHandle } from "../util";
+import { onMounted, reactive, toRaw } from "vue-demi";
 import TreeCard from "../components/TreeCard.vue";
+import { useRoute, useRouter } from "vue-router";
+import { defaultState, local } from "../util";
 import { ElMessage } from "element-plus";
+import request from "../api/request";
+import api from "../api";
 
 const router = useRouter();
 const route = useRoute();
@@ -19,7 +19,6 @@ const state = reactive({
   tree: null,
   treeID: history.state.treeID,
   user: local.getItem("user") || {},
-  record: { ...defaultState.record },
   /** 评论 */
   comments: [],
   comment: { ...defaultState.comment },
@@ -28,24 +27,6 @@ const state = reactive({
   infiniteScroll: false,
   isEmpty: false,
 });
-
-/**
- * 关注用户
- * @param {string} userID1
- * @param {string} userID2
- */
-const followHandle = async (userID1, userID2) => {
-  const { record, user, tree } = state;
-  recordHandle.follow(record, user._id, tree.ownerID);
-};
-
-/**
- * 收藏树
- * @param {string} treeID
- */
-const collectHandle = (tree) => {
-  recordHandle.collect(state.record, state.user._id, tree._id);
-};
 
 /** 发送评论 */
 const sendComment = async () => {
@@ -94,12 +75,6 @@ const toSpace = (user) => {
   }
 };
 
-/** 是否关注 */
-const isFollow = computed(() => {
-  const { record, tree } = state;
-  return record.following.indexOf(tree.ownerID) != -1;
-});
-
 onMounted(async () => {
   const userID = state.user._id;
   const treeID = state.treeID;
@@ -112,7 +87,6 @@ onMounted(async () => {
     state.isEmpty = true;
     return;
   }
-  state.record = await request.post(api.record.getRecordByUserID, { userID });
   getCommentList();
 });
 </script>
@@ -121,11 +95,7 @@ onMounted(async () => {
   <div class="container scroll" v-infinite-scroll="getCommentList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
     <div class="container__content" v-if="state.tree != null">
       <!-- 苗木 -->
-      <TreeCard :key="state.tree._id" :tree="state.tree" :collectHandle="collectHandle" :record="state.record">
-        <div class="unFollow" @click="followHandle" v-if="state.tree.ownerID != state.user._id">
-          {{ isFollow ? "取消关注" : "关注" }}
-        </div>
-      </TreeCard>
+      <TreeCard :key="state.tree._id" :tree="state.tree"></TreeCard>
       <!-- 评论 -->
       <el-card shadow="hover" class="content__comments">
         <!-- 评论框 -->
@@ -239,19 +209,6 @@ onMounted(async () => {
           }
         }
       }
-    }
-  }
-  .unFollow {
-    font-size: 14px;
-    padding: 10px;
-    color: @activeColor;
-    cursor: pointer;
-    background-color: rgba(94, 161, 97, 0.11);
-    border-radius: 8px;
-    transition: all 0.3s;
-    &:hover {
-      color: white;
-      background-color: @activeColor;
     }
   }
 }

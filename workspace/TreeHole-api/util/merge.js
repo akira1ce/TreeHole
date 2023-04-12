@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-25 15:10:29
- * @LastEditTime: 2023-03-06 09:16:00
+ * @LastEditTime: 2023-04-12 13:42:03
  */
 const { Tree, User, Record, Order, Socket } = require("../model");
 
@@ -60,9 +60,54 @@ const mergeSockets = async (data) => {
   return sockets;
 };
 
+const mergeFollow = async (data) => {
+  if (data.length == 0) return data;
+  const follows = [];
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    const follow = {};
+    Object.assign(follow, item._doc);
+    follow.fromUser = await User.findOne({ _id: item.fromUserID }, { password: 0 });
+    follow.toUser = await User.findOne({ _id: item.toUserID }, { password: 0 });
+    follows.push(follow);
+  }
+  return follows;
+};
+
+const mergeCollect = async (data) => {
+  if (data.length == 0) return data;
+  const collects = [];
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    const collect = {};
+    Object.assign(collect, item._doc);
+    collect.tree = await Tree.findOne({ _id: item.treeID });
+    collect.tree = (await mergeTrees([collect.tree]))[0];
+    collects.push(collect);
+  }
+  return collects;
+};
+
+const mergeHistory = async (data) => {
+  if (data.length == 0) return data;
+  const historys = [];
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    const history = {};
+    Object.assign(history, item._doc);
+    history.tree = await Tree.findOne({ _id: item.treeID });
+    history.tree = (await mergeTrees([history.tree]))[0];
+    historys.push(history);
+  }
+  return historys;
+};
+
 module.exports = {
   mergeTrees,
   mergeOrders,
   mergeSockets,
   mergeComments,
+  mergeFollow,
+  mergeCollect,
+  mergeHistory,
 };

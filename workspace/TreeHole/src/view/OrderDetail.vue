@@ -1,15 +1,15 @@
 <!--
  * @Author: Akira
  * @Date: 2023-01-08 15:54:04
- * @LastEditTime: 2023-04-08 12:04:25
+ * @LastEditTime: 2023-04-12 11:52:10
 -->
 <script setup>
-import { ElMessage } from "element-plus";
-import { computed, onMounted, reactive, toRaw } from "vue-demi";
-import { useRoute, useRouter } from "vue-router";
-import api from "../api";
-import request from "../api/request";
+import { computed, onMounted, reactive } from "vue-demi";
 import { defaultState, local, tools } from "../util";
+import { useRoute, useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import request from "../api/request";
+import api from "../api";
 
 const router = useRouter();
 const route = useRoute();
@@ -24,12 +24,13 @@ const state = reactive({
 
 /**
  * 跳转苗木详情
+ * @param {string} userID
  * @param {string} treeID
  */
-const toTreeDetail = async (treeID) => {
+const toTreeDetail = async (userID, treeID) => {
   if (route.name == "TreeDetail") return;
   /** 浏览记录  */
-  await request.post(api.record.modifyRecordTree, { userID: state.loginUser._id, treeID, mode: 0, clearAll: 0 });
+  await request.post(api.history.addHistory, { userID, treeID });
   router.push({ name: "TreeDetail", state: { treeID } });
 };
 
@@ -99,19 +100,19 @@ onMounted(async () => {
       state.order = order;
     }
 
-    // 订单不存在
+    /** 订单不存在 */
     if (!state.order) throw new Error("订单好像不存在");
 
     const orderID = state.order._id;
-    // 订单未支付
+    /** 订单未支付 */
     if (state.order.status == 0) {
       // 查询订单状态
       const queryRes = await request.post(api.alipay.query, { orderID });
-      // 已支付成功，更新订单状态
+      /** 已支付成功，更新订单状态 */
       if (queryRes.status == 2) {
         // 时间格式化
         queryRes.send_pay_date = tools.timeFormat(queryRes.send_pay_date);
-        // 更新订单
+        /** 更新订单 */
         await request.post(api.order.modifyById, { _id: orderID, status: "1", payTime: queryRes.send_pay_date });
         state.order.status = "1";
         state.order.payTime = queryRes.send_pay_date;
@@ -167,7 +168,7 @@ onMounted(async () => {
         </div>
       </div>
       <!-- 苗木信息 -->
-      <div class="order__tree" @click="toTreeDetail(tree._id)">
+      <div class="order__tree" @click="toTreeDetail(state.loginUser._id, tree._id)">
         <!-- 封面 -->
         <img class="tree__cover" :src="tree.imgs[0]?.url" />
         <!-- 详细信息 -->

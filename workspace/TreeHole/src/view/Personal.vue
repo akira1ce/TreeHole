@@ -1,17 +1,17 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-04-07 15:25:45
+ * @LastEditTime: 2023-04-12 15:12:32
 -->
 <script setup>
-import api from "../api";
-import request from "../api/request";
 import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
+import OrderCard from "../components/OrderCard.vue";
 import { useRouter, useRoute } from "vue-router";
 import { local, defaultState } from "../util";
 import Card from "../components/Card.vue";
-import OrderCard from "../components/OrderCard.vue";
 import { ElMessage } from "element-plus";
+import request from "../api/request";
+import api from "../api";
 
 const router = useRouter();
 const route = useRoute();
@@ -22,10 +22,6 @@ const sliderRef = ref();
 const navMenu = ["历史记录", "我的收藏", "我的交易"];
 const sliderLeft = ["22px", "125px", "228px"];
 
-// 索引集合
-const list = ["historyList", "collectList", "orderList"];
-const list_re = ["browsingHistory", "collect", "order"];
-
 const user = local.getItem("user");
 
 const state = reactive({
@@ -34,31 +30,33 @@ const state = reactive({
     pageNo: 1,
     limit: 12,
     infiniteScroll: false,
-    content: [],
+    list: [],
   },
   /** 浏览记录 */
   historyList: {
     pageNo: 1,
     limit: 12,
     infiniteScroll: false,
-    content: [],
+    list: [],
   },
   /** 收藏 */
   collectList: {
     pageNo: 1,
     limit: 12,
     infiniteScroll: false,
-    content: [],
+    list: [],
   },
   /** 订单 */
   orderList: {
     pageNo: 1,
     limit: 6,
     infiniteScroll: false,
-    content: [],
+    list: [],
   },
   record: defaultState.record,
   isLoading: true,
+  followCount: 0,
+  fansCount: 0,
 });
 
 /**
@@ -95,7 +93,7 @@ const switchNav = async (target) => {
   else state.currentList = state.orderList;
 
   /** 首次特判 */
-  if (state.currentList.content.length == 0) {
+  if (state.currentList.list.length == 0) {
     state.isLoading = true;
     await getCurrentList();
     setTimeout(() => {
@@ -105,12 +103,11 @@ const switchNav = async (target) => {
 };
 
 /** 清楚历史记录 */
-const clearBrowsing = async () => {
-  await request.post(api.record.modifyRecordTree, { userID: user._id, mode: 0, clearAll: 1 });
+const clearBrowsing = async (userID) => {
+  await request.post(api.history.removeAllHistory, { userID });
   /** 更新缓存 */
-  state.record.browsingHistory = [];
-  state.historyList.content = [];
-  state.historyList.infiniteScroll = false;
+  state.currentList.list = [];
+  state.currentList.infiniteScroll = false;
   ElMessage.success("浏览记录已清空");
 };
 
@@ -120,59 +117,52 @@ const clearBrowsing = async () => {
  * @param {number} index
  */
 const deleteOrder = async (orderID, index) => {
-  if (state.currentList.content[index].status != 2) {
+  if (state.currentList.list[index].status != 2) {
     ElMessage.warning("订单进行中...");
     return;
   }
   await request.post(api.record.modifyRecordOrder, { userID: user._id, orderID });
   state.record.order.splice(index, 1);
-  state.currentList.content.splice(index, 1);
+  state.currentList.list.splice(index, 1);
 };
 
 /** 分页加载导航数据 treeList or orderList */
 const getCurrentList = async () => {
-  const { current } = state;
-
   /** 定位当前集合 */
-  const currentList = state[list[current]];
-  const currentList_re = state.record[list_re[current]];
-
+  const { currentList, current } = state;
+  const { pageNo, limit } = currentList;
   let data = null;
   /** order 和 tree 唯一区分 */
-  if (current == 2) data = await request.post(api.order.getOrderListByID, { orders: currentList_re, pageNo: currentList.pageNo, limit: currentList.limit });
-  else data = await request.post(api.tree.getTreeListByID, { trees: currentList_re, pageNo: currentList.pageNo, limit: currentList.limit });
-
-  /** 更新缓存 */
-  currentList.content.push(...data.list);
-  currentList.pageNo++;
+  if (current == 0) data = await request.post(api.history.getHistoryList, { userID: user._id, pageNo, limit });
+  else if (current == 1) data = await request.post(api.collect.getCollectList, { userID: user._id, pageNo, limit });
+  else data = await request.post(api.order.getOrderListByID, { orders: state.record.order, pageNo, limit });
 
   if (data.list.length == 0) {
-    /** 在所有数据加载完毕之后，判断是否存在失效数据，存在 -> 更新记录 */
     currentList.infiniteScroll = true;
-    if (currentList.content.length != currentList_re.length) {
-      state.record[list_re[current]] = currentList.content.map((item) => item._id);
-      await request.post(api.record.modifyByID, state.record);
-    }
+    return;
   }
+
+  /** 更新缓存 */
+  currentList.list.push(...data.list);
+  currentList.pageNo++;
+};
+
+/** 获取关注粉丝数量 */
+const getCount = async (userID) => {
+  const { followCount, fansCount } = await request.post(api.follow.getFollowCount, { userID });
+  state.followCount = followCount;
+  state.fansCount = fansCount;
 };
 
 onMounted(async () => {
-  try {
-    state.record = await request.post(api.record.getRecordByUserID, { userID: user._id });
-    state.current = local.getItem("current_personal") || 0;
-    switchNav(state.current);
-  } catch (error) {
-    ElMessage.error(error.message);
-  }
-});
-
-// [computed]
-const record = computed(() => {
-  return state.record;
+  const userID = user._id;
+  await getCount(userID);
+  state.current = local.getItem("current_personal") || 0;
+  switchNav(state.current);
 });
 
 const isEmpty = computed(() => {
-  return state.currentList.content.length == 0;
+  return state.currentList.list.length == 0;
 });
 </script>
 
@@ -195,11 +185,11 @@ const isEmpty = computed(() => {
       <!-- 记录-动态关注粉丝 -->
       <div class="userInfo__record">
         <div class="record__item" @click="toRecord(0)">
-          <span class="item__count">{{ record.following?.length || "-" }}</span>
+          <span class="item__count">{{ state.followCount }}</span>
           <span class="item__type">关注</span>
         </div>
         <div class="record__item" @click="toRecord(1)">
-          <span class="item__count">{{ record.fans?.length || "-" }}</span>
+          <span class="item__count">{{ state.fansCount }}</span>
           <span class="item__type">粉丝</span>
         </div>
       </div>
@@ -214,7 +204,7 @@ const isEmpty = computed(() => {
             {{ item }}
           </div>
           <div class="navMenu__slider" ref="sliderRef"></div>
-          <div class="navMenu__clear" v-show="state.current == 0" @click="clearBrowsing">
+          <div class="navMenu__clear" v-show="state.current == 0" @click="clearBrowsing(user._id)">
             <i class="iconfont icon-lajitong"></i>
             清空历史记录
           </div>
@@ -225,11 +215,11 @@ const isEmpty = computed(() => {
         <el-empty class="center" v-if="isEmpty" description="什么也没有喔~"></el-empty>
         <!-- 树 -->
         <div class="content__trees" v-if="state.current < 2">
-          <Card v-for="(item, index) in state.currentList.content" :key="item._id" :tree="item" />
+          <Card v-for="item in state.currentList.list" :key="item._id" :tree="item.tree" />
         </div>
         <!-- 订单 -->
         <div class="content__orders" v-else>
-          <OrderCard v-for="(item, index) in state.currentList.content" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" />
+          <OrderCard v-for="(item, index) in state.currentList.list" :key="item._id" :order="item" :deleteOrder="deleteOrder" :index="index" />
         </div>
       </div>
     </div>
@@ -262,7 +252,7 @@ const isEmpty = computed(() => {
   padding: 30px 3.333vw;
   .container__userInfo {
     .flex__row();
-    justify-content: space-between;
+    justify-list: space-between;
     align-items: center;
     border-radius: 10px;
     padding: 30px 35px;
@@ -368,7 +358,7 @@ const isEmpty = computed(() => {
       position: relative;
       .content__trees {
         display: grid;
-        justify-content: space-between;
+        justify-list: space-between;
         grid-template-columns: repeat(auto-fill, 36vmin);
       }
     }

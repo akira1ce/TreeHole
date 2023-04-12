@@ -1,19 +1,19 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-04-07 14:39:18
+ * @LastEditTime: 2023-04-12 14:52:34
 -->
 <script setup>
-import api from "../api";
-import request from "../api/request";
-import { local, defaultState, recordHandle } from "../util";
-import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
-import { useRouter } from "vue-router";
-import TreeCard from "../components/TreeCard.vue";
-import { Edit, Delete } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
-import { Plus } from "@element-plus/icons-vue";
 import { regionData, provinceAndCityData, CodeToText, TextToCode } from "element-china-area-data";
+import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
+import { Edit, Delete } from "@element-plus/icons-vue";
+import TreeCard from "../components/TreeCard.vue";
+import { Plus } from "@element-plus/icons-vue";
+import { local, defaultState } from "../util";
+import { ElMessage } from "element-plus";
+import { useRouter } from "vue-router";
+import request from "../api/request";
+import api from "../api";
 import _ from "lodash";
 
 const router = useRouter();
@@ -44,14 +44,15 @@ const spaceUser = history.state.spaceUser || loginUser;
 
 const state = reactive({
   user: spaceUser,
-  /** 记录 */
-  record: defaultState.record,
-  loginRecord: defaultState.record,
   /** 分页 */
   infiniteScroll: false,
   treeList: [],
   pageNo: 1,
   limit: 4,
+  /** 关注数 */
+  followCount: 0,
+  /** 粉丝数 */
+  fansCount: 0,
   /** 是否关注 */
   isFollow: false,
   /** 用户弹出层 */
@@ -72,8 +73,6 @@ const state = reactive({
   userLocation: [],
   isLoading: true,
 });
-
-const record = computed(() => state.record);
 
 /** 是否是当前用户 */
 const isCurrentUser = computed(() => {
@@ -114,26 +113,22 @@ const toRecord = (mode) => {
   if (isCurrentUser.value) router.push({ name: "Record", state: { mode } });
 };
 
-/** 关注/取消关注 */
-const followHandle = async (userID1, userID2) => {
-  recordHandle.follow(state.loginRecord, userID1, userID2);
-
-  /** 更新缓存 */
-  const { fans } = state.record;
-  const index = fans.indexOf(loginUser._id);
-
-  if (index == -1) fans.push(loginUser._id);
-  else fans.splice(index, 1);
+/** 关注 */
+const handleFollow = async (fromUserID, toUserID) => {
+  await request.post(api.follow.addFollow, { fromUserID, toUserID });
+  await getCount(spaceUser._id);
   state.isFollow = !state.isFollow;
+  ElMessage.success("关注成功！");
 };
 
-/**
- * 收藏
- * @param {string} treeID
- */
-const collectHandle = (tree) => {
-  recordHandle.collect(state.record, loginUser._id, tree._id);
+/** 取消关注 */
+const handleUnFollow = async (fromUserID, toUserID) => {
+  await request.post(api.follow.removeFollow, { fromUserID, toUserID });
+  await getCount(spaceUser._id);
+  state.isFollow = !state.isFollow;
+  ElMessage.success("取消关注成功！");
 };
+
 //#endregion
 
 //#region 苗木
@@ -297,21 +292,23 @@ const getTreeList = async () => {
   state.pageNo++;
 };
 
+const getCount = async (userID) => {
+  const { followCount, fansCount } = await request.post(api.follow.getFollowCount, { userID });
+  state.followCount = followCount;
+  state.fansCount = fansCount;
+};
+
 const isEmpty = computed(() => {
   return state.treeList.length == 0;
 });
 
 onMounted(async () => {
   try {
-    /** 登陆用户记录 */
-    if (loginUser._id != state.user._id) state.loginRecord = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
-    /** 当前用户记录 */
-    state.record = await request.post(api.record.getRecordByUserID, { userID: state.user._id });
+    await getCount(spaceUser._id);
     /** 非当前用户是否关注 */
-    if (!isCurrentUser.value) state.isFollow = state.record.fans.indexOf(loginUser._id) != -1;
-
+    if (!isCurrentUser.value) state.isFollow = await request.post(api.follow.isFollow, { fromUserID: loginUser._id, toUserID: spaceUser._id });
+    /** 获取苗木列表 */
     await getTreeList();
-
     /** 地区 */
     const loc = state.user.location.split("-");
     state.userLocation = [TextToCode[loc[0]]?.code, TextToCode[loc[0]][loc[1]]?.code];
@@ -336,17 +333,18 @@ onMounted(async () => {
           <span class="user__name">{{ state.user.name }}</span>
           <div class="btnOption">
             <el-button class="editUserInfo" v-if="isCurrentUser" @click="editUserInfo">编辑个人资料</el-button>
-            <div class="unFollow btn" @click="followHandle(loginUser._id, spaceUser._id)" v-if="!isCurrentUser">{{ state.isFollow ? "取消关注" : "关注" }}</div>
+            <div class="unFollow btn" @click="handleUnFollow(loginUser._id, spaceUser._id)" v-if="!isCurrentUser && state.isFollow">取消关注</div>
+            <div class="unFollow btn" @click="handleFollow(loginUser._id, spaceUser._id)" v-if="!isCurrentUser && !state.isFollow">关注</div>
           </div>
         </div>
         <!-- 个人记录 关注 粉丝 -->
         <div class="user__record">
           <div class="record__item" @click="toRecord(0)">
-            <span class="item__count">{{ record.following?.length || "-" }}</span>
+            <span class="item__count">{{ state.followCount }}</span>
             <span class="item__type">关注</span>
           </div>
           <div class="record__item" @click="toRecord(1)">
-            <span class="item__count">{{ record.fans?.length || "-" }}</span>
+            <span class="item__count">{{ state.fansCount }}</span>
             <span class="item__type">粉丝</span>
           </div>
         </div>
@@ -362,7 +360,7 @@ onMounted(async () => {
       <div class="release" v-if="isCurrentUser" @click="release">发布🙌</div>
       <el-empty description="他好像没有发布苗木~" v-if="isEmpty" />
       <!-- 苗木卡片 -->
-      <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item" :record="state.loginRecord" :collectHandle="collectHandle">
+      <TreeCard v-for="(item, index) in state.treeList" :key="item._id" :tree="item">
         <el-button v-if="isCurrentUser" :icon="Edit" circle @click="handleCommand(beforeHandleCommand(0, index))" />
         <el-button v-if="isCurrentUser" :icon="Delete" circle @click="handleCommand(beforeHandleCommand(1, index))" />
       </TreeCard>
