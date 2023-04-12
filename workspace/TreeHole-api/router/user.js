@@ -8,19 +8,19 @@ const userCtrl = require("../controller/user");
 
 const router = express.Router();
 
-// 注册
+/** 注册 */
 router.post("/register", userCtrl.register);
-// 登陆
+/** 登陆 */
 router.post("/login", userCtrl.login);
-// 删除用户
+/** 删除用户 */
 router.post("/removeById", userCtrl.removeById);
-// 修改用户
+/** 修改用户 */
 router.post("/modifyById", userCtrl.modifyById);
-// 查询用户列表
+/** 查询用户列表 */
 router.post("/getUserList", userCtrl.getUserList);
-// 查询用户集合列表
+/** 查询用户集合列表 */
 router.post("/getUserListByID", userCtrl.getUserListByID);
-// 查询用户
+/** 查询用户 */
 router.post("/getUserById", userCtrl.getUserById);
 
 module.exports = router;

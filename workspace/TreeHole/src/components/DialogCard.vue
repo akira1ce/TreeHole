@@ -1,14 +1,14 @@
 <!--
  * @Author: Akira
  * @Date: 2022-12-10 16:48:50
- * @LastEditTime: 2023-03-22 13:53:05
+ * @LastEditTime: 2023-04-12 15:17:50
 -->
 <script setup>
-import { computed } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
-import api from "../api";
 import request from "../api/request";
+import { computed } from "vue-demi";
 import { local } from "../util";
+import api from "../api";
 
 const router = useRouter();
 const route = useRoute();
@@ -20,14 +20,13 @@ const { tree, loginUser, orderOp } = props;
  * 跳转苗木详情
  * @param {string} treeID
  */
-const toTreeDetail = async (treeID) => {
+const toTreeDetail = async (userID, treeID) => {
   if (route.name == "TreeDetail") return;
   /** 浏览记录 */
-  await request.post(api.record.modifyRecordTree, { userID: loginUser._id, treeID, mode: 0, clearAll: 0 });
+  await request.post(api.history.addHistory, { userID, treeID });
   router.push({ name: "TreeDetail", state: { treeID } });
 };
 
-// [computed]
 /**
  * 对话框 树卡片 订单处理按钮
  * 该按钮对应双方,会有不同的状态
@@ -53,7 +52,7 @@ const orderBtn = computed(() => {
   <div class="card">
     <div class="card__tree">
       <!-- 树-封面 -->
-      <div class="tree__cover" @click="toTreeDetail(tree._id)">
+      <div class="tree__cover" @click="toTreeDetail(loginUser._id, tree._id)">
         <img :src="tree.imgs[0]?.url" />
       </div>
       <!-- 树-信息 -->

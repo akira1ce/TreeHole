@@ -6,6 +6,7 @@
 const { SocketContent, Socket } = require("../model");
 const { result, err } = require("../util");
 
+/** 新增会话内容 */
 const addSocketContent = async (req, res, next) => {
   try {
     const { socketID } = req.body;
@@ -26,6 +27,7 @@ const addSocketContent = async (req, res, next) => {
   }
 };
 
+/** 获取会话内容 */
 const getSocketContentBySid = async (req, res, next) => {
   try {
     const { sid } = req.body;

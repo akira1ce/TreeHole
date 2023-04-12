@@ -1,15 +1,14 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-26 10:49:01
- * @LastEditTime: 2023-04-02 17:14:47
+ * @LastEditTime: 2023-04-12 09:49:36
 -->
 <script setup>
-import { Delete } from "@element-plus/icons-vue";
 import { computed, defineProps, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
-import api from "../api";
 import request from "../api/request";
 import { local } from "../util";
+import api from "../api";
 
 const router = useRouter();
 const route = useRoute();
@@ -17,7 +16,7 @@ const route = useRoute();
 const props = defineProps(["order", "deleteOrder", "index"]);
 
 const { order, deleteOrder, index } = props;
-const user = local.getItem("user");
+const loginUser = local.getItem("user");
 
 /**
  * 跳转聊天
@@ -48,10 +47,10 @@ const toSpace = (user) => {
  * 跳转苗木详情
  * @param {string} treeID
  */
-const toTreeDetail = async (treeID) => {
+const toTreeDetail = async (userID, treeID) => {
   if (route.name == "TreeDetail") return;
   /** 浏览记录 */
-  await request.post(api.record.modifyRecordTree, { userID: user._id, treeID, mode: 0, clearAll: 0 });
+  await request.post(api.history.addHistory, { userID, treeID });
   router.push({ name: "TreeDetail", state: { treeID } });
 };
 
@@ -64,10 +63,9 @@ const checkOrder = (order) => {
   router.push({ name: "OrderDetail", state: { treeID: order.treeID } });
 };
 
-// [computed]
 // 当前聊天对方
 const otherSide = computed(() => {
-  return user._id == order.buyerID ? order.seller : order.buyer;
+  return loginUser._id == order.buyerID ? order.seller : order.buyer;
 });
 
 // 订单标签
@@ -87,7 +85,7 @@ const tag = computed(() => {
       <span class="otherSide_name">{{ otherSide.name }}</span>
     </div>
     <!-- 订单-树 -->
-    <div class="order__tree" @click="toTreeDetail(order.tree._id)">
+    <div class="order__tree" @click="toTreeDetail(loginUser._id, order.tree._id)">
       <img class="tree__cover" :src="order.tree.imgs[0]?.url" alt="" />
       <span class="tree__title">{{ order.tree.title }}</span>
     </div>
@@ -130,7 +128,7 @@ const tag = computed(() => {
   }
   .order__otherSide {
     .flex__row();
-    flex: .5;
+    flex: 0.5;
     align-items: center;
     gap: 10px;
     cursor: pointer;
@@ -164,7 +162,7 @@ const tag = computed(() => {
   }
   .order-btns {
     .flex__row();
-    flex: .3;
+    flex: 0.3;
     align-items: center;
     gap: 5px;
     .order-delete {

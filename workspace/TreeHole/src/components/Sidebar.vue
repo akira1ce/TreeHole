@@ -4,16 +4,14 @@
  * @LastEditTime: 2023-04-02 16:56:17
 -->
 <script setup>
-import { onMounted, ref, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
-import api from "../api";
-import request from "../api/request";
+import { toRaw } from "vue-demi";
 import { local } from "../util";
 
 const route = useRoute();
 const router = useRouter();
 
-const user = local.getItem("user") || {};
+const loginUser = local.getItem("user") || {};
 const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket", "Login"];
 
 /**
@@ -21,7 +19,6 @@ const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket", "Login"];
  * @param {proxy} user
  */
 const toSpace = (user) => {
-  /** 当前用户 */
   if (history.state.spaceUser?._id == user._id) return;
   else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
   else {
@@ -76,7 +73,7 @@ const navigate = (el) => {
     <div class="sidebar-bottom">
       <!-- 个人空间 -->
       <div class="avator">
-        <img :src="user.avator" data-id="3" @click="toSpace(user)" />
+        <img :src="loginUser.avator" data-id="3" @click="toSpace(loginUser)" />
       </div>
       <!-- 聊天 -->
       <div class="socket" :id="route.path.startsWith('Socket') && 'active'" data-id="4">

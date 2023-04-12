@@ -10,7 +10,6 @@ import eventBus from "../lib/eventBus";
 import { local } from "../util";
 
 const route = useRoute();
-const router = useRouter();
 
 const sliderRef = ref();
 const loginUser = local.getItem("user") || {};

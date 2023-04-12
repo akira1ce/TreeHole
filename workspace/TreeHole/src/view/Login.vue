@@ -7,9 +7,8 @@
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import request from "../api/request";
-import api from "../api";
 import { local } from "../util";
-import { ElMessage } from "element-plus";
+import api from "../api";
 
 const router = useRouter();
 const formRef = ref();

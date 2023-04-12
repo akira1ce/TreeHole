@@ -1,14 +1,14 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-18 17:01:04
- * @LastEditTime: 2023-04-08 11:01:24
+ * @LastEditTime: 2023-04-12 09:40:21
 -->
 <script setup>
 import { defineProps, toRaw } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
-import api from "../api";
 import request from "../api/request";
 import { local } from "../util";
+import api from "../api";
 
 const router = useRouter();
 const route = useRoute();
@@ -16,6 +16,7 @@ const route = useRoute();
 const props = defineProps(["tree"]);
 
 const tree = props.tree;
+const user = local.getItem("user");
 
 /**
  * 跳转个人空间
@@ -38,7 +39,7 @@ const toTreeDetail = async (treeID) => {
   try {
     if (route.name == "TreeDetail") return;
     /** 浏览记录 */
-    await request.post(api.record.modifyRecordTree, { userID: local.getItem("user")._id, treeID, mode: 0, clearAll: 0 });
+    await request.post(api.history.addHistory, { userID: user._id, treeID });
     router.push({ name: "TreeDetail", state: { treeID } });
   } catch (error) {
     ElMessage.error(error.message);

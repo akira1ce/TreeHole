@@ -8,11 +8,11 @@ const commentCtrl = require("../controller/comment");
 
 const router = express.Router();
 
-// 增加评论
+/** 增加评论 */
 router.post("/addComment", commentCtrl.addComment);
-// 删除评论
+/** 删除评论 */
 router.post("/removeById", commentCtrl.removeById);
-// 查询苗木评论
+/** 查询苗木评论 */
 router.post("/getCommentByTreeID", commentCtrl.getCommentByTreeID);
 
 module.exports = router;

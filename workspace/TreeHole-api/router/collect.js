@@ -8,13 +8,13 @@ const collectCtrl = require("../controller/collect");
 
 const router = express.Router();
 
-// 收藏
+/** 收藏 */
 router.post("/addCollect", collectCtrl.addCollect);
-// 取消收藏
+/** 取消收藏 */
 router.post("/removeCollect", collectCtrl.removeCollect);
-// 查询收藏列表
+/** 查询收藏列表 */
 router.post("/getCollectList", collectCtrl.getCollectList);
-// 查询是否收藏
+/** 查询是否收藏 */
 router.post("/isCollect", collectCtrl.isCollect);
 
 module.exports = router;

@@ -12,11 +12,16 @@ const pagePay = async (req, res, next) => {
   try {
     const { orderID, title, describe, price } = req.body;
     const bizContent = {
-      out_trade_no: orderID, //单号
-      product_code: "FAST_INSTANT_TRADE_PAY", //这个固定写法就行了
-      subject: title, //本次支付单的名字
-      body: describe, //商品的描述
-      total_amount: price, //总共的价格
+      /** 单号 */
+      out_trade_no: orderID,
+      /** 这个固定写法就行了 */
+      product_code: "FAST_INSTANT_TRADE_PAY",
+      /** 本次支付单的名字 */
+      subject: title,
+      /** 商品的描述 */
+      body: describe,
+      /** 总共的价格 */
+      total_amount: price,
     };
     const formData = new AliPayForm();
 
@@ -34,8 +39,10 @@ const refund = async (req, res, next) => {
   try {
     const { orderID, price } = req.body;
     const bizContent = {
-      refund_amount: price, // 退款金额
-      out_trade_no: orderID, // 单号
+      /** 退款金额 */
+      refund_amount: price,
+      /** 单号 */
+      out_trade_no: orderID,
     };
 
     const formData = new AliPayForm();
@@ -48,7 +55,7 @@ const refund = async (req, res, next) => {
     refundRes = refundRes.data.alipay_trade_refund_response;
 
     if (refundRes.code == "10000") {
-      // 接口调用成功
+      /** 接口调用成功 */
       if (refundRes?.fund_change == "Y") res.send(result(200, { status: 1, message: "退款成功" }, "ok"));
       else if (refundRes?.fund_change == "N") {
         res.send(result(200, { status: 0, message: "正在退款，请稍后进一步确认退款状态" }, "ok"));
@@ -78,7 +85,7 @@ const query = async (req, res, next) => {
     queryRes = queryRes.data.alipay_trade_query_response;
 
     if (queryRes.code == "10000") {
-      // 接口调用成功
+      /** 接口调用成功 */
       switch (queryRes.trade_status) {
         case "WAIT_BUYER_PAY":
           res.send(result(200, { ...queryRes, status: 0, massage: "交易创建，等待买家付款" }, "ok"));

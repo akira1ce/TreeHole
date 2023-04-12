@@ -15,18 +15,18 @@ const baseUrl = "http://127.0.0.1:5000/uploadCenter/files/";
 
 const mongoClient = new MongoClient(url);
 
-// 上传文件
+/** 上传文件 */
 const uploadFiles = async (req, res) => {
   try {
     await upload(req, res);
 
-    // 文件为空
+    /** 文件为空 */
     if (req.file == undefined) {
       return res.status(400).send({ message: "请选择要上传的文件" });
     }
     return res.send(result(200, { name: req.file.filename, url: baseUrl + req.file.filename }, "ok"));
   } catch (error) {
-    // 大小超限
+    /** 大小超限 */
     if (error.code == "LIMIT_FILE_SIZE") {
       return res.status(500).send({
         message: "文件大小不能超过 5MB",
@@ -39,14 +39,14 @@ const uploadFiles = async (req, res) => {
   }
 };
 
-// 获取文件列表
+/** 获取文件列表 */
 const getListFiles = async (req, res) => {
   try {
     // await mongoClient.connect();
     // const database = mongoClient.db(config.database);
     const files = database.collection(config.filesBucket + ".files");
 
-    // 文件数据信息
+    /** 文件数据信息 */
     let fileInfos = [];
 
     if ((await files.estimatedDocumentCount()) === 0) {
@@ -69,7 +69,7 @@ const getListFiles = async (req, res) => {
   }
 };
 
-// 下载
+/** 下载 */
 const download = async (req, res) => {
   try {
     const bucket = new GridFSBucket(database, {
@@ -95,7 +95,7 @@ const download = async (req, res) => {
   }
 };
 
-// 删除
+/** 删除 */
 const remove = async (req, res) => {
   try {
     const { filename } = req.body;
