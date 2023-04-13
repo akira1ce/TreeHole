@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-22 19:02:48
- * @LastEditTime: 2023-03-02 10:22:56
+ * @LastEditTime: 2023-04-13 10:41:40
  */
 import { type RouteRecordRaw, createRouter, createWebHashHistory, createWebHistory } from "vue-router"
 
@@ -55,7 +55,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         name: "Dashboard",
         meta: {
           title: "首页",
-          svgIcon: "dashboard",
+          // svgIcon: "dashboard",
           affix: true
         }
       }
