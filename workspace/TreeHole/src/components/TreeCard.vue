@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-07 23:43:35
- * @LastEditTime: 2023-04-12 14:55:18
+ * @LastEditTime: 2023-04-13 15:16:15
 -->
 <script setup>
 import useClipboard from "vue-clipboard3";
@@ -299,6 +299,7 @@ onMounted(async () => {
         padding: 2px;
         width: 180px;
         object-fit: cover;
+        aspect-ratio: 1.74;
         cursor: pointer;
       }
     }

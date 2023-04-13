@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-12-10 16:48:50
- * @LastEditTime: 2023-04-12 15:17:50
+ * @LastEditTime: 2023-04-13 15:16:31
 -->
 <script setup>
 import { useRoute, useRouter } from "vue-router";
@@ -103,6 +103,8 @@ const orderBtn = computed(() => {
       position: relative;
       img {
         width: 100%;
+        object-fit: cover;
+        aspect-ratio: 1.74;
         cursor: pointer;
       }
     }
