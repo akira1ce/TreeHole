@@ -16,17 +16,17 @@ const OrderDetail = () => import("../view/OrderDetail.vue");
 const TreeDetail = () => import("../view/TreeDetail.vue");
 
 const routes = [
-  { path: "/login", name: "Login", component: Login },
-  { path: "/register", name: "Register", component: Register },
-  { path: "/home", name: "Home", component: Home },
-  { path: "/dynamic", name: "Dynamic", component: Dynamic },
-  { path: "/personal", name: "Personal", component: Personal },
-  { path: "/space", name: "Space", component: Space },
-  { path: "/socket", name: "Socket", component: Socket },
-  { path: "/record", name: "Record", component: Record },
-  { path: "/map", name: "Map", component: Map },
-  { path: "/orderDetail", name: "OrderDetail", component: OrderDetail },
-  { path: "/treeDetail", name: "TreeDetail", component: TreeDetail },
+  { path: "/login", name: "Login", component: Login, meta: { title: "登录" } },
+  { path: "/register", name: "Register", component: Register, meta: { title: "注册" } },
+  { path: "/home", name: "Home", component: Home, meta: { title: "首页" } },
+  { path: "/dynamic", name: "Dynamic", component: Dynamic, meta: { title: "动态中心" } },
+  { path: "/personal", name: "Personal", component: Personal, meta: { title: "个人中心" } },
+  { path: "/space", name: "Space", component: Space, meta: { title: "个人空间" } },
+  { path: "/socket", name: "Socket", component: Socket, meta: { title: "会话中心" } },
+  { path: "/record", name: "Record", component: Record, meta: { title: "记录中心" } },
+  { path: "/map", name: "Map", component: Map, meta: { title: "地址详情" } },
+  { path: "/orderDetail", name: "OrderDetail", component: OrderDetail, meta: { title: "订单详情" } },
+  { path: "/treeDetail", name: "TreeDetail", component: TreeDetail, meta: { title: "苗木详情" } },
   { path: "/", redirect: "/home" },
 ];
 

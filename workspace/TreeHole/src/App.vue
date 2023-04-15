@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-14 09:08:28
- * @LastEditTime: 2023-04-02 14:58:16
+ * @LastEditTime: 2023-04-14 15:12:36
 -->
 <script setup>
 import { nextTick, ref } from "vue";
@@ -45,7 +45,7 @@ const reload = () => {
   border: 1px solid rgb(227, 229, 231);
   border-radius: 12px;
   position: fixed;
-  right: 30px;
+  right: 80px;
   bottom: 80px;
   z-index: 1000;
   cursor: pointer;

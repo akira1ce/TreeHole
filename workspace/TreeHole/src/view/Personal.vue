@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-04-12 15:12:32
+ * @LastEditTime: 2023-04-14 15:17:14
 -->
 <script setup>
 import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
@@ -358,7 +358,7 @@ const isEmpty = computed(() => {
       position: relative;
       .content__trees {
         display: grid;
-        justify-list: space-between;
+        justify-content: space-around;
         grid-template-columns: repeat(auto-fill, 36vmin);
       }
     }

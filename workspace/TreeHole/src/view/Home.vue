@@ -80,11 +80,8 @@ const getCurrentList = async () => {
 eventBus.on("switchNav", switchNav);
 
 onMounted(async () => {
-  try {
-    switchNav(state.current);
-  } catch (error) {
-    ElMessage.error(error.message);
-  }
+  console.log(1);
+  switchNav(state.current);
 });
 </script>
 
