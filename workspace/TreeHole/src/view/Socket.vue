@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 17:02:41
- * @LastEditTime: 2023-04-25 14:37:41
+ * @LastEditTime: 2023-04-25 19:12:07
 -->
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, toRaw } from "vue-demi";
@@ -12,7 +12,7 @@ import { ElMessage } from "element-plus";
 import request from "../api/request";
 import { socket } from "../lib/socketio";
 import api from "../api";
-import mitt from "../lib/eventBus";
+import eventBus from "../lib/eventBus";
 
 const dialogRef = ref(null);
 
@@ -167,7 +167,7 @@ const initSocket = async () => {
   downScroll();
 };
 
-mitt.on("initSocket", initSocket);
+eventBus.on("initSocket", initSocket);
 
 onMounted(async () => {
   state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
@@ -178,6 +178,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   socket.off("sendMessage", socketCallback);
+  eventBus.off("initSocket", initSocket);
 });
 </script>
 
