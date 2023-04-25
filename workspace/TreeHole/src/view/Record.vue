@@ -1,18 +1,15 @@
 <!--
  * @Author: Akira
  * @Date: 2022-12-04 10:12:34
- * @LastEditTime: 2023-04-12 15:13:30
+ * @LastEditTime: 2023-04-25 14:26:12
 -->
 <script setup>
-import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
-import { useRoute, useRouter } from "vue-router";
-import { local, defaultState } from "../util";
+import { computed, onMounted, reactive } from "vue-demi";
+import { toSpace } from "../util/handleRouter";
+import { local } from "../util";
 import { ElMessage } from "element-plus";
 import request from "../api/request";
 import api from "../api";
-
-const router = useRouter();
-const route = useRoute();
 
 const loginUser = local.getItem("user");
 
@@ -24,19 +21,6 @@ const state = reactive({
   limit: 10,
   infiniteScroll: false,
 });
-
-/**
- * 跳转个人空间
- * @param {Object} user
- */
-const toSpace = (user) => {
-  if (history.state.spaceUser?._id == user._id) return;
-  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
-  else {
-    history.state.spaceUser = toRaw(user);
-    router.go(0);
-  }
-};
 
 /** 关注 */
 const handleFollow = async (item) => {

@@ -1,10 +1,11 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-15 19:23:37
- * @LastEditTime: 2023-04-08 12:29:59
+ * @LastEditTime: 2023-04-25 14:16:57
 -->
 <script setup>
 import { onMounted, reactive, ref } from "vue";
+import { toRegister } from "../util/handleRouter";
 import { useRouter } from "vue-router";
 import request from "../api/request";
 import { local } from "../util";
@@ -63,11 +64,6 @@ const Submit = async (formEl, mode) => {
       console.log("error submit!", fields);
     }
   });
-};
-
-/** register */
-const toRegister = () => {
-  router.push({ name: "Register" });
 };
 
 onMounted(() => {

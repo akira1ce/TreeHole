@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-04-12 14:52:34
+ * @LastEditTime: 2023-04-25 14:28:22
 -->
 <script setup>
 import { regionData, provinceAndCityData, CodeToText, TextToCode } from "element-china-area-data";
@@ -10,6 +10,7 @@ import { Edit, Delete } from "@element-plus/icons-vue";
 import TreeCard from "../components/TreeCard.vue";
 import { Plus } from "@element-plus/icons-vue";
 import { local, defaultState } from "../util";
+import { toRecord } from "../util/handleRouter";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import request from "../api/request";
@@ -106,11 +107,6 @@ const handleAvatarSuccess = async (response, uploadFile) => {
   await request.post(api.user.modifyById, toRaw(state.user));
   local.setItem("user", state.user);
   ElMessage.success("头像上传成功");
-};
-
-/** 跳转记录 */
-const toRecord = (mode) => {
-  if (isCurrentUser.value) router.push({ name: "Record", state: { mode } });
 };
 
 /** 关注 */

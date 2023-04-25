@@ -1,12 +1,12 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-14 18:57:18
- * @LastEditTime: 2023-04-12 11:52:15
+ * @LastEditTime: 2023-04-25 14:43:16
 -->
 <script setup>
 import { onMounted, reactive } from "vue-demi";
 import Loader from "../components/Loader.vue";
-import { defaultState, local } from "../util";
+import { local } from "../util";
 import Card from "../components/Card.vue";
 import eventBus from "../lib/eventBus";
 import request from "../api/request";
@@ -80,7 +80,6 @@ const getCurrentList = async () => {
 eventBus.on("switchNav", switchNav);
 
 onMounted(async () => {
-  console.log(1);
   switchNav(state.current);
 });
 </script>

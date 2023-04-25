@@ -1,4 +1,5 @@
 <script setup>
+import { toLogin } from "../util/handleRouter";
 import { useRouter } from "vue-router";
 import request from "../api/request";
 import { reactive, ref } from "vue";
@@ -71,10 +72,6 @@ const Submit = async (formEl, mode) => {
       console.log("error submit!", fields);
     }
   });
-};
-
-const toLogin = () => {
-  router.push("/login");
 };
 </script>
 

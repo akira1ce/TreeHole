@@ -1,22 +1,19 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-14 09:08:28
- * @LastEditTime: 2023-04-25 11:49:12
+ * @LastEditTime: 2023-04-25 13:30:39
 -->
 <script setup>
 import { nextTick, onBeforeUnmount, ref } from "vue";
 import Sidebar from "./components/Sidebar.vue";
 import Topbar from "./components/Topbar.vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { socket } from "./lib/socketio";
 import { local } from "./util";
 import { ElNotification } from "element-plus";
-import request from "./api/request";
-import api from "./api";
-import mitt from "./lib/eventBus";
+import { toSocket } from "./util/handleRouter";
 
 const route = useRoute();
-const router = useRouter();
 
 const whitelist = ["Login", "Register"];
 const whitelist_reload = ["Login", "Register", "Socket"];
@@ -28,23 +25,6 @@ const reload = () => {
   nextTick(() => {
     isRouterAlive.value = true;
   });
-};
-
-/**
- * 跳转聊天
- * - user1
- * - user2
- * - tree
- * @param {string} userID1
- * @param {string} userID2
- * @param {string} treeID
- */
-const toSocket = async (userID1, userID2, tree) => {
-  const treeID = tree._id;
-  /** 新增会话 */
-  await request.post(api.socket.addSocket, { userID1, userID2, treeID, tree });
-  if (route.name == "Socket") mitt.emit("initSocket");
-  else router.push({ name: "Socket", state: { userID: userID2, treeID } });
 };
 
 /** 通知 */

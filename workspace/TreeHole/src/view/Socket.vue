@@ -1,21 +1,18 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 17:02:41
- * @LastEditTime: 2023-04-25 11:47:14
+ * @LastEditTime: 2023-04-25 14:37:41
 -->
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, toRaw } from "vue-demi";
+import { toSpace } from "../util/handleRouter";
 import DialogCard from "../components/DialogCard.vue";
-import { useRoute, useRouter } from "vue-router";
 import { defaultState, local } from "../util";
 import { ElMessage } from "element-plus";
 import request from "../api/request";
 import { socket } from "../lib/socketio";
 import api from "../api";
 import mitt from "../lib/eventBus";
-
-const router = useRouter();
-const route = useRoute();
 
 const dialogRef = ref(null);
 
@@ -90,19 +87,6 @@ const removeSocket = async (userID, socketID, index) => {
   state.current = -1;
   history.state.userID = null;
   history.state.treeID = null;
-};
-
-/**
- * 跳转个人空间
- * @param {proxy} user
- */
-const toSpace = (user) => {
-  if (history.state.spaceUser?._id == user._id) return;
-  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
-  else {
-    history.state.spaceUser = toRaw(user);
-    router.go(0);
-  }
 };
 
 const getSocketContent = async () => {

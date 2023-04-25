@@ -1,58 +1,20 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-26 10:49:01
- * @LastEditTime: 2023-04-12 09:49:36
+ * @LastEditTime: 2023-04-25 14:12:28
 -->
 <script setup>
 import { computed, defineProps, toRaw } from "vue-demi";
-import { useRoute, useRouter } from "vue-router";
-import request from "../api/request";
+import { useRouter } from "vue-router";
+import { toSocket, toSpace, toTreeDetail } from "../util/handleRouter";
 import { local } from "../util";
-import api from "../api";
 
 const router = useRouter();
-const route = useRoute();
 
 const props = defineProps(["order", "deleteOrder", "index"]);
 
 const { order, deleteOrder, index } = props;
 const loginUser = local.getItem("user");
-
-/**
- * 跳转聊天
- * - user1
- * - user2
- * - tree
- * @param {string} userID1
- * @param {string} userID2
- * @param {string} treeID
- */
-const toSocket = async (userID1, userID2, tree) => {
-  const treeID = tree._id;
-  /** 新增会话 */
-  await request.post(api.socket.addSocket, { userID1, userID2, treeID, tree });
-  router.push({ name: "Socket", state: { userID: userID2, treeID } });
-};
-
-/**
- * 跳转个人空间
- * @param {proxy} user
- */
-const toSpace = (user) => {
-  if (route.name == "Space" && history.spaceUser._id != user._id) return;
-  router.push({ path: "/space", state: { spaceUser: toRaw(user) } });
-};
-
-/**
- * 跳转苗木详情
- * @param {string} treeID
- */
-const toTreeDetail = async (userID, treeID) => {
-  if (route.name == "TreeDetail") return;
-  /** 浏览记录 */
-  await request.post(api.history.addHistory, { userID, treeID });
-  router.push({ name: "TreeDetail", state: { treeID } });
-};
 
 /**
  * 查看订单
@@ -70,9 +32,9 @@ const otherSide = computed(() => {
 
 // 订单标签
 const tag = computed(() => {
-  if (order.status == 0) return { status: "error", content: "待付款" };
-  if (order.status == 1) return { status: "warning", content: "待收货" };
-  if (order.status == 2) return { status: "success", content: "已完成" };
+  if (order.status == 0) return { status: "danger", content: "待付款" };
+  else if (order.status == 1) return { status: "warning", content: "待收货" };
+  else return { status: "success", content: "已完成" };
 });
 </script>
 
@@ -144,8 +106,9 @@ const tag = computed(() => {
     align-items: center;
     cursor: pointer;
     .tree__cover {
-      width: 100px;
+      width: 120px;
       margin-right: 20px;
+      aspect-ratio: 1.74;
     }
     .tree__title {
       max-width: 250px;

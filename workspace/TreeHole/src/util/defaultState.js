@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-04-02 16:17:37
- * @LastEditTime: 2023-04-07 13:47:38
+ * @LastEditTime: 2023-04-25 13:39:06
  */
 //  静态数据
 export default {
@@ -13,10 +13,6 @@ export default {
   record: {
     _id: "",
     userID: "",
-    browsingHistory: [],
-    collect: [],
-    fans: [],
-    following: [],
     order: [],
     socket: [],
   },

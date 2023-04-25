@@ -1,18 +1,15 @@
 <!--
  * @Author: Akira
  * @Date: 2023-01-08 15:54:04
- * @LastEditTime: 2023-04-12 11:52:10
+ * @LastEditTime: 2023-04-25 14:22:57
 -->
 <script setup>
 import { computed, onMounted, reactive } from "vue-demi";
 import { defaultState, local, tools } from "../util";
-import { useRoute, useRouter } from "vue-router";
+import { toTreeDetail } from "../util/handleRouter";
 import { ElMessage } from "element-plus";
 import request from "../api/request";
 import api from "../api";
-
-const router = useRouter();
-const route = useRoute();
 
 const state = reactive({
   treeID: history.state.treeID || "",
@@ -23,25 +20,13 @@ const state = reactive({
 });
 
 /**
- * 跳转苗木详情
- * @param {string} userID
- * @param {string} treeID
- */
-const toTreeDetail = async (userID, treeID) => {
-  if (route.name == "TreeDetail") return;
-  /** 浏览记录  */
-  await request.post(api.history.addHistory, { userID, treeID });
-  router.push({ name: "TreeDetail", state: { treeID } });
-};
-
-/**
  * 取消订单
  * @param {string} orderID
  */
 const cancelOrder = async (order) => {
   if (state.order.status == 1) {
     /** 退款 */
-    const refundRes = await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
+    await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
     ElMessage.success("已取消订单并退款成功");
   }
 
@@ -288,7 +273,9 @@ onMounted(async () => {
       gap: 20px;
       cursor: pointer;
       .tree__cover {
-        width: 160px;
+        width: 200px;
+        aspect-ratio: 1.74;
+        object-fit: cover;
       }
       .tree__info {
         flex: 1;

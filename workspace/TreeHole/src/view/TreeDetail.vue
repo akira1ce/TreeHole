@@ -1,19 +1,16 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-06 14:40:24
- * @LastEditTime: 2023-04-12 11:09:42
+ * @LastEditTime: 2023-04-25 14:29:41
 -->
 <script setup>
-import { onMounted, reactive, toRaw } from "vue-demi";
+import { toSpace } from "../util/handleRouter";
+import { onMounted, reactive } from "vue-demi";
 import TreeCard from "../components/TreeCard.vue";
-import { useRoute, useRouter } from "vue-router";
 import { defaultState, local } from "../util";
 import { ElMessage } from "element-plus";
 import request from "../api/request";
 import api from "../api";
-
-const router = useRouter();
-const route = useRoute();
 
 const state = reactive({
   tree: null,
@@ -60,19 +57,6 @@ const getCommentList = async () => {
   if (comments.length < state.limit) state.infiniteScroll = true;
   state.comments.push(...comments);
   state.pageNo++;
-};
-
-/**
- * 跳转个人空间
- * @param {proxy} user
- */
-const toSpace = (user) => {
-  if (history.state.spaceUser?._id == user._id) return;
-  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
-  else {
-    history.state.spaceUser = toRaw(user);
-    router.go(0);
-  }
 };
 
 onMounted(async () => {

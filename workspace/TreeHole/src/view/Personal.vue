@@ -1,20 +1,17 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-04-14 15:17:14
+ * @LastEditTime: 2023-04-25 14:25:31
 -->
 <script setup>
-import { computed, onMounted, reactive, ref, toRaw } from "vue-demi";
+import { computed, onMounted, reactive, ref } from "vue-demi";
+import { toSpace, toRecord } from "../util/handleRouter";
 import OrderCard from "../components/OrderCard.vue";
-import { useRouter, useRoute } from "vue-router";
 import { local, defaultState } from "../util";
 import Card from "../components/Card.vue";
 import { ElMessage } from "element-plus";
 import request from "../api/request";
 import api from "../api";
-
-const router = useRouter();
-const route = useRoute();
 
 const sliderRef = ref();
 
@@ -58,24 +55,6 @@ const state = reactive({
   followCount: 0,
   fansCount: 0,
 });
-
-/**
- * 跳转个人空间
- * @param {proxy} user
- */
-const toSpace = (user) => {
-  if (history.state.spaceUser?._id == user._id) return;
-  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
-  else {
-    history.state.spaceUser = toRaw(user);
-    router.go(0);
-  }
-};
-
-/** 跳转记录 - 关注 - 粉丝 */
-const toRecord = (mode) => {
-  router.push({ name: "Record", state: { mode } });
-};
 
 /**
  * 切换导航 -> 我的收藏 历史记录 我的订单
@@ -157,6 +136,7 @@ const getCount = async (userID) => {
 onMounted(async () => {
   const userID = user._id;
   await getCount(userID);
+  state.record = await request.post(api.record.getRecordByUserID, { userID });
   state.current = local.getItem("current_personal") || 0;
   switchNav(state.current);
 });

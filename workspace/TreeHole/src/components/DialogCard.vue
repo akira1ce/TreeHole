@@ -1,31 +1,14 @@
 <!--
  * @Author: Akira
  * @Date: 2022-12-10 16:48:50
- * @LastEditTime: 2023-04-13 15:16:31
+ * @LastEditTime: 2023-04-25 14:09:50
 -->
 <script setup>
-import { useRoute, useRouter } from "vue-router";
-import request from "../api/request";
+import { toTreeDetail } from "../util/handleRouter";
 import { computed } from "vue-demi";
-import { local } from "../util";
-import api from "../api";
-
-const router = useRouter();
-const route = useRoute();
 
 const props = defineProps(["tree", "loginUser", "orderOp"]);
 const { tree, loginUser, orderOp } = props;
-
-/**
- * 跳转苗木详情
- * @param {string} treeID
- */
-const toTreeDetail = async (userID, treeID) => {
-  if (route.name == "TreeDetail") return;
-  /** 浏览记录 */
-  await request.post(api.history.addHistory, { userID, treeID });
-  router.push({ name: "TreeDetail", state: { treeID } });
-};
 
 /**
  * 对话框 树卡片 订单处理按钮

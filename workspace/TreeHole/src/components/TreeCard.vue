@@ -1,12 +1,13 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-07 23:43:35
- * @LastEditTime: 2023-04-13 15:16:15
+ * @LastEditTime: 2023-04-25 14:14:53
 -->
 <script setup>
 import useClipboard from "vue-clipboard3";
-import { defineProps, reactive, toRaw, watchEffect, onMounted, watch } from "vue-demi";
+import { defineProps, reactive, onMounted } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
+import { toSocket, toSpace, toTreeDetail } from "../util/handleRouter";
 import { ElMessage } from "element-plus";
 import request from "../api/request";
 import { local } from "../util";
@@ -40,46 +41,6 @@ const handleUnCollect = async (userID, treeID) => {
   await request.post(api.collect.removeCollect, { userID, treeID });
   state.isCollect = !state.isCollect;
   ElMessage.success("取消收藏成功！");
-};
-
-/**
- * 跳转聊天
- * - user1
- * - user2
- * - tree
- * @param {string} userID1
- * @param {string} userID2
- * @param {string} treeID
- */
-const toSocket = async (userID1, userID2, tree) => {
-  const treeID = tree._id;
-  /** 新增会话 */
-  await request.post(api.socket.addSocket, { userID1, userID2, treeID, tree });
-  router.push({ name: "Socket", state: { userID: userID2, treeID } });
-};
-
-/**
- * 跳转个人空间
- * @param {proxy} user
- */
-const toSpace = (user) => {
-  if (history.state.spaceUser?._id == user._id) return;
-  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
-  else {
-    history.state.spaceUser = toRaw(user);
-    router.go(0);
-  }
-};
-
-/**
- * 跳转苗木详情
- * @param {string} treeID
- */
-const toTreeDetail = async (treeID) => {
-  if (route.name == "TreeDetail") return;
-  /** 浏览记录 */
-  await request.post(api.history.addHistory, { userID: loginUser._id, treeID });
-  router.push({ name: "TreeDetail", state: { treeID } });
 };
 
 /**
@@ -179,7 +140,7 @@ onMounted(async () => {
       </div>
       <span class="sold" style="background-color: rgba(246, 171, 113, 0.8)" v-else-if="tree.status == '-1'">待审核</span>
       <span class="sold" v-else-if="tree.status > 0">已售</span>
-      <i class="iconfont icon-youjiantou1" v-if="route.name != 'TreeDetail'" @click="toTreeDetail(tree._id)"></i>
+      <i class="iconfont icon-youjiantou1" v-if="route.name != 'TreeDetail'" @click="toTreeDetail(loginUser._id, tree._id)"></i>
     </div>
   </el-card>
 </template>

@@ -1,57 +1,24 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-18 17:01:04
- * @LastEditTime: 2023-04-12 09:40:21
+ * @LastEditTime: 2023-04-25 14:08:37
 -->
 <script setup>
-import { defineProps, toRaw } from "vue-demi";
-import { useRoute, useRouter } from "vue-router";
-import request from "../api/request";
+import { toSpace, toTreeDetail } from "../util/handleRouter";
+import { defineProps } from "vue-demi";
 import { local } from "../util";
-import api from "../api";
-
-const router = useRouter();
-const route = useRoute();
 
 const props = defineProps(["tree"]);
 
 const tree = props.tree;
 const user = local.getItem("user");
-
-/**
- * 跳转个人空间
- * @param {Object} user
- */
-const toSpace = (user) => {
-  if (history.state.spaceUser?._id == user._id) return;
-  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
-  else {
-    history.state.spaceUser = toRaw(user);
-    router.go(0);
-  }
-};
-
-/**
- * 跳转苗木详情
- * @param {string} treeID
- */
-const toTreeDetail = async (treeID) => {
-  try {
-    if (route.name == "TreeDetail") return;
-    /** 浏览记录 */
-    await request.post(api.history.addHistory, { userID: user._id, treeID });
-    router.push({ name: "TreeDetail", state: { treeID } });
-  } catch (error) {
-    ElMessage.error(error.message);
-  }
-};
 </script>
 
 <template>
   <!-- 首页树卡片 -->
   <div class="card">
     <!-- 树-封面 -->
-    <img class="card__cover" :src="tree.imgs[0]?.url" @click="toTreeDetail(tree._id)" />
+    <img class="card__cover" :src="tree.imgs[0]?.url" @click="toTreeDetail(user._id, tree._id)" />
     <!-- 树-标题 -->
     <div class="card__title">{{ tree.title }}</div>
     <!-- 树-拥有者 -->

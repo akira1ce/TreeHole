@@ -1,11 +1,11 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-15 15:41:20
- * @LastEditTime: 2023-04-02 16:56:17
+ * @LastEditTime: 2023-04-25 13:57:29
 -->
 <script setup>
 import { useRoute, useRouter } from "vue-router";
-import { toRaw } from "vue-demi";
+import { toSpace } from "../util/handleRouter";
 import { local } from "../util";
 
 const route = useRoute();
@@ -13,19 +13,6 @@ const router = useRouter();
 
 const loginUser = local.getItem("user") || {};
 const whitelist = ["Home", "Dynamic", "Personal", "Space", "Socket", "Login"];
-
-/**
- * 跳转个人空间
- * @param {proxy} user
- */
-const toSpace = (user) => {
-  if (history.state.spaceUser?._id == user._id) return;
-  else if (route.name != "Space") router.push({ name: "Space", state: { spaceUser: toRaw(user) } });
-  else {
-    history.state.spaceUser = toRaw(user);
-    router.go(0);
-  }
-};
 
 /**
  * 导航

@@ -6,7 +6,6 @@
 <script setup>
 import { computed, onMounted, reactive } from "vue-demi";
 import TreeCard from "../components/TreeCard.vue";
-import { ElMessage } from "element-plus";
 import request from "../api/request";
 import { local } from "../util";
 import api from "../api";
