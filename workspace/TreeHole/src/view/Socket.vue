@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 17:02:41
- * @LastEditTime: 2023-04-07 23:08:40
+ * @LastEditTime: 2023-04-25 11:47:14
 -->
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, toRaw } from "vue-demi";
@@ -10,15 +10,15 @@ import { useRoute, useRouter } from "vue-router";
 import { defaultState, local } from "../util";
 import { ElMessage } from "element-plus";
 import request from "../api/request";
-import { io } from "socket.io-client";
+import { socket } from "../lib/socketio";
 import api from "../api";
+import mitt from "../lib/eventBus";
 
 const router = useRouter();
 const route = useRoute();
 
 const dialogRef = ref(null);
 
-const socket = io("ws://localhost:3000");
 const socketCallback = async (content) => {
   /** 数据缓存 */
   if (currentSocket.value._id == content.socketID) state.socketContent.push(content);
@@ -129,12 +129,18 @@ const sendMsg = async () => {
   const content = {
     socketID: currentSocket.value._id,
     senderID: loginUser._id,
+    senderName: loginUser.name,
+    receiverID: currentSocket.value?.otherSide?._id,
     context: state.text,
+    tree: currentSocket.value?.tree,
     type: 1,
   };
 
   /** 触发 socket 回调 */
   socket.emit("sendMessage", content);
+
+  /** 触发 通知 回调 */
+  socket.emit("notice", content);
 
   state.text = "";
 };
@@ -162,31 +168,32 @@ const isEmpty = computed(() => {
   return state.socketList.length == 0;
 });
 
-onMounted(async () => {
-  try {
-    state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
-    /** 获取会话列表 */
-    await getSocketList();
-    /** 存在指定用户 */
-    if (userID) {
-      state.socketList.some((item, index) => {
-        if ((item.userID1 == userID || item.userID2 == userID) && item.treeID == treeID) {
-          state.current = index;
-          return true;
-        }
-      });
-      state.socketContent = await request.post(api.socketContent.getSocketContentBySid, { sid: currentSocket.value._id });
-    }
-    /** 下放滚动条 */
-    downScroll();
-  } catch (error) {
-    ElMessage.error(error.message);
+const initSocket = async () => {
+  /** 存在指定用户 */
+  if (userID) {
+    state.socketList.some((item, index) => {
+      if ((item.userID1 == userID || item.userID2 == userID) && item.treeID == treeID) {
+        state.current = index;
+        return true;
+      }
+    });
+    state.socketContent = await request.post(api.socketContent.getSocketContentBySid, { sid: currentSocket.value._id });
   }
+  /** 下放滚动条 */
+  downScroll();
+};
+
+mitt.on("initSocket", initSocket);
+
+onMounted(async () => {
+  state.record = await request.post(api.record.getRecordByUserID, { userID: loginUser._id });
+  /** 获取会话列表 */
+  await getSocketList();
+  await initSocket();
 });
 
 onBeforeUnmount(() => {
   socket.off("sendMessage", socketCallback);
-  socket.close();
 });
 </script>
 
