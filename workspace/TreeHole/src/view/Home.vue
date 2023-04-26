@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-14 18:57:18
- * @LastEditTime: 2023-04-25 19:10:48
+ * @LastEditTime: 2023-04-26 17:54:19
 -->
 <script setup>
 import { onMounted, reactive, onBeforeUnmount } from "vue-demi";
@@ -80,7 +80,6 @@ const getCurrentList = async () => {
 eventBus.on("switchNav", switchNav);
 
 onMounted(async () => {
-  console.log(1);
   switchNav(state.current);
   state.isShow = true;
 });

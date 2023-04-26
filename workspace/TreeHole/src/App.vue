@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-14 09:08:28
- * @LastEditTime: 2023-04-25 18:55:38
+ * @LastEditTime: 2023-04-26 18:18:59
 -->
 <script setup>
 import { nextTick, onBeforeUnmount, ref } from "vue";
@@ -59,13 +59,28 @@ onBeforeUnmount(() => {
   <Topbar v-if="whitelist.indexOf(route.name) == -1" />
   <i class="iconfont icon-shuaxin reload" @click="reload" v-if="whitelist_reload.indexOf(route.name) == -1"></i>
   <router-view v-slot="{ Component }" v-if="isRouterAlive">
-    <keep-alive :include="['Dynamic', 'Home']">
-      <component :is="Component" />
-    </keep-alive>
+    <transition name="fade">
+      <keep-alive :include="['Dynamic', 'Home', 'Space']">
+        <component :is="Component" />
+      </keep-alive>
+    </transition>
   </router-view>
 </template>
 
 <style lang="less" scoped>
+/* 进入动画 */
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-enter-to {
+  opacity: 1;
+}
+
 .reload {
   font-weight: bold;
   font-size: 18px;
