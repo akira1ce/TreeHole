@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-14 09:08:28
- * @LastEditTime: 2023-04-26 18:18:59
+ * @LastEditTime: 2023-05-12 16:12:05
 -->
 <script setup>
 import { nextTick, onBeforeUnmount, ref } from "vue";
@@ -60,7 +60,7 @@ onBeforeUnmount(() => {
   <i class="iconfont icon-shuaxin reload" @click="reload" v-if="whitelist_reload.indexOf(route.name) == -1"></i>
   <router-view v-slot="{ Component }" v-if="isRouterAlive">
     <transition name="fade">
-      <keep-alive :include="['Dynamic', 'Home', 'Space']">
+      <keep-alive :include="['Dynamic', 'Home']">
         <component :is="Component" />
       </keep-alive>
     </transition>
