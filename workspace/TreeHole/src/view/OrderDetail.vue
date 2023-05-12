@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-01-08 15:54:04
- * @LastEditTime: 2023-04-25 14:22:57
+ * @LastEditTime: 2023-05-12 17:30:57
 -->
 <script setup>
 import { computed, onMounted, reactive } from "vue-demi";
@@ -24,20 +24,26 @@ const state = reactive({
  * @param {string} orderID
  */
 const cancelOrder = async (order) => {
-  if (state.order.status == 1) {
-    /** 退款 */
-    await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
-    ElMessage.success("已取消订单并退款成功");
-  }
+  ElMessageBox.confirm("确定要取消该订单嘛?", "Warning", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(async () => {
+    if (state.order.status == 1) {
+      /** 退款 */
+      await request.post(api.alipay.refund, { orderID: order._id, price: order.tree.price });
+      ElMessage.success("已取消订单并退款成功");
+    }
+    
+    await request.post(api.order.removeById, { _id: order._id });
+    /** 重置苗木状态 */
+    await request.post(api.tree.modifyById, { _id: order.treeID, status: 0 });
 
-  await request.post(api.order.removeById, { _id: order._id });
-  /** 重置苗木状态 */
-  await request.post(api.tree.modifyById, { _id: order.treeID, status: 0 });
-
-  /** 更新缓存 */
-  history.state.order = null;
-  state.order._id = "";
-  ElMessage.success("已取消订单成功");
+    /** 更新缓存 */
+    history.state.order = null;
+    state.order._id = "";
+    ElMessage.success("已取消订单成功");
+  });
 };
 
 /**
@@ -183,7 +189,8 @@ onMounted(async () => {
           <span>拍下时间: {{ state.order.time.split(",").join(" ") }}</span>
           <span v-if="state.order.status > '0'">付款时间: {{ state.order.payTime }}</span>
           <span
-            >支付状态: <el-tag :type="state.order.status == 0 ? 'warning' : 'success'">{{ state.order.status == 0 ? "未支付" : "已支付" }}</el-tag></span
+            >支付状态:
+            <el-tag :type="state.order.status == 0 ? 'warning' : 'success'">{{ state.order.status == 0 ? "未支付" : "已支付" }}</el-tag></span
           >
         </div>
       </div>

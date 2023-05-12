@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:40:05
- * @LastEditTime: 2023-04-25 14:25:31
+ * @LastEditTime: 2023-05-12 17:29:02
 -->
 <script setup>
 import { computed, onMounted, reactive, ref } from "vue-demi";
@@ -9,7 +9,7 @@ import { toSpace, toRecord } from "../util/handleRouter";
 import OrderCard from "../components/OrderCard.vue";
 import { local, defaultState } from "../util";
 import Card from "../components/Card.vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import request from "../api/request";
 import api from "../api";
 
@@ -83,11 +83,17 @@ const switchNav = async (target) => {
 
 /** 清楚历史记录 */
 const clearBrowsing = async (userID) => {
-  await request.post(api.history.removeAllHistory, { userID });
-  /** 更新缓存 */
-  state.currentList.list = [];
-  state.currentList.infiniteScroll = false;
-  ElMessage.success("浏览记录已清空");
+  ElMessageBox.confirm("确定要清空历史记录嘛?", "Warning", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(async () => {
+    await request.post(api.history.removeAllHistory, { userID });
+    /** 更新缓存 */
+    state.currentList.list = [];
+    state.currentList.infiniteScroll = false;
+    ElMessage.success("浏览记录已清空");
+  });
 };
 
 /**
@@ -100,9 +106,15 @@ const deleteOrder = async (orderID, index) => {
     ElMessage.warning("订单进行中...");
     return;
   }
-  await request.post(api.record.modifyRecordOrder, { userID: user._id, orderID });
-  state.record.order.splice(index, 1);
-  state.currentList.list.splice(index, 1);
+  ElMessageBox.confirm("确定要删除该订单嘛?", "Warning", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(async () => {
+    await request.post(api.record.modifyRecordOrder, { userID: user._id, orderID });
+    state.record.order.splice(index, 1);
+    state.currentList.list.splice(index, 1);
+  });
 };
 
 /** 分页加载导航数据 treeList or orderList */
@@ -147,7 +159,12 @@ const isEmpty = computed(() => {
 </script>
 
 <template>
-  <div class="container scroll" v-infinite-scroll="getCurrentList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.currentList.infiniteScroll">
+  <div
+    class="container scroll"
+    v-infinite-scroll="getCurrentList"
+    infinite-scroll-immediate="false"
+    :infinite-scroll-disabled="state.currentList.infiniteScroll"
+  >
     <!-- 用户栏 -->
     <div class="container__userInfo">
       <!-- 用户基本信息 -->
@@ -157,8 +174,9 @@ const isEmpty = computed(() => {
         </div>
         <div class="base__info">
           <div class="info__name">{{ user.name }}</div>
-          <div class="info__location">
-            <el-tag class="location__tag" type="success" v-for="item in user.location.split('-')">{{ item }}</el-tag>
+          <div class="info__tag">
+            <el-tag type="success" v-for="item in user.location.split('-')">{{ item }}</el-tag>
+            <el-tag type="success">{{ user.role ? "收购苗木用户" : "种植苗木用户" }}</el-tag>
           </div>
         </div>
       </div>
@@ -256,10 +274,9 @@ const isEmpty = computed(() => {
           font-size: 18px;
           font-weight: bold;
         }
-        .info__location {
-          .location__tag {
-            margin-right: 5px;
-          }
+        .info__tag {
+          display: flex;
+          gap: 5px;
         }
       }
     }

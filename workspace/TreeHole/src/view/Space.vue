@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-04-25 14:28:22
+ * @LastEditTime: 2023-05-12 17:22:46
 -->
 <script setup>
 import { regionData, provinceAndCityData, CodeToText, TextToCode } from "element-china-area-data";
@@ -11,7 +11,7 @@ import TreeCard from "../components/TreeCard.vue";
 import { Plus } from "@element-plus/icons-vue";
 import { local, defaultState } from "../util";
 import { toRecord } from "../util/handleRouter";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { useRouter } from "vue-router";
 import request from "../api/request";
 import api from "../api";
@@ -236,14 +236,20 @@ const handleCommand = async (command) => {
       ElMessage.error("苗木正在交易中，无法删除");
       return;
     }
-    await request.post(api.tree.removeById, { _id: tree._id });
-    const filename = tree.imgs.map((item) => {
-      return item.name;
+    ElMessageBox.confirm("确定要删除该苗木嘛?", "Warning", {
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      type: "warning",
+    }).then(async () => {
+      await request.post(api.tree.removeById, { _id: tree._id });
+      const filename = tree.imgs.map((item) => {
+        return item.name;
+      });
+      if (filename.length == 1) await request.post(api.uploadCenter.remove, { filename: filename[0] });
+      else if (filename.length > 1) await request.post(api.uploadCenter.remove, { filename });
+      state.treeList.splice(command.index, 1);
+      ElMessage.success("删除成功");
     });
-    if (filename.length == 1) await request.post(api.uploadCenter.remove, { filename: filename[0] });
-    else if (filename.length > 1) await request.post(api.uploadCenter.remove, { filename });
-    state.treeList.splice(command.index, 1);
-    ElMessage.success("删除成功");
   }
 };
 
@@ -346,7 +352,14 @@ onMounted(async () => {
         </div>
       </div>
       <!-- 头像 -->
-      <el-upload class="avatar-uploader" action="/api/uploadCenter/upload" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeImageUpload" :disabled="!isCurrentUser">
+      <el-upload
+        class="avatar-uploader"
+        action="/api/uploadCenter/upload"
+        :show-file-list="false"
+        :on-success="handleAvatarSuccess"
+        :before-upload="beforeImageUpload"
+        :disabled="!isCurrentUser"
+      >
         <img class="avator" :src="state.user.avator" />
       </el-upload>
     </div>
@@ -367,7 +380,8 @@ onMounted(async () => {
         <!-- 苗木表单 -->
         <el-form class="treeForm" :model="state.form_tree" ref="form_tree_Ref" :rules="form_tree_Rules" label-width="100px" label-position="left">
           <el-form-item label="地区" prop="location">
-            <el-cascader v-model="state.treeLocation" placeholder="请选择所在地区" :options="regionData" @change="handleCascadarChange($event, 1)"> </el-cascader>
+            <el-cascader v-model="state.treeLocation" placeholder="请选择所在地区" :options="regionData" @change="handleCascadarChange($event, 1)">
+            </el-cascader>
           </el-form-item>
           <el-form-item label="标题" prop="title">
             <el-input v-model="state.form_tree.title" />
@@ -394,7 +408,15 @@ onMounted(async () => {
             <el-input v-model="state.form_tree.diameter" />
           </el-form-item>
           <el-form-item label="图片" prop="imgs">
-            <el-upload v-model:file-list="state.fileList" action="/api/uploadCenter/upload" list-type="picture-card" :on-preview="handleImagePreview" :before-remove="handleBeforeRemove" :before-upload="beforeImageUpload" :on-success="handleSuccess">
+            <el-upload
+              v-model:file-list="state.fileList"
+              action="/api/uploadCenter/upload"
+              list-type="picture-card"
+              :on-preview="handleImagePreview"
+              :before-remove="handleBeforeRemove"
+              :before-upload="beforeImageUpload"
+              :on-success="handleSuccess"
+            >
               <el-icon><Plus /></el-icon>
             </el-upload>
             <el-dialog v-model="state.dialogImageVisible">
@@ -422,7 +444,13 @@ onMounted(async () => {
           <el-input v-model="state.form_user.name" />
         </el-form-item>
         <el-form-item label="地区" prop="location">
-          <el-cascader v-model="state.userLocation" placeholder="请选择所在地区" :options="provinceAndCityData" @change="handleCascadarChange($event, 0)"> </el-cascader>
+          <el-cascader
+            v-model="state.userLocation"
+            placeholder="请选择所在地区"
+            :options="provinceAndCityData"
+            @change="handleCascadarChange($event, 0)"
+          >
+          </el-cascader>
         </el-form-item>
         <el-form-item label="性别">
           <el-radio-group v-model="state.form_user.sex">
