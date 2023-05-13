@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-12-04 10:12:34
- * @LastEditTime: 2023-04-25 14:26:12
+ * @LastEditTime: 2023-05-13 10:46:46
 -->
 <script setup>
 import { computed, onMounted, reactive } from "vue-demi";
@@ -20,6 +20,7 @@ const state = reactive({
   pageNo: 1,
   limit: 10,
   infiniteScroll: false,
+  isEmpty: false,
 });
 
 /** 关注 */
@@ -66,16 +67,9 @@ const getUserList = async () => {
   state.pageNo++;
 };
 
-const isEmpty = computed(() => {
-  return state.userList.length == 0;
-});
-
 onMounted(async () => {
-  try {
-    await getUserList();
-  } catch (error) {
-    ElMessage.error(error.message);
-  }
+  await getUserList();
+  if (state.userList.length == 0) state.isEmpty = true;
 });
 </script>
 
