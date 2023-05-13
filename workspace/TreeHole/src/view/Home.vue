@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-14 18:57:18
- * @LastEditTime: 2023-04-26 17:54:19
+ * @LastEditTime: 2023-05-13 09:46:27
 -->
 <script setup>
 import { onMounted, reactive, onBeforeUnmount } from "vue-demi";
@@ -12,7 +12,7 @@ import eventBus from "../lib/eventBus";
 import request from "../api/request";
 import api from "../api";
 
-const navMenu = ["recommend", "area"];
+const navMenu = ["recommend", "area", "search"];
 const state = reactive({
   user: local.getItem("user") || {},
   /** 当前导航 */
@@ -37,6 +37,14 @@ const state = reactive({
     content: [],
     infiniteScroll: false,
   },
+  /** 搜索 */
+  search: {
+    pageNo: 1,
+    limit: 16,
+    content: [],
+    infiniteScroll: false,
+  },
+  searchContent: "",
   isLoader: true,
   isShow: false,
 });
@@ -46,6 +54,14 @@ const switchNav = (target) => {
   /** 缓存 */
   state.current = target;
   local.setItem("current_home", target);
+  if (target == 2) {
+    state.search = {
+      pageNo: 1,
+      limit: 16,
+      content: [],
+      infiniteScroll: false,
+    };
+  }
   state.currentList = state[navMenu[target]];
   /** 首次特判 */
   if (state.currentList.content.length == 0) {
@@ -57,9 +73,15 @@ const switchNav = (target) => {
   }
 };
 
+/** 搜索 */
+const search = (searchContent) => {
+  state.searchContent = searchContent;
+  switchNav(2);
+};
+
 /** 获取树列表 */
 const getCurrentList = async () => {
-  const { current, user } = state;
+  const { current, user, searchContent } = state;
 
   /** 定位当前集合 */
   const { pageNo, limit } = state.currentList;
@@ -67,7 +89,8 @@ const getCurrentList = async () => {
   let data = null;
   // recommend 和 area 唯一区分
   if (current == 0) data = await request.post(api.tree.getRecommendTreeList, { userID: user._id, pageNo, limit });
-  else data = await request.post(api.tree.getAreaTreeList, { area: state.user.location.split("-")[1], pageNo, limit });
+  else if (current == 1) data = await request.post(api.tree.getAreaTreeList, { area: state.user.location.split("-")[1], pageNo, limit });
+  else data = await request.post(api.tree.getTreeList, { type: searchContent, pageNo, limit });
 
   /** 更新缓存 */
   state.currentList.content.push(...data.list);
@@ -78,6 +101,7 @@ const getCurrentList = async () => {
 };
 
 eventBus.on("switchNav", switchNav);
+eventBus.on("search", search);
 
 onMounted(async () => {
   switchNav(state.current);
@@ -86,11 +110,18 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   eventBus.off("switchNav", switchNav);
+  eventBus.off("search", search);
 });
 </script>
 
 <template>
-  <div class="container scroll" v-if="state.isShow" v-infinite-scroll="getCurrentList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.currentList.infiniteScroll">
+  <div
+    class="container scroll"
+    v-if="state.isShow"
+    v-infinite-scroll="getCurrentList"
+    infinite-scroll-immediate="false"
+    :infinite-scroll-disabled="state.currentList.infiniteScroll"
+  >
     <Loader class="center" v-if="state.isLoader"></Loader>
     <el-empty class="center" v-else-if="state.currentList.content.length == 0" description="这里没有数据了~"></el-empty>
     <Card v-else v-for="item in state.currentList.content" :key="item._id" :tree="item" />
