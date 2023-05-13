@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2022-11-12 09:29:52
- * @LastEditTime: 2023-04-12 12:05:57
+ * @LastEditTime: 2023-05-13 22:21:56
  */
 const { Order, User, Tree, Record } = require("../model");
 const { result, err } = require("../util");
@@ -183,7 +183,13 @@ const dataAnalysis = async (req, res, next) => {
     let startTime = new Date(endTime.getTime() - 24 * 60 * 60 * 10 * 1000);
 
     /** 查询 */
-    const data = await Promise.all([User.count(), Tree.count(), Order.count(), Order.find({ time: { $gte: startTime, $lte: endTime } }), Tree.find().sort({ _id: -1 }).limit(100)]);
+    const data = await Promise.all([
+      User.count(),
+      Tree.count(),
+      Order.count(),
+      Order.find({ time: { $gte: startTime, $lte: endTime } }),
+      Tree.find().sort({ _id: -1 }).limit(100),
+    ]);
 
     const orders = data[3];
     const trees = data[4];
@@ -207,6 +213,7 @@ const dataAnalysis = async (req, res, next) => {
 
     /** map 转换 array  */
     popularType = Array.from(popularType, ([key, value]) => ({ name: key, value }));
+    popularType = popularType.sort((a, b) => b.value - a.value).slice(0, 9);
 
     res.send(result(200, { userCount: data[0], treeCount: data[1], orderCount: data[2], weeklyVolume, popularType }, "ok"));
   } catch (e) {
