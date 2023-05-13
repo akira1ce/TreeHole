@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-12-04 10:12:34
- * @LastEditTime: 2023-05-13 10:46:46
+ * @LastEditTime: 2023-05-13 22:12:03
 -->
 <script setup>
 import { computed, onMounted, reactive } from "vue-demi";
@@ -76,7 +76,7 @@ onMounted(async () => {
 <template>
   <div class="container scroll" v-infinite-scroll="getUserList" infinite-scroll-immediate="false" :infinite-scroll-disabled="state.infiniteScroll">
     <h1 class="container__title">{{ state.mode == 0 ? "关注列表 👀" : "粉丝列表 😍" }}</h1>
-    <el-empty class="center" v-if="isEmpty" description="今天也是寂寞的一天~"></el-empty>
+    <el-empty class="center" v-if="state.isEmpty" description="今天也是寂寞的一天~"></el-empty>
     <!-- 关注列表 -->
     <div class="container__list" v-if="state.mode == 0">
       <div class="list__item" v-for="item in state.userList">
