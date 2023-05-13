@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-22 13:55:42
- * @LastEditTime: 2023-03-22 14:14:31
+ * @LastEditTime: 2023-05-13 15:20:33
 -->
 <script lang="ts" setup>
 import { onMounted, ref } from "vue"
@@ -126,8 +126,8 @@ onMounted(async () => {
       </el-card>
     </div>
     <div class="container__main">
-      <div class="main__lineEchart" ref="lineEchart" style="width: 70%; height: 600px"></div>
-      <div class="main__pieEchart" ref="pieEchart" style="width: 30%; height: 600px"></div>
+      <div class="main__lineEchart" ref="lineEchart" style="width: 60%; height: 600px"></div>
+      <div class="main__pieEchart" ref="pieEchart" style="width: 40%; height: 600px"></div>
     </div>
   </div>
 </template>
