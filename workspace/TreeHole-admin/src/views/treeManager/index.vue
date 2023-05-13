@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-23 15:08:04
- * @LastEditTime: 2023-04-08 14:38:34
+ * @LastEditTime: 2023-05-13 15:19:25
 -->
 <script lang="ts" setup>
 import { reactive, ref, watch, onMounted } from "vue"
@@ -288,7 +288,7 @@ onMounted(async () => {
           <el-table-column prop="imgs" label="苗木图片" align="center">
             <template #default="scope">
               <el-image
-                style="height: 65px"
+                style="height: 65px;aspect-ratio: 1.74;"
                 :src="scope.row.imgs[0]?.url || 'https://s2.loli.net/2023/02/25/Gdm9sxjTYKDg8t3.png'"
                 fit="cover"
               />
