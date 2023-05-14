@@ -6,7 +6,7 @@ import { Search, Refresh, CirclePlus, Delete, Download, RefreshRight } from "@el
 import { usePagination } from "@/hooks/usePagination"
 import { GetUserApi, ModifyUserApi, AddUserApi, RemoveUserApi } from "@/api/user"
 import { IUser } from "@/api/user/types/user"
-import { provinceAndCityData, CodeToText } from "element-china-area-data"
+import { provinceAndCityData, CodeToText, TextToCode } from "element-china-area-data"
 
 const loading = ref<boolean>(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
@@ -14,7 +14,6 @@ const { paginationData, handleCurrentChange, handleSizeChange } = usePagination(
 //#region 增
 const dialogVisible = ref<boolean>(false)
 const formRef = ref<FormInstance | null>(null)
-const cascaderData = ref<number[]>([])
 const formData = reactive<IUser>({
   account: "",
   password: "",
@@ -61,7 +60,7 @@ const resetForm = () => {
   formData.role = "0"
   formData.sex = "1"
   formData.status = "1"
-  cascaderData.value.length = 0
+  location.value = []
 }
 //#endregion
 
@@ -81,7 +80,10 @@ const handleDelete = (row: any) => {
 
 //#region 改
 const currentUpdateId = ref<undefined | string>(undefined)
+const location = ref<number[]>([])
 const handleUpdate = (row: any) => {
+  const loc = row.location.split("-")
+  location.value = [TextToCode[loc[0]].code, TextToCode[loc[0]][loc[1]].code]
   currentUpdateId.value = row._id
   Object.keys(formData).forEach((key) => (formData[key] = row[key]))
   dialogVisible.value = true
@@ -208,17 +210,22 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
     >
       <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px" label-position="left">
         <el-form-item prop="account" label="账号">
-          <el-input v-model="formData.account" placeholder="请输入账号" />
+          <el-input v-model="formData.account" placeholder="请输入账号" :disabled="currentUpdateId !== undefined" />
         </el-form-item>
         <el-form-item prop="password" label="密码">
-          <el-input v-model="formData.password" placeholder="请输入密码" type="password" />
+          <el-input
+            v-model="formData.password"
+            placeholder="请输入密码"
+            type="password"
+            :disabled="currentUpdateId !== undefined"
+          />
         </el-form-item>
         <el-form-item prop="name" label="用户名">
           <el-input v-model="formData.name" placeholder="请输入用户名" />
         </el-form-item>
         <el-form-item prop="location" label="地区">
           <el-cascader
-            v-model="cascaderData"
+            v-model="location"
             placeholder="请选择所在地区"
             :options="provinceAndCityData"
             @change="handleCascadarChange"
