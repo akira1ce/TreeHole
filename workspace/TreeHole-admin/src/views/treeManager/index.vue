@@ -161,10 +161,10 @@ const dialogImageUrl = ref<undefined | string>(undefined)
 const fileList = ref<UploadUserFile[]>([])
 
 const handleUpdate = (row: any) => {
-  // if (row.status > "0") {
-  //   ElMessage.error("苗木正在交易中")
-  //   return
-  // }
+  if (row.status > "0") {
+    ElMessage.error("苗木正在交易中")
+    return
+  }
   const loc = row.location.split("-")
   location.value = [TextToCode[loc[0]].code, TextToCode[loc[0]][loc[1]].code, TextToCode[loc[0]][loc[1]][loc[2]].code]
   currentUpdateId.value = row._id
