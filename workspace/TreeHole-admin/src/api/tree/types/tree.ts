@@ -1,7 +1,7 @@
 /*
  * @Author: Akira
  * @Date: 2023-02-25 12:50:41
- * @LastEditTime: 2023-02-27 15:37:43
+ * @LastEditTime: 2023-05-14 15:20:39
  */
 
 import { IUser } from "@/api/user/types/user"
@@ -28,6 +28,7 @@ export interface ITree {
   title: string
   status: string
   hci: number
+  count: number
   __v?: number
   /** 索引 */
   [index: string]: any

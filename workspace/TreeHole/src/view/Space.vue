@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2022-11-16 16:41:23
- * @LastEditTime: 2023-05-12 17:22:46
+ * @LastEditTime: 2023-05-14 15:15:53
 -->
 <script setup>
 import { regionData, provinceAndCityData, CodeToText, TextToCode } from "element-china-area-data";
@@ -406,6 +406,9 @@ onMounted(async () => {
           </el-form-item>
           <el-form-item label="直径(cm)" prop="diameter">
             <el-input v-model="state.form_tree.diameter" />
+          </el-form-item>
+          <el-form-item label="直径(cm)" prop="diameter">
+            <el-input-number v-model="state.form_tree.count" :min="1" />
           </el-form-item>
           <el-form-item label="图片" prop="imgs">
             <el-upload

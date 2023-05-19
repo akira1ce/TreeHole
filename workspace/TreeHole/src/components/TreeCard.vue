@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-07 23:43:35
- * @LastEditTime: 2023-04-25 14:14:53
+ * @LastEditTime: 2023-05-14 15:16:32
 -->
 <script setup>
 import useClipboard from "vue-clipboard3";
@@ -119,6 +119,11 @@ onMounted(async () => {
         <div class="info__item">
           <div class="item__key">分支点</div>
           <div class="item__value">{{ tree.branchPoint }}</div>
+        </div>
+        <span class="item-split"></span>
+        <div class="info__item">
+          <div class="item__key">数量</div>
+          <div class="item__value">{{ tree.count }}</div>
         </div>
       </div>
       <!-- 树-图片 -->
@@ -242,6 +247,7 @@ onMounted(async () => {
         .flex__column();
         height: 40px;
         justify-content: space-between;
+        align-items: center;
         font-size: 15px;
         cursor: pointer;
         .item__key {

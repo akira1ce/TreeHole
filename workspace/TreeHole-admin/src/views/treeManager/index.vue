@@ -1,7 +1,7 @@
 <!--
  * @Author: Akira
  * @Date: 2023-02-23 15:08:04
- * @LastEditTime: 2023-05-13 15:19:25
+ * @LastEditTime: 2023-05-14 15:23:34
 -->
 <script lang="ts" setup>
 import { reactive, ref, watch, onMounted } from "vue"
@@ -36,7 +36,8 @@ const tree: ITree = {
   time: undefined,
   title: "",
   status: "0",
-  hci: 0
+  hci: 0,
+  count: 1
 }
 
 /** 分页用户列表 */
@@ -288,7 +289,7 @@ onMounted(async () => {
           <el-table-column prop="imgs" label="苗木图片" align="center">
             <template #default="scope">
               <el-image
-                style="height: 65px;aspect-ratio: 1.74;"
+                style="height: 65px; aspect-ratio: 1.74"
                 :src="scope.row.imgs[0]?.url || 'https://s2.loli.net/2023/02/25/Gdm9sxjTYKDg8t3.png'"
                 fit="cover"
               />
@@ -306,6 +307,7 @@ onMounted(async () => {
           <el-table-column prop="branchPoint" label="分支点" align="center" />
           <el-table-column prop="location" label="地区" align="center" width="200px" />
           <el-table-column prop="price" label="价格" align="center" />
+          <el-table-column prop="count" label="数量" align="center" />
           <el-table-column prop="time" label="创建时间" align="center" width="180px" />
           <el-table-column prop="status" label="状态" align="center">
             <template #default="scope">
@@ -388,6 +390,9 @@ onMounted(async () => {
         </el-form-item>
         <el-form-item prop="price" label="价格">
           <el-input v-model="formData.price" placeholder="请输入价格" />
+        </el-form-item>
+        <el-form-item prop="count" label="数量">
+          <el-input-number v-model="formData.count" :min="1" />
         </el-form-item>
         <el-form-item prop="imgs" label="图片">
           <el-upload

@@ -74,5 +74,10 @@ const treeSchema = new mongoose.Schema({
     required: false,
     default: [],
   },
+  count: {
+    type: Types.Number,
+    require: false,
+    default: 1,
+  },
 });
 module.exports = treeSchema;

@@ -32,6 +32,7 @@ export default {
     state: "-1",
     time: "",
     title: "",
+    count: 1,
   },
   order: {
     _id: "",
