@@ -1,20 +1,15 @@
 import { IntlShape } from 'react-intl';
 
 /**
- * getLocalMap
+ * 重载 FormatMessage
  * @param intl intl 实例
  * @param localConfig 国际化配置
- * @returns 
+ * @returns formatMsg(id, defaultMessage)
+ * @description 通过 localConfig 约束 id
  */
-function getLocalMap<T>(intl: IntlShape, localConfig: T) {
-  const localmap: T = {};
-  const localKeys = Object.keys(localConfig);
-
-  localKeys.map((item) => {
-    localmap[item] = intl.formatMessage({ id: item, defaultMessage: 'undefined' });
-  });
-
-  return localmap;
+function overLoadFormatMessage<T>(intl: IntlShape, localConfig: T) {
+  return function (id: keyof T & (string | number), defaultMessage: string) {
+    return intl.formatMessage({ id, defaultMessage });
+  };
 }
-
-export default getLocalMap;
+export default overLoadFormatMessage;

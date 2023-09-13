@@ -2,13 +2,13 @@ import { colors, drawerPlacement, drawerTitles, roles } from '@/constants';
 import userManage from '@/locales/en-US/userManage';
 import { IUser, IUserActionType } from '@/models/user/types';
 import { IGetUserListParams, IRemoveByIdParams } from '@/services/user';
-import getLocalMap from '@/utils/getLocalMap';
+import overLoadFormatMessage from '@/utils/getLocalMap';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import { Button, Drawer, Form, Input, Space, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
-import { connect, FormattedMessage, useIntl } from 'umi';
+import { connect, useIntl } from 'umi';
 import UserForm from './components/UserForm';
 import { IHomePorps } from './types';
 
@@ -29,26 +29,26 @@ const HomePage: React.FC<IHomePorps> = ({ user, dispatch }) => {
     name: '',
   });
 
-  const localMap = getLocalMap(intl, userManage);
+  const formatMsg = overLoadFormatMessage(intl, userManage);
 
   const columns: ColumnsType<IUser> = [
     {
-      title: localMap['userManage.account'],
+      title: formatMsg('userManage.account', '账号'),
       dataIndex: 'account',
       key: 'account',
     },
     {
-      title: intl.formatMessage({ id: 'userManage.location' }),
+      title: formatMsg('userManage.location', '地区'),
       dataIndex: 'location',
       key: 'location',
     },
     {
-      title: intl.formatMessage({ id: 'userManage.name' }),
+      title: formatMsg('userManage.name', '用户名'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: intl.formatMessage({ id: 'userManage.role' }),
+      title: formatMsg('userManage.role', '角色'),
       dataIndex: 'role',
       key: 'role',
       render: (_, { role }) => {
@@ -56,7 +56,7 @@ const HomePage: React.FC<IHomePorps> = ({ user, dispatch }) => {
       },
     },
     {
-      title: intl.formatMessage({ id: 'userManage.status' }),
+      title: formatMsg('userManage.status', '状态'),
       dataIndex: 'status',
       key: 'status',
       render(_, { status }) {
@@ -65,7 +65,7 @@ const HomePage: React.FC<IHomePorps> = ({ user, dispatch }) => {
       },
     },
     {
-      title: intl.formatMessage({ id: 'userManage.oprator' }),
+      title: formatMsg('userManage.oprator', '操作'),
       dataIndex: 'handle',
       align: 'center',
       width: 200,
@@ -190,11 +190,15 @@ const HomePage: React.FC<IHomePorps> = ({ user, dispatch }) => {
         open={drawerOpen}
         footer={
           <Space>
-            <Button onClick={() => {}}>
-              <FormattedMessage id="userManage.reset" />
+            <Button
+              onClick={() => {
+                form.resetFields();
+              }}
+            >
+              {formatMsg('userManage.reset', '重置')}
             </Button>
             <Button type="primary" onClick={handleSave}>
-              <FormattedMessage id="userManage.save" />
+              {formatMsg('userManage.save', '保存')}
             </Button>
           </Space>
         }
@@ -208,7 +212,7 @@ const HomePage: React.FC<IHomePorps> = ({ user, dispatch }) => {
           {/* search */}
           <Input placeholder="input name" allowClear onChange={handleSearchChange} />
           <Button type="primary" onClick={handleSearch}>
-            <FormattedMessage id="userManage.search" />
+            {formatMsg('userManage.search', '搜索')}
           </Button>
           {/* add */}
           <Button
@@ -217,7 +221,7 @@ const HomePage: React.FC<IHomePorps> = ({ user, dispatch }) => {
               handleDrawer(true, 1);
             }}
           >
-            <FormattedMessage id="userManage.add" />
+            {formatMsg('userManage.add', '添加')}
           </Button>
         </Space>
         {/* table */}
