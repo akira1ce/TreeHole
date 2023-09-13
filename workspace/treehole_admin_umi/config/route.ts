@@ -1,25 +1,27 @@
 import { defineConfig } from '@umijs/max';
 
-export default defineConfig({
+const routeConfig = defineConfig({
   routes: [
     {
       path: '/',
-      redirect: '/home',
+      redirect: '/UserManage',
     },
     {
-      name: '首页',
-      path: '/home',
-      component: './Home',
+      name: 'UserManage',
+      path: '/UserManage',
+      component: './UserManage',
     },
     {
-      name: '权限演示',
+      name: 'Access',
       path: '/access',
       component: './Access',
     },
     {
-      name: ' CRUD 示例',
-      path: '/table',
-      component: './Table',
+      name: 'EatWhat',
+      path: '/eatwhat',
+      component: './EatWhat',
     },
   ],
 });
+
+export default routeConfig;

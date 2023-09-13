@@ -1,4 +1,5 @@
 import { defineConfig } from '@umijs/max';
+import routeConfig from './config/route';
 
 export default defineConfig({
   antd: {},
@@ -21,26 +22,6 @@ export default defineConfig({
       pathRewrite: { '^/api': '' },
     },
   },
-  routes: [
-    {
-      path: '/',
-      redirect: '/UserManage',
-    },
-    {
-      name: 'UserManage',
-      path: '/UserManage',
-      component: './UserManage',
-    },
-    {
-      name: 'Access',
-      path: '/access',
-      component: './Access',
-    },
-    {
-      name: 'EatWhat',
-      path: '/eatwhat',
-      component: './EatWhat',
-    },
-  ],
+  routes: routeConfig.routes,
   npmClient: 'yarn',
 });
