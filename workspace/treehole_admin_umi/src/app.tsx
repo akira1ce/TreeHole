@@ -10,9 +10,17 @@ export const layout: RunTimeLayoutConfig = () => {
   return {
     logo: 'https://img.alicdn.com/tfs/TB1YHEpwUT1gK0jSZFhXXaAtVXa-28-27.svg',
     menu: {
-      locale: true,
+      locale: false,
     },
+    // layout: 'mix',
     layout: 'mix',
+    token: {
+      pageContainer: {
+        paddingBlockPageContainerContent: 0,
+        paddingInlinePageContainerContent: 0,
+      },
+    },
+    splitMenus: false,
     rightRender: () => <Header />,
   };
 };

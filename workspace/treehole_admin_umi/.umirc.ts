@@ -13,7 +13,7 @@ export default defineConfig({
     useLocalStorage: true,
   },
   layout: {
-    title: 'TreeHole-Admin',
+    title: 'ChatOps平台',
   },
   proxy: {
     '/api': {

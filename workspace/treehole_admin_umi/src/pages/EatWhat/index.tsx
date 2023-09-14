@@ -1,7 +1,6 @@
 import { getRandomInteger } from '@/utils/getRandomInteger';
 import { Button, Row, Space, Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { FormattedMessage } from 'umi';
 import MenusModal from './components/MenusModal';
 import style from './index.less';
 

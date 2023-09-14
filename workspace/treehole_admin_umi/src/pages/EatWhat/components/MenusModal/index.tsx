@@ -44,7 +44,7 @@ const MenusModal: React.FC<IMenusModal> = ({ menus, handleUpdateMenus, isOpen })
     setInputValue('');
   };
 
-  const forMap = (tag: string) => {
+  const tagChild = menus.map((tag: string) => {
     const tagElem = (
       <Tag
         closable
@@ -61,9 +61,7 @@ const MenusModal: React.FC<IMenusModal> = ({ menus, handleUpdateMenus, isOpen })
         {tagElem}
       </span>
     );
-  };
-
-  const tagChild = menus.map(forMap);
+  });
 
   useEffect(() => {
     if (inputVisible) {
