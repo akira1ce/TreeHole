@@ -32,6 +32,7 @@ const ChatMain: React.FC<IChatMainProps> = () => {
       key: '5',
       label: '紧急变更',
       children: '',
+      disabled: true,
     },
     {
       key: '6',
@@ -39,6 +40,40 @@ const ChatMain: React.FC<IChatMainProps> = () => {
       children: '',
     },
   ];
+
+  const [caseInfo, setCaseInfo] = useState([
+    {
+      title: '信息概览',
+      items: [
+        { itemTitle: '报障工单', itemContent: 'ST-20230903-0098N3' },
+        { itemTitle: '故障系统/应用管理员', itemContent: '张程工程师  /  郑悦架构师' },
+        { itemTitle: '关联应用', itemContent: '手机银行  /  理财APP  /  信用卡中心  /  证券交易平台' },
+      ],
+    },
+    {
+      title: '关键排查信息汇总',
+      items: [
+        { itemTitle: '管理员1', itemContent: '业务虚机连通性异常' },
+        { itemTitle: '管理员2', itemContent: '网关交换机MAC地址冲突' },
+      ],
+    },
+    {
+      title: '排查结论',
+      items: [
+        { itemTitle: '管理员1', itemContent: '张伟杰(应用管理员)' },
+        { itemTitle: '管理员2', itemContent: '李明洋(应用管理员)' },
+      ],
+    },
+    {
+      title: '排查过程',
+      items: [
+        { itemTitle: '报障工单', itemContent: 'ST-20230903-0098N3' },
+        { itemTitle: '故障系统/应用管理员', itemContent: '张红工程师  /  郑奇架构师' },
+        { itemTitle: '关联应用', itemContent: '手机银行  /  理财APP  /  信用卡中心  /  证券交易平台' },
+      ],
+      content: '过程文本记录',
+    },
+  ]);
 
   const [chatTabIndex, setChatTabIndex] = useState(1);
 
@@ -53,11 +88,11 @@ const ChatMain: React.FC<IChatMainProps> = () => {
         <div className="chatMain__ChatTabs">
           <Tabs defaultActiveKey="1" items={items} onChange={onChange} size="small"></Tabs>
         </div>
-        {chatTabIndex == 1 && <Case key={1} />}
-        {chatTabIndex == 2 && <Chat mode={1} key={2} />}
-        {chatTabIndex == 3 && <ChatRecord key={3} />}
-        {chatTabIndex == 4 && <Chat mode={2} key={4} />}
-        {chatTabIndex == 6 && <Case key={5} />}
+        {chatTabIndex == 1 && <Case caseInfo={caseInfo.slice(0, 2)} />}
+        {chatTabIndex == 2 && <Chat mode={1} />}
+        {chatTabIndex == 3 && <ChatRecord />}
+        {chatTabIndex == 4 && <Chat mode={2} />}
+        {chatTabIndex == 6 && <Case caseInfo={caseInfo} />}
       </div>
     </>
   );

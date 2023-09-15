@@ -8,12 +8,28 @@ import './index.less';
 
 const avatats = [bot, admin1, admin2, admin3, admin1, admin2];
 
+interface IContextItem {
+  type: number;
+  data: {
+    text?: string;
+    columns?: undefined;
+    dataSource?: undefined;
+  };
+}
+
+interface IChatRecord {
+  time: number;
+  userID: number;
+  userName: string;
+  context: IContextItem[];
+}
+
 const ChatRecord: React.FC = () => {
-  const chatRecord = JSON.parse(localStorage.getItem('chatRecord') || '[]');
+  const chatRecord: IChatRecord[] = JSON.parse(localStorage.getItem('chatRecord') || '[]');
   return (
     <>
       <div className="chatRecord">
-        {chatRecord.map((item: any, index: number) => (
+        {chatRecord.map((item, index) => (
           <div
             className="chatRecord__item"
             key={item.time}
@@ -28,13 +44,13 @@ const ChatRecord: React.FC = () => {
                 <div className="info__infoGroup__time">{new Date(item.time).toLocaleString()}</div>
               </div>
               <div className="info__context">
-                {item.context.map((item) => (
-                  <>
+                {item.context.map((item, index) => (
+                  <div key={index}>
                     {item.type == 0 && <div>{item.data.text}</div>}
                     {item.type == 1 && (
                       <Table columns={item.data.columns} dataSource={item.data.dataSource} pagination={{ hideOnSinglePage: true }} />
                     )}
-                  </>
+                  </div>
                 ))}
               </div>
             </div>
