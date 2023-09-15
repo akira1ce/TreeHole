@@ -92,25 +92,25 @@ export const CHATRECORD = [
     ],
   },
   {
-    time: 1694677239491,
+    time: 1694677239445,
     userID: 1,
     userName: '张伟杰(应用管理员)',
     context: [{ type: 0, data: { text: '我这边看了下应用日志，有大量的重传，ping核心账务系统丢包比较多' } }],
   },
   {
-    time: 1694677239591,
+    time: 1694677239455,
     userID: 2,
     userName: '李明洋(应用管理员)',
     context: [{ type: 0, data: { text: '我这边也是差不多情况，昨天晚上8点-10点业务高峰的时候，就有一些交易失败，后来恢复了。' } }],
   },
   {
-    time: 1694677239791,
+    time: 1694677239465,
     userID: 3,
     userName: '王瑞琪(网络管理员)',
     context: [{ type: 0, data: { text: '好，我来检查下流量路径的设备情况' } }],
   },
   {
-    time: 1694677249491,
+    time: 1694677239475,
     userID: 4,
     userName: '陈宇轩(网络二线支持)',
     context: [
@@ -123,13 +123,13 @@ export const CHATRECORD = [
     ],
   },
   {
-    time: 1694677239491,
+    time: 1694677239485,
     userID: 3,
     userName: '王瑞琪(网络管理员)',
     context: [{ type: 0, data: { text: '收到' } }],
   },
   {
-    time: 1694677239491,
+    time: 1694677239495,
     userID: 5,
     userName: '刘娟（网络管理员）',
     context: [{ type: 0, data: { text: '我查下平台故障记录，那次是板卡问题，我来跑一次硬件状态检查任务' } }],
@@ -137,9 +137,9 @@ export const CHATRECORD = [
 ];
 
 export const DEVICECHATRECORD = [
-  { time: 1694677289791, userID: 3, userName: '王瑞琪(网络管理员)', context: [{ type: 0, data: { text: '172.16.20.73这台设备有UP的接口么' } }] },
+  { time: 1694677239495, userID: 3, userName: '王瑞琪(网络管理员)', context: [{ type: 0, data: { text: '172.16.20.73这台设备有UP的接口么' } }] },
   {
-    time: 1694677289992,
+    time: 1694677239505,
     userID: 0,
     userName: 'newBot',
     context: [
@@ -187,9 +187,9 @@ export const DEVICECHATRECORD = [
       },
     ],
   },
-  { time: 1694677289891, userID: 3, userName: '王瑞琪(网络管理员)', context: [{ type: 0, data: { text: '列举一下172.16.20.73这台设备的BGP状态' } }] },
+  { time: 1694677239515, userID: 3, userName: '王瑞琪(网络管理员)', context: [{ type: 0, data: { text: '列举一下172.16.20.73这台设备的BGP状态' } }] },
   {
-    time: 1694677289911,
+    time: 1694677239525,
     userID: 0,
     userName: 'newBot',
     context: [
@@ -247,7 +247,7 @@ export const DEVICECHATRECORD = [
               bgpCount: '23',
             },
             {
-              key: '1',
+              key: '2',
               deviceName: 'XX-Core-Edge-SW1',
               deviceIp: '172.16.20.73',
               bgpAs: '65001',
@@ -257,7 +257,7 @@ export const DEVICECHATRECORD = [
               bgpCount: '117',
             },
             {
-              key: '1',
+              key: '3',
               deviceName: 'XX-Core-Edge-SW1',
               deviceIp: '172.16.20.73',
               bgpAs: '65001',
