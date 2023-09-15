@@ -40,7 +40,7 @@ const ChatMain: React.FC<IChatMainProps> = () => {
     },
   ];
 
-  const [chatTabIndex, setChatTabIndex] = useState(0);
+  const [chatTabIndex, setChatTabIndex] = useState(1);
 
   function onChange(key: string) {
     setChatTabIndex(Number(key));
@@ -53,11 +53,11 @@ const ChatMain: React.FC<IChatMainProps> = () => {
         <div className="chatMain__ChatTabs">
           <Tabs defaultActiveKey="1" items={items} onChange={onChange} size="small"></Tabs>
         </div>
-        {chatTabIndex == 1 && <Case />}
-        {chatTabIndex == 2 && <Chat mode={1} />}
-        {chatTabIndex == 3 && <ChatRecord />}
-        {chatTabIndex == 4 && <Chat mode={2} />}
-        {chatTabIndex == 6 && <Case />}
+        {chatTabIndex == 1 && <Case key={1} />}
+        {chatTabIndex == 2 && <Chat mode={1} key={2} />}
+        {chatTabIndex == 3 && <ChatRecord key={3} />}
+        {chatTabIndex == 4 && <Chat mode={2} key={4} />}
+        {chatTabIndex == 6 && <Case key={5} />}
       </div>
     </>
   );
